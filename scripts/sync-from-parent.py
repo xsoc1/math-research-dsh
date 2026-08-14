@@ -393,6 +393,20 @@ def run_check(upstream: Path) -> int:
             cur = current.get(rel)
             if exp != cur:
                 problems.append(f"drift in {rel}")
+                print(f"  drift detail {rel}: expected={exp} current={cur}")
+                exp_path = tmp_root / rel
+                cur_path = REPO / "skills" / rel
+                if exp_path.is_file() and cur_path.is_file():
+                    exp_lines = normalize(exp_path.read_bytes()).decode("utf-8", "replace").splitlines()
+                    cur_lines = normalize(cur_path.read_bytes()).decode("utf-8", "replace").splitlines()
+                    if len(exp_lines) != len(cur_lines):
+                        print(f"    line count: expected={len(exp_lines)} current={len(cur_lines)}")
+                    for idx, (a, b) in enumerate(zip(exp_lines, cur_lines)):
+                        if a != b:
+                            print(f"    first diff at line {idx + 1}:")
+                            print(f"      expected: {a[:160]!r}")
+                            print(f"      current:  {b[:160]!r}")
+                            break
     if problems:
         print("FAIL: sync check found drift:")
         for line in problems:
