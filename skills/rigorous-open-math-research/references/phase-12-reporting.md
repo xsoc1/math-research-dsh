@@ -28,6 +28,7 @@ It is legitimate to stop a run when:
 - all active routes are blocked or refuted;
 - the remaining work requires unavailable expertise, data, software, or formal libraries;
 - further sampling is producing only correlated duplicates;
+- consecutive zero-gain rounds on every active branch (record the last marginal-gain witness per branch, per the Phase 5 rule);
 - a decisive ambiguity in the problem cannot be resolved.
 
 Stopping does not permit pretending success. Return the strongest rigorously supported result and the exact remaining gap.

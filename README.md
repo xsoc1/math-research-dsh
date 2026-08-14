@@ -110,6 +110,23 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 | goal 工具 | 多轮目标用 create_goal/get_goal/update_goal 跟踪 |
 | Windows 环境 | PYTHONUTF8=1, python 全路径, 避免一行 -c (写临时 .py) |
 
+## 社区方法蒸馏 (2026-08-14)
+
+从开源 DSH 生态吸收并蒸馏进本插件的方法 (纯增量, 不改动已有内容):
+
+| 来源 | 蒸馏内容 | 落点 |
+|---|---|---|
+| [dsh-deep-research](https://github.com/omdsh-dev/dsh-deep-research) | 答案空间与验收标准前置; 覆盖维度枚举 + coverage_gaps 定向侦察; 边际信息增益停止规则 + 证据三态 confirmed/uncertain/gaps | rigorous phase-01/23/45/12 |
+| [dsh-agent-teams](https://github.com/NanmiCoder/dsh-agent-teams) | 任务依赖声明 + 波次执行 (拓扑分层, 环回退) | workflow 模板 v2 |
+| [dsh-multiagent-modes](https://github.com/y08lin4/dsh-multiagent-modes) | 分级回报格式 (汇总→JSON / 阅读→结构化 md / 单一结论→1-3 行+依据+风险); 模型分层 | dsh-execution.md + 模板 v2 |
+| [dsh-agent-presets 队长模式](https://github.com/MoreChanger/dsh-agent-presets) | 角色 roster 数据化 (args.roles 注入, 加角色不改模板) | workflow 模板 v2 |
+| [dsh_workflow](https://github.com/icetomoyo/dsh_workflow) | workflow 资产化: manifest 头部 (intent/inputs/provenance/limits) | workflow 模板 v2 |
+| [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | 上下文注入审计: 指令链 64KB 截断标记 / 技能体积 / 重复段落 / 名字遮蔽 | `scripts/context-audit.py` |
+| 观察中: [jacobian](https://github.com/morluto/jacobian) (数学内核) / [dsh-automation](https://github.com/titanwings/dsh-automation) (定时任务) | 待真实痛点出现再集成 | — |
+
+许可证注意: 全部为方法级借鉴 (自撰措辞), 未复制任何仓库文字; 其中
+dsh-multiagent-modes 为 CC BY-SA 4.0, 若未来直接引用其文字需同样开源署名.
+
 ## 校验
 
 ```powershell

@@ -36,6 +36,8 @@ Write `problem_contract.md` with this schema:
 - independence or inconsistency result, when logically relevant
 
 ## Completion criteria
+## Answer space (what decision or judgment the result must support)
+## Acceptance criteria per subproblem (when a subproblem is done)
 ## Results that do not count as completion
 ## Tool, citation, and search constraints
 ## Ambiguities or competing interpretations
@@ -45,5 +47,7 @@ Write `problem_contract.md` with this schema:
 For an open conjecture, do not assume an affirmative proof exists by default. Preserve both proof and disproof routes unless a trusted benchmark guarantees polarity. If the wording is ambiguous, either obtain clarification or analyze each materially different interpretation separately.
 
 Assign a second role or pass to audit the contract against the source. A proof of the wrong contract is not progress on the original problem.
+
+Fix the answer space before searching: the contract must state which decision or judgment the result is supposed to support (`scope`), and every subproblem must carry acceptance criteria that decide when it is done. A search that does not know what its result must support wastes every round. (Inspired by dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research.)
 
 When a canonical knowledge base exists, freeze these fields on the `research_goal` record and mirror them in `problem_contract.md`: `contract_version`, `quantifier_contract`, explicit `boundary_cases`, `completion_criteria`, `non_completion_conditions`, `permitted_outcomes`, and `tool_constraints`. A statement or completion-contract change requires a new goal or claim version with an explicit supersession relation; never mutate a frozen statement in place.

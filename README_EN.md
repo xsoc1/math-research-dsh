@@ -125,6 +125,24 @@ bundle's `references/dsh-execution.md` and runtime notes):
 | goal tools | multi-round objectives tracked with create_goal / get_goal / update_goal |
 | Windows environment | PYTHONUTF8=1, full python path, avoid one-line -c (write a temp .py) |
 
+## Distilled community methods (2026-08-14)
+
+Methods absorbed from the open-source DSH ecosystem into this plugin
+(incremental additions only, existing content untouched):
+
+| Source | Distilled method | Landed in |
+|---|---|---|
+| [dsh-deep-research](https://github.com/omdsh-dev/dsh-deep-research) | answer-space + acceptance criteria before search; coverage dimensions + coverage_gaps recon; marginal information gain stop rule + evidence tri-state confirmed/uncertain/gaps | rigorous phase-01/23/45/12 |
+| [dsh-agent-teams](https://github.com/NanmiCoder/dsh-agent-teams) | declared task dependencies + wave execution (topological layering, cycle fallback) | workflow template v2 |
+| [dsh-multiagent-modes](https://github.com/y08lin4/dsh-multiagent-modes) | graded return formats (aggregation→JSON / reading→structured md / single verdict→1-3 line conclusion + basis + risks); model tiering | dsh-execution.md + template v2 |
+| [dsh-agent-presets captain mode](https://github.com/MoreChanger/dsh-agent-presets) | role roster as data (args.roles injection; extend roles without editing the template) | workflow template v2 |
+| [dsh_workflow](https://github.com/icetomoyo/dsh_workflow) | workflow-as-asset manifest header (intent/inputs/provenance/limits) | workflow template v2 |
+| [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | context injection audit: 64KB instruction-chain truncation, skill sizes, duplicate paragraphs, name shadowing | `scripts/context-audit.py` |
+| watching: [jacobian](https://github.com/morluto/jacobian) (math kernel) / [dsh-automation](https://github.com/titanwings/dsh-automation) (scheduled tasks) | integrate when a real need appears | — |
+
+License note: methods only, own wording, no text copied; dsh-multiagent-modes is
+CC BY-SA 4.0, so any future verbatim reuse must be open-sourced alike.
+
 ## Validation
 
 ```powershell

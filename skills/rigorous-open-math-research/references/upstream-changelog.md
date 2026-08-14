@@ -29,6 +29,13 @@
 
 ## Changelog (2026-08-14)
 - 渐进式披露重构: Phase 0-12 详细契约与角色 prompt 纯移动至 references/ (phase-01-contract, phase-23-search, phase-45-routes-loop, phase-6-computation, phase-78-synthesis-audit, phase-91011, phase-12-reporting, agent-orchestration); SKILL.md 退化为驱动层 (全局规则/工件清单/Phase 索引表/Output protocol/Anti-patterns), 单次加载从 44978 bytes 降至 12042 bytes; 内容未改写, scripts/split_rigorous_skill.py --verify 可复验覆盖.
+## Changelog (2026-08-14, distilled methods)
+- 吸收社区方法 (纯增量, 不改动已有内容): 答案空间与验收标准前置 (phase-01);
+  覆盖维度枚举与 coverage_gaps 定向侦察 (phase-23); 边际信息增益停止规则 +
+  证据三态 confirmed/uncertain/gaps (phase-45); 零增益停止见证 (phase-12);
+  角色模型分层 (agent-orchestration). 方法来源: dsh-deep-research
+  (https://github.com/omdsh-dev/dsh-deep-research), dsh-multiagent-modes
+  (https://github.com/y08lin4/dsh-multiagent-modes).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

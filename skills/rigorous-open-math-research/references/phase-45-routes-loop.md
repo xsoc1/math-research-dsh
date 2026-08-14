@@ -62,6 +62,17 @@ Use these route states:
 - `PROVED`
 - `FORMALIZED`
 
+### Marginal information gain rule and evidence tri-state
+
+Resource allocation follows information gain, not activity:
+
+- each round starts with a prediction: which high-uncertainty point it targets and what new fact it expects to obtain;
+- act, then update the evidence state and verify the gain against the prediction;
+- evidence carries a tri-state label: `confirmed` / `uncertain` / `gaps`;
+- stop expanding a branch after consecutive zero-gain rounds (the global round cap still applies); record the zero-gain witness so the stop is checkable.
+
+(Inspired by dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research.)
+
 ### Retrieval / deep-thinking scheduling
 
 Avoid search dependency. Alternate explicit retrieval phases with retrieval-free deep-thinking phases: after a search round, run a round in which search tools are disabled and the route is advanced by independent reasoning, constructions, and stress tests. When retrieval stops yielding useful support, stop leaning on it and continue with the non-search skills; record stalled queries and the reason the results were not useful. Deep independent reasoning is a required mode, not a fallback.

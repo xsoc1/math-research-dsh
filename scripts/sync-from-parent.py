@@ -326,10 +326,14 @@ busy-poll or sleep on a job.
 - Delegations run in the background by default and the runtime reports
   completion. Follow-up turns go through send_message; interrupt a stuck child
   with interrupt_agent; recall durable children with list_agents.
-- Sub-agent return contract: children write full reports to files under the
-  run root and return only the status label + artifact paths + hashes (the
-  workflow template prompts encode this contract). The parent conversation
-  receives tens of lines, never full audit reports.
+- Sub-agent return contract, graded by task type (distilled from
+  dsh-multiagent-modes: https://github.com/y08lin4/dsh-multiagent-modes):
+  aggregation/synthesis -> JSON; reading/analysis -> structured markdown;
+  single verdicts -> 1-3 line conclusion + key basis + risks. Concretely:
+  solve returns status + artifact paths/sha256 + open obligations; audit
+  returns PASS or F-xxx one-liners + report path; verify returns the verdict
+  summary + manifest path. Full reports always live in files; replies stay
+  under ~20 lines.
 
 ## 3. Fan-out with the workflow tool
 
@@ -340,6 +344,28 @@ then only qualified results enter the verify stage. The workflow script runs
 in the harness with no filesystem or network access - the agents do the work.
 For one or two delegations, plain subagents are cheaper than a workflow
 script.
+
+Template v2 extras:
+
+- **Dependencies** (distilled from dsh-agent-teams:
+  https://github.com/NanmiCoder/dsh-agent-teams): tasks may declare
+  `deps: [titles]`; the template executes them wave by wave (topological
+  layering, with a logged cycle fallback). Cross-task data flows through
+  files under the run roots, never through the workflow script.
+- **Roster** (distilled from the team-captain roster pattern:
+  https://github.com/MoreChanger/dsh-agent-presets): pass role texts through
+  `args.roles` (the orchestration agent reads them from
+  assets/dsh-solve-audit-workflow.js defaults or a project role file); the
+  template falls back to built-in prompts, so extending roles does not
+  require editing the template.
+- **Model tiering** (verified in this deployment: the workflow agent() hook
+  accepts provider/model overrides): set `args.modelStrong` /
+  `args.modelCheap`, or per-role `args.roles.<role>.model`. Planner,
+  synthesizer, audit, and verify on the strong model; bulk research,
+  retrieval, and candidate scanning on the cheap model. Roles default to the
+  main agent's model when no tier is configured (distilled from
+  dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research and
+  dsh-multiagent-modes).
 
 ## 4. Long-running objectives use goal tools
 
@@ -370,24 +396,75 @@ middle of long output disappears. Consequences:
   same reason.
 - Keep numerical tables in files, not in the conversation; cite paths and
   hashes instead of pasting rows.
+
+## 7. Context audit
+
+`scripts/context-audit.py` (repository checkout) estimates the per-request
+injection cost: the AGENTS.md instruction chain (with the 65536-byte
+truncation threshold flagged), skill catalog entries, skill bodies and
+references, exact-duplicate paragraphs across files, and skill-name shadowing
+across roots. Run it before long sessions and after adding skills; treat its
+top consumers as pruning candidates. (Distilled from dsh-context-doctor:
+https://github.com/Zhenyu98/dsh-context-doctor.)
 """
 
-WORKFLOW_TEMPLATE_JS = """// DSH workflow template: per-packet solve + adversarial audit in parallel,
-// then formalization only for results that qualify.
+WORKFLOW_TEMPLATE_JS = """// DSH workflow template v2: per-packet solve + adversarial audit in parallel,
+// formalization only for results that qualify, with declared dependencies,
+// roster-injected roles, model tiering, and graded return formats.
 //
-// The orchestration agent fills `args.tasks` from the current task packet:
-//   [{ title, problem, runRoot }]
-// and sets `args.verify = true` to enable the lean-verify stage. The spawned
-// agents see no conversation context, so every prompt must be self-contained
-// (paths, contracts, obligations, hashes). The workflow script itself has no
-// filesystem or network access; agents do the work.
+// Manifest (workflow asset header):
+//   name: dsh-solve-audit-workflow
+//   version: 2
+//   intent: per-task-packet solve + adversarial audit; verify for qualified
+//           results only
+//   inputs (args):
+//     tasks: [{ title, problem, runRoot, deps?: [titles], model? }]
+//     verify: true to enable the lean-verify stage
+//     roles: optional { solve|audit|verify: { text?, model? } } roster
+//     modelStrong / modelCheap: optional per-tier model names
+//   outputs: { attacked: [...], verified: [...] }
+//   provenance: math-research-dsh bundle assets/dsh-solve-audit-workflow.js;
+//     distilled from dsh-deep-research (adaptive loops), dsh-agent-teams
+//     (dependency declaration), dsh-multiagent-modes (graded returns,
+//     tiering)
+//   limits: concurrency is governed by the workflow engine; `deps` are
+//     executed wave by wave; agents never see each other's conversations.
+//
+// Graded return formats (see references/dsh-execution.md):
+//   solve  -> status label + artifact paths/sha256 + open obligations, one
+//             line each, no narrative
+//   audit  -> PASS or F-xxx findings one-liners + open obligations + report
+//             path; full findings live in audit_report.md
+//   verify -> verdict summary + run-manifest path + failure highlights;
+//             the full verdict lives in verification.json
+// Full reports always live in files; replies stay under ~20 lines.
 //
 // Usage: pass this file's body as the workflow tool's `script` parameter.
 
 phase("solve-and-audit")
 
+const STRONG = args.modelStrong
+const CHEAP = args.modelCheap
+
+function roleText(key, fallback) {
+  const roles = args.roles || {}
+  return (roles[key] && roles[key].text) || fallback
+}
+
+function agentOpts(phaseName, label, role, task) {
+  const opts = { phase: phaseName, label: label }
+  const roles = args.roles || {}
+  let model
+  if (roles[role] && roles[role].model) model = roles[role].model
+  else if (task && task.model) model = task.model
+  else if (role === "solve" || role === "audit" || role === "verify") model = STRONG
+  else model = CHEAP
+  if (model) opts.model = model
+  return opts
+}
+
 function solvePrompt(task) {
-  return [
+  return roleText("solve", [
     "You are the solver agent for task: " + task.title,
     "",
     task.problem,
@@ -398,11 +475,11 @@ function solvePrompt(task) {
     "(from the output protocol), the artifact paths with sha256, and the open",
     "obligations - one line per item, no narrative. Put every detail in the",
     "artifacts, never in your reply."
-  ].join("\\n")
+  ].join("\\n"))
 }
 
 function auditPrompt(task) {
-  return [
+  return roleText("audit", [
     "You are the adversarial audit agent, fully independent of the solver.",
     "You have NOT seen the solver's work or conversation; audit only the",
     "artifacts under: " + task.runRoot,
@@ -414,17 +491,50 @@ function auditPrompt(task) {
     "F-xxx findings with exact locations (one line each), which obligations",
     "remain open, and the audit_report.md path with sha256. Keep the reply",
     "under 20 lines; the full report lives in the file."
-  ].join("\\n")
+  ].join("\\n"))
 }
 
-const attacked = await pipeline(args.tasks, async (task) => {
-  log("attacking: " + task.title)
-  const [solve, audit] = await parallel([
-    () => agent(solvePrompt(task), { phase: "solve", label: "solve: " + task.title }),
-    () => agent(auditPrompt(task), { phase: "audit", label: "audit: " + task.title })
-  ])
-  return { title: task.title, runRoot: task.runRoot, solve, audit }
-})
+function computeWaves(tasks) {
+  const placed = {}
+  const waves = []
+  let guard = 0
+  const total = tasks.length
+  while (Object.keys(placed).length < total) {
+    guard++
+    if (guard > total + 1) {
+      const rest = tasks.filter(function (t) { return !placed[t.title] })
+      rest.forEach(function (t) { placed[t.title] = true })
+      waves.push(rest)
+      break
+    }
+    const wave = tasks.filter(function (t) {
+      return !placed[t.title] && (t.deps || []).every(function (d) { return placed[d] })
+    })
+    if (wave.length === 0) {
+      const rest = tasks.filter(function (t) { return !placed[t.title] })
+      log("warn: unresolvable dependency cycle; running together: " + rest.map(function (t) { return t.title }).join(", "))
+      rest.forEach(function (t) { placed[t.title] = true })
+      waves.push(rest)
+      break
+    }
+    wave.forEach(function (t) { placed[t.title] = true })
+    waves.push(wave)
+  }
+  return waves
+}
+
+const attacked = []
+for (const wave of computeWaves(args.tasks)) {
+  const out = await pipeline(wave, async (task) => {
+    log("attacking: " + task.title)
+    const [solve, audit] = await parallel([
+      () => agent(solvePrompt(task), agentOpts("solve", "solve: " + task.title, "solve", task)),
+      () => agent(auditPrompt(task), agentOpts("audit", "audit: " + task.title, "audit", task))
+    ])
+    return { title: task.title, runRoot: task.runRoot, solve, audit }
+  })
+  out.filter(Boolean).forEach(function (entry) { attacked.push(entry) })
+}
 
 function qualifies(entry) {
   const text = String(entry.solve || "")
@@ -446,7 +556,7 @@ if (args.verify) {
         "sha256, and any failure highlights - keep the reply under 20 lines;",
         "the full verdict lives in the file."
       ].join("\\n"),
-      { phase: "verify", label: "verify: " + entry.title }
+      agentOpts("verify", "verify: " + entry.title, "verify", entry)
     )
     return { title: entry.title, runRoot: entry.runRoot, verdict }
   })

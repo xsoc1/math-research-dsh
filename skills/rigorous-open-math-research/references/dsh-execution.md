@@ -25,10 +25,14 @@ busy-poll or sleep on a job.
 - Delegations run in the background by default and the runtime reports
   completion. Follow-up turns go through send_message; interrupt a stuck child
   with interrupt_agent; recall durable children with list_agents.
-- Sub-agent return contract: children write full reports to files under the
-  run root and return only the status label + artifact paths + hashes (the
-  workflow template prompts encode this contract). The parent conversation
-  receives tens of lines, never full audit reports.
+- Sub-agent return contract, graded by task type (distilled from
+  dsh-multiagent-modes: https://github.com/y08lin4/dsh-multiagent-modes):
+  aggregation/synthesis -> JSON; reading/analysis -> structured markdown;
+  single verdicts -> 1-3 line conclusion + key basis + risks. Concretely:
+  solve returns status + artifact paths/sha256 + open obligations; audit
+  returns PASS or F-xxx one-liners + report path; verify returns the verdict
+  summary + manifest path. Full reports always live in files; replies stay
+  under ~20 lines.
 
 ## 3. Fan-out with the workflow tool
 
@@ -39,6 +43,28 @@ then only qualified results enter the verify stage. The workflow script runs
 in the harness with no filesystem or network access - the agents do the work.
 For one or two delegations, plain subagents are cheaper than a workflow
 script.
+
+Template v2 extras:
+
+- **Dependencies** (distilled from dsh-agent-teams:
+  https://github.com/NanmiCoder/dsh-agent-teams): tasks may declare
+  `deps: [titles]`; the template executes them wave by wave (topological
+  layering, with a logged cycle fallback). Cross-task data flows through
+  files under the run roots, never through the workflow script.
+- **Roster** (distilled from the team-captain roster pattern:
+  https://github.com/MoreChanger/dsh-agent-presets): pass role texts through
+  `args.roles` (the orchestration agent reads them from
+  assets/dsh-solve-audit-workflow.js defaults or a project role file); the
+  template falls back to built-in prompts, so extending roles does not
+  require editing the template.
+- **Model tiering** (verified in this deployment: the workflow agent() hook
+  accepts provider/model overrides): set `args.modelStrong` /
+  `args.modelCheap`, or per-role `args.roles.<role>.model`. Planner,
+  synthesizer, audit, and verify on the strong model; bulk research,
+  retrieval, and candidate scanning on the cheap model. Roles default to the
+  main agent's model when no tier is configured (distilled from
+  dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research and
+  dsh-multiagent-modes).
 
 ## 4. Long-running objectives use goal tools
 
@@ -69,3 +95,13 @@ middle of long output disappears. Consequences:
   same reason.
 - Keep numerical tables in files, not in the conversation; cite paths and
   hashes instead of pasting rows.
+
+## 7. Context audit
+
+`scripts/context-audit.py` (repository checkout) estimates the per-request
+injection cost: the AGENTS.md instruction chain (with the 65536-byte
+truncation threshold flagged), skill catalog entries, skill bodies and
+references, exact-duplicate paragraphs across files, and skill-name shadowing
+across roots. Run it before long sessions and after adding skills; treat its
+top consumers as pruning candidates. (Distilled from dsh-context-doctor:
+https://github.com/Zhenyu98/dsh-context-doctor.)

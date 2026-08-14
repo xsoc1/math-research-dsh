@@ -42,6 +42,10 @@ Run literature search as a divergent pass: search wide, do not gatekeep.
   6. deep-read promising hits: extract the exact statement needed, its preconditions, and a locator; do not stop at the abstract.
 
 
+### Coverage dimensions and gaps
+
+Enumerate the information dimensions the search must span (methods, classes, regimes, notations, literature lineages) and map every route and subproblem to at least one dimension. Record `coverage_gaps` for dimensions nothing currently covers, and treat each declared gap as a target for directed reconnaissance, not as silently accepted territory. A controller that sees fewer dimensions than the domain has is guaranteed blind spots. (Inspired by dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research.)
+
 Represent the desired result as a dependency graph.
 
 Each node should contain:

@@ -25,6 +25,10 @@ Dynamic policy:
 6. Cross-pollinate after routes expose their real bottlenecks.
 7. Keep an adversarial verifier active throughout, not only at the end.
 
+### Model tiering
+
+Where the runtime supports per-agent model selection, tier the roles instead of giving everyone the strongest model: planner, synthesizer, and audit roles on the strong model; bulk research, retrieval, and candidate scanning on a cheap model; formalizer on whatever model the proof-assistant workflow requires. Default to inheriting the main agent's model when no tiering is configured. (Inspired by dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research and dsh-multiagent-modes: https://github.com/y08lin4/dsh-multiagent-modes.)
+
 ### Sub-agent delegation
 
 Use spawned sub-agents when the runtime provides them (for example Codex multi-agent), for
