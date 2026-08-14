@@ -117,10 +117,10 @@ bundle's `references/dsh-execution.md` and runtime notes):
 
 | DSH mechanism | Adaptation |
 |---|---|
-| skill load puts the whole body in context | changelog history moved out of the SKILL.md bodies; references/assets read on demand through `resourceBase` |
+| skill load puts the whole body in context | **progressive disclosure**: the rigorous body is now a 168-line driver (~2.7K tokens, was ~11K) + 8 phase reference files read on demand through `resourceBase`; changelog history also moved out of the body |
 | tool results truncated (~8K, head 4096 + tail 1024) | repository-level `scripts/dsh_run.py` wrapper: verdict + FAIL lines at the head, verdict repeated at the tail, full output on disk; scripts print verdicts last |
 | background jobs (no timeout) | long computations (numerical scans, lake build) run with `run_in_background: true`, collected via job_output |
-| spawn subagents start without the conversation | adversarial audit / verify roles use fresh `subagent` (zero chain-of-thought sharing by construction); `subagent_fork` is for context-heavy continuation |
+| spawn subagents start without the conversation | adversarial audit / verify roles use fresh `subagent` (zero chain-of-thought sharing by construction); `subagent_fork` is for context-heavy continuation; **sub-agent return contract**: full reports to files, replies carry only verdict + paths + hashes |
 | workflow tool | `assets/dsh-solve-audit-workflow.js` template: per-packet parallel solve + audit, verify stage for qualified results only |
 | goal tools | multi-round objectives tracked with create_goal / get_goal / update_goal |
 | Windows environment | PYTHONUTF8=1, full python path, avoid one-line -c (write a temp .py) |

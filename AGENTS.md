@@ -72,3 +72,17 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 校验: 48 项全绿, 6 个 smoke 全过, sync --check 干净, lock 69 文件.
 - 诚实声明: rigorous changelog 本体仅 ~26 行, 该 skill 单次加载节省有限 (~1K tokens);
   主要收益是 changelog 随上游增长的长期有界性与 workflow (~40 行) 的立省.
+### 2026-08-14 会话 (A1 渐进式披露 + A2 回传契约落地)
+- 上游 (91293b0, 双仓同步): rigorous SKILL.md 纯移动拆分为驱动层 168 行/12,546 bytes
+  (原 760 行/44,978 bytes, -72%) + references/ 8 个 phase 文件; 驱动层保留全局规则/
+  工件清单/Phase 索引表/Output protocol/Anti-patterns; scripts/split_rigorous_skill.py
+  --verify 复验 760 行零丢失零改写; cachebuster 刷新为 0.1.0+codex.20260814110748
+  (本机无官方工具, 直接改版本字段); 上游 validate_all 68 项全绿.
+- 本仓库 (1be12f3): 同步 91293b0 (lock 77 文件); A2 落地 (workflow 模板三 prompt 与
+  dsh-execution.md 增加子代理回传契约: 完整报告落盘, 回复只含 verdict+路径+hash);
+  sync 增加 normalize_tree (上游 Windows 工作树 CRLF 不得漏进本仓库; 起因: 上游拆分
+  脚本文本模式写文件在 Windows 翻译 \n->\r\n, 上游 blob 已被 git 归一化不受影响).
+- A/B 评测: baseline (旧版) 与新版各跑一次 planted-error 审计 (Weierstrass 导数
+  不收敛 + 数值冒充证明); baseline 全部命中 (FATAL_GAP, 两埋点全抓); after 结果见
+  _ab_test 目录与本文件后续记录.
+- 校验: 48 项全绿, 6 smoke 全过, sync-check 干净; CI 待确认.

@@ -102,10 +102,10 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 
 | DSH 机制 | 适配 |
 |---|---|
-| skill 工具加载全文进上下文 | changelog 历史迁出 SKILL.md 正文; references/assets 按需用 read 工具经 resourceBase 读取 |
+| skill 工具加载全文进上下文 | **渐进式披露**: rigorous 正文已拆分为驱动层 (168 行 / ~2.7K tokens, 原 ~11K) + 8 个 phase 引用文件, 按 Phase 经 resourceBase 按需读取; changelog 历史也迁出正文 |
 | 工具结果截断 (约 8K, 保留头 4096 + 尾 1024) | 仓库级 `scripts/dsh_run.py` 包装器: verdict 与 FAIL 行放头部, verdict 尾部重复, 完整输出落盘; 脚本惯例 = verdict 在末尾打印 |
 | 后台任务 (无超时) | 长计算 (数值扫描, lake build) 一律 `run_in_background: true` + job_output 收集, 不占轮次 |
-| spawn 子代理无会话种子 | 对抗性审计/验证用全新 `subagent` (天然零思维链共享); `subagent_fork` 留给上下文续接 |
+| spawn 子代理无会话种子 | 对抗性审计/验证用全新 `subagent` (天然零思维链共享); `subagent_fork` 留给上下文续接; **子代理回传契约**: 完整报告落盘, 回复只含 verdict + 路径 + hash |
 | workflow 工具 | `assets/dsh-solve-audit-workflow.js` 模板: 每个任务包 solve + audit 并行, 仅合格结果进 verify 阶段 |
 | goal 工具 | 多轮目标用 create_goal/get_goal/update_goal 跟踪 |
 | Windows 环境 | PYTHONUTF8=1, python 全路径, 避免一行 -c (写临时 .py) |
