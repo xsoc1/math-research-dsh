@@ -134,3 +134,13 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   回退 = 删除 cordis.patch.yml 中的 insert 行 (一行).
 - 经验登记: 本部署无 dsh.plugin.json 支持 (grep 零命中); 社区"公开版机制"与本地
   checkout 的差异必须逐项验证, 不能照 README 盲装.
+### 2026-08-14 会话 (本地 Qwen VLM 落地 F 盘)
+- Ollama 安装: 官方安装器 /S /D 参数被新版安装器忽略, 实际装到 C: 默认位置;
+  按用户要求整目录迁移至 F:\tools\ollama (2.8GB), 停掉 C: 实例, 无自启项残留,
+  服务以 F:\tools\ollama\ollama.exe serve 运行 (11434), OLLAMA_MODELS (用户级环境
+  变量) = F:\tools\ollama\models.
+- 模型: 拉取 qwen3-vl:4b (本地 VLM, 免 key).
+- dsh-vision 行配置已指向 http://localhost:11434/v1 + qwen3-vl:4b
+  (profiles/web/cordis.patch.yml).
+- 待办: dsh web 重启后 view_image 工具才生效 (重启会结束当前会话, 由用户决定时机);
+  重启后可先用一张图片验证 view_image -> 本地 qwen3-vl 链路.
