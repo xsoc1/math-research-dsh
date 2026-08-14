@@ -28,6 +28,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 4. 所有文本文件 UTF-8 无 BOM, LF 换行, 英文标点.
 5. 提交后按 project.json 的 git_sync.push_order push (当前只有 origin).
 6. 本机安装用 install.ps1 (junction 热更新); `git pull` 后无需重装.
+7. README 中英两版必须同步更新 (README.md 中文 + README_EN.md 英文, 顶部互链).
 
 ## 会话记录
 ### 2026-08-14 会话: 初始适配 (从 Codex 父仓库)
@@ -42,3 +43,8 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   出现 4 个 skill (watcher 跟随 junction, 无需重启).
 - 修复: MANIFEST 自引用条目 (生成与校验都排除 MANIFEST.sha256 自身);
   dsh-doctor --json 混入汇总行导致 smoke 解析失败 (--json 只输出 JSON).
+### 2026-08-14 会话 (README 中英双语 + 仓库关系说明)
+- README.md 重写为中文版并新增英文 README_EN.md, 顶部互链; 两版新增 "背景与现状"
+  与 "仓库间关系" 章节 (父仓库/fork/本仓库拓扑 + 单向同步关系 + 与 DSH 运行时关系).
+- AGENTS.md 维护规则新增第 7 条 (README 中英同步); 本文件追加会话记录.
+- 校验: validate_all 全绿; 提交后 push origin.
