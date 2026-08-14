@@ -121,3 +121,16 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   references/dsh-optional-capabilities.md (vision 约定/文档解析约定/何时不用,
   挂 rigorous + manage), runtime notes 指针同步; lock 79 文件.
 - 校验: 48 项全绿, 7 smoke 全过, sync-check 干净 (dd3bfec); CI 待确认.
+### 2026-08-14 会话 (本机安装视觉/文档解析插件)
+- 安装: profiles/web 加装 @huanlin/dsh-plugin-mineru (bundle 层, prepare 构建通过;
+  allowBuilds 需带 git URL 的精确键) 与 @dsh-external/dsh-vision (其 dsh.plugin.json
+  清单格式本部署不支持 -> 装为普通依赖 + profiles/web/cordis.patch.yml 手工
+  insert 行, 模块导出 Config/apply/inject/name 已验证).
+- 组合校验: --dump-config 合成树含 dsh-mineru (bundle) 与 dsh-vision (insert),
+  无警告. 激活需重启 web (会结束当前会话, 由用户决定时机).
+- 待配置: dsh-vision 无 API key (本机无智谱/DashScope key, 无 Ollama) -> 激活后调用
+  需先配 VISION_API_KEY 或装 Ollama; mineru 需 MinerU 服务端点 baseURL.
+- 风险与回退: dsh-vision lib 按公开版 API 构建, 本部署签名若有漂移, 重启时可能报错;
+  回退 = 删除 cordis.patch.yml 中的 insert 行 (一行).
+- 经验登记: 本部署无 dsh.plugin.json 支持 (grep 零命中); 社区"公开版机制"与本地
+  checkout 的差异必须逐项验证, 不能照 README 盲装.
