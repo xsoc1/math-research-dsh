@@ -86,3 +86,11 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   不收敛 + 数值冒充证明); baseline 全部命中 (FATAL_GAP, 两埋点全抓); after 结果见
   _ab_test 目录与本文件后续记录.
 - 校验: 48 项全绿, 6 smoke 全过, sync-check 干净; CI 待确认.
+- A/B 结果 (after, 已完成): FATAL_GAP + NO_MATERIAL_PROGRESS, 两埋点全抓且攻击更深入
+  (比值泛函非 sup 连续 + f_m=m^{-1}sin(m^2 x) 反例; 数值不覆盖全部 <=12 次多项式);
+  陈述真伪与证明有效性正确分离 (MVT 证明陈述为真且尖锐, verify_ineq.py 数值 2.668
+  如实标 EVIDENCE); 工件 6 件 (较 baseline 3 件更全, 含 obligation_graph/
+  research_ledger/verify_ineq.py); 四强制审计结构来自 phase-78 文件 = 渐进式披露
+  路径被实际使用. 结论: 行为质量无退化 (n=1 单样本, 不宣称提升); 机器性能
+  43.6KB->10.7KB/load. 诚实标注: A2 回传收束未被本 A/B 检验 (审计 prompt 未走
+  workflow 模板路径), 如需验证 A2 需按模板再跑一轮.
