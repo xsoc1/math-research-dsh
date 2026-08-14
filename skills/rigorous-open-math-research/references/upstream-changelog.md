@@ -26,6 +26,9 @@
 - 由 `rigorous-mathematical-research` v1.0 (中文) 迭代升级并改名为 `rigorous-open-math-research`.
 - 基底内容来自 `Downloads/rigorous-open-math-research` (英文版).
 - 新增: 双语触发描述, 中文使用说明摘要, `references/` 中文设计分析报告与旧版 v1 全文.
+
+## Changelog (2026-08-14)
+- 渐进式披露重构: Phase 0-12 详细契约与角色 prompt 纯移动至 references/ (phase-01-contract, phase-23-search, phase-45-routes-loop, phase-6-computation, phase-78-synthesis-audit, phase-91011, phase-12-reporting, agent-orchestration); SKILL.md 退化为驱动层 (全局规则/工件清单/Phase 索引表/Output protocol/Anti-patterns), 单次加载从 44978 bytes 降至 12042 bytes; 内容未改写, scripts/split_rigorous_skill.py --verify 可复验覆盖.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

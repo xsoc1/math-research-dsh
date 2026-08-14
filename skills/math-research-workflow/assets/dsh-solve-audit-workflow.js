@@ -20,9 +20,10 @@ function solvePrompt(task) {
     "",
     "Load the rigorous-open-math-research skill with the skill tool and follow it.",
     "Work under run root: " + task.runRoot,
-    "Write all standard artifacts there and return: the final status label",
+    "Write all standard artifacts there and return ONLY: the final status label",
     "(from the output protocol), the artifact paths with sha256, and the open",
-    "obligations, verbatim and without narrative padding."
+    "obligations - one line per item, no narrative. Put every detail in the",
+    "artifacts, never in your reply."
   ].join("\n")
 }
 
@@ -34,8 +35,11 @@ function auditPrompt(task) {
     "",
     "Load the rigorous-open-math-research skill with the skill tool and follow",
     "its Phase 8 verification protocol. Independently re-derive every",
-    "obligation, attack the candidate proof, and return: PASS or the F-xxx",
-    "findings with exact locations, and which obligations remain open."
+    "obligation and attack the candidate proof. Write the complete findings",
+    "into audit_report.md under the run root, then return ONLY: PASS or the",
+    "F-xxx findings with exact locations (one line each), which obligations",
+    "remain open, and the audit_report.md path with sha256. Keep the reply",
+    "under 20 lines; the full report lives in the file."
   ].join("\n")
 }
 
@@ -63,8 +67,10 @@ if (args.verify) {
         "You are the verifier agent for task: " + entry.title,
         "Load the lean-verify skill with the skill tool and follow it for the",
         "Lean project under: " + entry.runRoot,
-        "Return the structured verdict fields (build passed, sorry/axiom hits,",
-        "fidelity audit result) and the run-manifest path."
+        "Write the structured verdict to verification.json under the run root",
+        "and return ONLY: the verdict summary line, the run-manifest path with",
+        "sha256, and any failure highlights - keep the reply under 20 lines;",
+        "the full verdict lives in the file."
       ].join("\n"),
       { phase: "verify", label: "verify: " + entry.title }
     )

@@ -25,6 +25,10 @@ busy-poll or sleep on a job.
 - Delegations run in the background by default and the runtime reports
   completion. Follow-up turns go through send_message; interrupt a stuck child
   with interrupt_agent; recall durable children with list_agents.
+- Sub-agent return contract: children write full reports to files under the
+  run root and return only the status label + artifact paths + hashes (the
+  workflow template prompts encode this contract). The parent conversation
+  receives tens of lines, never full audit reports.
 
 ## 3. Fan-out with the workflow tool
 
