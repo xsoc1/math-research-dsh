@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "paper_id": "P-YYYY-FIRSTAUTHOR-SLUG-HASH6",
+  "canonical_identity": {
+    "kind": "doi|arxiv|mr|zbmath|fingerprint",
+    "value": ""
+  },
+  "title": "",
+  "authors": [],
+  "year": null,
+  "identifiers": {
+    "doi": null,
+    "arxiv_work_id": null,
+    "mr": null,
+    "zbmath": null,
+    "journal": null
+  },
+  "publication_status": "preprint|published|accepted|withdrawn|unknown",
+  "versions": [
+    {
+      "version_id": "V1",
+      "label": "",
+      "published_or_posted_at": null,
+      "retrieved_at": null,
+      "source_url": null,
+      "local_path": null,
+      "sha256": null,
+      "supersedes_version_id": null,
+      "notes": ""
+    }
+  ],
+  "preferred_version_id": "V1",
+  "preferred_version_reason": "",
+  "triage_state": "DISCOVERED",
+  "project_relevance": "",
+  "related_problem_ids": [],
+  "related_tool_ids": [],
+  "analysis_paths": [],
+  "relation_ids": [],
+  "last_primary_source_check": null,
+  "unresolved_issues": [],
+  "created_at": null,
+  "updated_at": null
+}

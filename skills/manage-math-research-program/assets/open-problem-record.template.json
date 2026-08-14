@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "problem_id": "O-YYYY-SLUG-HASH6",
+  "title": "",
+  "source_formulations": [
+    {
+      "paper_id": null,
+      "version_id": null,
+      "location": "",
+      "source_text_path_or_url": "",
+      "recorded_at": null
+    }
+  ],
+  "variant_notes": [],
+  "related_paper_ids": [],
+  "related_tool_ids": [],
+  "portfolio_state": "WATCH",
+  "priority": {
+    "value": null,
+    "tractability": null,
+    "dependency_leverage": null,
+    "verification_cost": null,
+    "novelty_risk": null,
+    "rationale": ""
+  },
+  "latest_literature_check": null,
+  "delegated_task_ids": [],
+  "last_run_id": null,
+  "upstream_status_verbatim": null,
+  "next_action": "",
+  "blockers": [],
+  "created_at": null,
+  "updated_at": null
+}

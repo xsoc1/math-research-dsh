@@ -1,0 +1,39 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install PyYAML
+        run: pip install pyyaml
+      - name: Repository validation
+        run: python scripts/validate_all.py .
+      - name: Smoke tests
+        run: |
+          cd tests
+          for t in smoke_*.py; do
+            echo "== $t =="
+            python "$t" || exit 1
+          done
+
+  sync-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: xsoc1/rigorous-open-math-research
+          path: _upstream
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Parent drift check
+        run: python scripts/sync-from-parent.py --upstream _upstream --check

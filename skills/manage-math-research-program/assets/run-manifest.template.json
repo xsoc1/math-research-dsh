@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "run_id": "R-YYYYMMDDTHHMMSSZ-SLUG-HASH6",
+  "project_id": "",
+  "task_id": "",
+  "upstream_skill": "$rigorous-open-math-research",
+  "upstream_skill_version_or_hash": null,
+  "started_at": null,
+  "completed_at": null,
+  "run_root": "",
+  "task_packet_path": "",
+  "task_packet_sha256": null,
+  "upstream_status_verbatim": null,
+  "artifacts": [],
+  "environment": {
+    "model": null,
+    "tools": [],
+    "formal_systems": [],
+    "unknown_fields": []
+  },
+  "manager_ingestion_state": "NOT_STARTED",
+  "missing_or_unavailable_artifacts": [],
+  "notes": []
+}

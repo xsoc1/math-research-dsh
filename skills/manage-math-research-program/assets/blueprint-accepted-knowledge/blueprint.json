@@ -1,0 +1,78 @@
+{
+  "project": {
+    "id": "{{PROJECT_ID}}",
+    "title": {{PROJECT_NAME_JSON}},
+    "version": "2.2.0",
+    "updated": "{{CREATED_AT}}",
+    "architecture": "unified proposition, inference, proof-obligation, and research-state graph",
+    "scope": [],
+    "out_of_scope": []
+  },
+  "taxonomy": {
+    "mainlines": {
+      "mathematics": "propositions, hypotheses, definitions, inferences, proofs, and refutations",
+      "research": "goals, open obligations, candidate routes, and audited failures",
+      "theory": "generic scientific assumptions and derivations",
+      "simulation": "numerical contracts, methods, and direct measurements",
+      "synthesis": "theory-plus-numerics interpretations and applicability judgments",
+      "support": "cross-mainline definitions, source contracts, and quality gates",
+      "archive": "superseded or non-current content"
+    },
+    "epistemic_types": {
+      "problem_hypothesis": "a premise given by the active mathematical problem contract",
+      "definition_contract": "a project, problem, or literature definition and notation contract",
+      "external_mathematical_result": "a source-verified theorem imported from the literature",
+      "mathematical_claim": "a proposition whose truth status may be open, established, refuted, or contested",
+      "mathematical_inference": "a first-class multi-premise proof step with its own proof status",
+      "verified_counterexample": "a certificate-bound counterexample that refutes named claims",
+      "research_goal": "a prove, refute, or prove-or-refute target",
+      "proof_obligation": "a precise unresolved substatement or proof gap",
+      "research_attempt": "a reusable route, candidate derivation, or audited failure record",
+      "basic_assumption": "an externally established generic scientific premise",
+      "theory_from_assumptions": "a strict generic derivation from declared assumptions and theory inputs",
+      "numerical_method": "an implemented numerical method, detector, or quality gate",
+      "numerical_result": "a direct output or measurement from a declared numerical method",
+      "numerical_experiment_design": "a planned numerical test without a released result",
+      "theory_from_numerics": "an interpretation requiring theory and numerical inputs",
+      "superseded": "historical content excluded from current conclusions"
+    }
+  },
+  "evidence_grades": {
+    "A": "kernel-checked proof, exact identity, or independently reproduced controlled result",
+    "B": "complete independently audited proof or quality-gated result",
+    "C": "rigorous conditional or partial result with explicit scope",
+    "D": "open goal, conjecture, candidate proof, blocked route, or experiment design",
+    "X": "refuted, contradicted, contested, invalid, or superseded content"
+  },
+  "status_axes": [
+    "statement_contract",
+    "definitions_bound",
+    "hypotheses_declared",
+    "source_verification",
+    "proof_obligations",
+    "definition_audit",
+    "logic_audit",
+    "boundary_audit",
+    "adversarial_audit",
+    "formalization",
+    "independent_review",
+    "canonical_receipt"
+  ],
+  "math_profile": {
+    "schema_version": "math-proof/v1",
+    "enabled": true,
+    "default_context": "CTX-DEFAULT",
+    "contexts": [
+      {
+        "id": "CTX-DEFAULT",
+        "title": "Default mathematical problem context",
+        "assumptions": [],
+        "definitions": [],
+        "available_results": [],
+        "goals": []
+      }
+    ]
+  },
+  "nodes": [],
+  "edges": []
+}

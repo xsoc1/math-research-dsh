@@ -1,0 +1,8 @@
+flowchart TD
+    H["Problem hypothesis"] -->|premise_input| I1["Mathematical inference: open"]
+    I1 -->|inference_input| C1["Candidate claim"]
+    C1 -->|premise_input| I2["Mathematical inference: proved"]
+    D["Definition contract"] -->|definition_input| I2
+    I2 -->|inference_input| T["Target claim"]
+    T -->|target_input| G["Research goal"]
+    X["Verified counterexample"] -->|refutation_input| C1

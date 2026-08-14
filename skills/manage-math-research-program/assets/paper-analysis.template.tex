@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\newcommand{\PaperID}{PAPER-ID}
+\newcommand{\PaperVersion}{VERSION-LABEL}
+\newcommand{\AnalysisDate}{YYYY-MM-DD}
+
+\title{Structured Analysis: PAPER TITLE}
+\author{Project paper ID: \texttt{\PaperID}}
+\date{\AnalysisDate}
+
+\begin{document}
+\maketitle
+
+\section{Identity and provenance}
+\begin{itemize}
+  \item Exact source and version: 
+  \item Authors, venue, DOI/arXiv/MR/zbMATH: 
+  \item Retrieval date and source path/URL: 
+  \item File hash, if available: 
+  \item Relevant differences from other versions: 
+\end{itemize}
+
+\section{Project relevance}
+State which directions and open-problem records this paper affects and why it received a deep analysis.
+
+\section{Definitions and notation}
+Record the paper's conventions. Distinguish literal paper notation from project translations.
+
+\section{Theorem and proposition inventory}
+\begin{longtable}{p{0.14\textwidth}p{0.49\textwidth}p{0.27\textwidth}}
+\toprule
+Location & Mathematical content and hypotheses & Project role / dependencies \\
+\midrule
+\endhead
+Thm.~X.Y & Preserve quantifiers, domain, assumptions, and parameter dependencies. & Used by / related to ... \\
+\bottomrule
+\end{longtable}
+
+\section{Proof architecture}
+Describe the dependency structure among the main results, central reductions, and points where major mathematical mechanisms enter. This is a paper map, not a new proof attempt.
+
+\section{Key techniques}
+For each technique, state inputs, output, role in the proof, and candidate tool-library entry.
+
+\section{Hypothesis-use table}
+\begin{longtable}{p{0.22\textwidth}p{0.26\textwidth}p{0.23\textwidth}p{0.19\textwidth}}
+\toprule
+Hypothesis & Where used & What may fail without it & Later weakening? \\
+\midrule
+\endhead
+ & & & \\
+\bottomrule
+\end{longtable}
+
+\section{Limitations and failure boundaries}
+Record excluded cases, nonuniformity, dimension or characteristic restrictions, regularity, hidden finiteness, known counterexamples, corrections, and errata.
+
+\section{Relations to earlier and later work}
+Use stable paper IDs and exact evidence locations. Separate verified relations from tentative terminology matches.
+
+\section{Open ends and generalization candidates}
+Separate author-stated questions, literature-known gaps, and project proposals. Do not present proposals as theorems.
+
+\section{Candidate reusable tools}
+List candidate tool IDs, provenance maturity, exact source locations, assumptions, scope, and failure modes.
+
+\section{Project actions}
+List map, problem, tool, search, and task-packet updates caused by this analysis.
+
+\section{Verification notes}
+Record what was checked in the primary source, what remains unverified, and all source-access limitations. Any concrete proof use must be revalidated by \texttt{\$rigorous-open-math-research}.
+
+\end{document}

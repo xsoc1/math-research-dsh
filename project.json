@@ -1,0 +1,8 @@
+{
+  "project_id": "math-research-dsh",
+  "name": "math-research DSH adaptation: DeepSeek Harness skills for rigorous open mathematics research",
+  "slug": "math-research-dsh",
+  "git_sync": {
+    "push_order": ["origin"]
+  }
+}

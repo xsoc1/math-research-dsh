@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blueprint Explorer</title>
+    <link rel="stylesheet" href="./blueprint-viewer.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <h1>Blueprint Explorer</h1>
+          <p id="project-meta">正在读取 Blueprint…</p>
+        </div>
+        <div class="header-controls" aria-label="视图控制">
+          <button id="overview-button" class="mode-button" type="button" aria-pressed="true">概览</button>
+          <button id="detail-button" class="mode-button" type="button" aria-pressed="false">详细图</button>
+          <button id="fit-button" type="button">适配画布</button>
+          <button id="zoom-out-button" type="button" aria-label="缩小">−</button>
+          <button id="zoom-in-button" type="button" aria-label="放大">+</button>
+          <button id="export-button" type="button">导出 SVG</button>
+          <label class="file-button">打开 Blueprint JSON<input id="file-input" type="file" accept="application/json,.json"></label>
+        </div>
+      </header>
+
+      <div class="workspace">
+        <aside class="sidebar" aria-label="筛选器">
+          <section class="section">
+            <label class="section-label" for="search-input">搜索节点</label>
+            <input id="search-input" class="search" type="search" placeholder="标题、ID 或陈述">
+          </section>
+
+          <section class="section">
+            <label class="section-label" for="edge-mode">关系显示</label>
+            <select id="edge-mode" class="edge-mode">
+              <option value="context">全局弱化；选中后高亮</option>
+              <option value="focused">仅显示选中节点相关边</option>
+              <option value="all">显示全部边</option>
+            </select>
+            <p class="hint">点击节点会突出其上游与下游；再次点击空白处可清除选择。</p>
+          </section>
+
+          <section class="section">
+            <span class="section-label">主线</span>
+            <div id="mainline-filters" class="filter-list"></div>
+          </section>
+
+          <section class="section">
+            <span class="section-label">认识论类型</span>
+            <div id="type-filters" class="filter-list"></div>
+          </section>
+
+          <section class="section">
+            <div class="inline-controls">
+              <button id="select-all-button" type="button">全选</button>
+              <button id="clear-filters-button" type="button">清除筛选</button>
+            </div>
+          </section>
+        </aside>
+
+        <main id="graph-pane" class="graph-pane" aria-label="Blueprint 依赖图">
+          <svg id="graph-svg" class="graph-svg" role="img" aria-label="Blueprint 依赖图" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow-head" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor"></path>
+              </marker>
+            </defs>
+            <g id="scene"></g>
+          </svg>
+          <div id="empty-state" class="empty-state" hidden></div>
+        </main>
+
+        <aside class="details" aria-label="节点详情">
+          <h2>节点详情</h2>
+          <div id="detail-panel" class="detail-empty">选择一个节点以查看其假设、输入、直接上下游和证据状态。</div>
+        </aside>
+      </div>
+    </div>
+
+    <script type="module" src="./blueprint-viewer.js"></script>
+  </body>
+</html>

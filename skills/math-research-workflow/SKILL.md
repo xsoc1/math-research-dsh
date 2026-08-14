@@ -1,0 +1,303 @@
+---
+name: math-research-workflow
+description: >-
+  Orchestrate the full mathematics research pipeline: program management
+  (manage-math-research-program) to rigorous problem research
+  (rigorous-open-math-research) to Lean formal verification (lean-verify),
+  with sub-agent division of labor, artifact handoff contracts, hash binding,
+  and automatic git sync at every stage boundary. Use when the user asks to
+  run or manage a complete research+verification workflow for a mathematics
+  project, to iterate the three-skill pipeline, or to coordinate parallel
+  solve/audit/formalize agents. 中文触发: 数学项目全流程一体化 (管理-研究-验证),
+  三个 skill 协同工作流, 研究+Lean 形式化验证流水线, 子 agent 分工优化.
+---
+
+## DSH runtime notes (DSH adaptation)
+
+This bundle is the DSH adaptation of the Codex plugin `math-research-workflow`.
+In this runtime, every reference written as `$skill-name` means: load the skill
+named `skill-name` with the `skill` tool using its exact name (a user message
+whose first line is `/skill-name` also loads it). The sibling skills ship beside
+this bundle under the same skill roots.
+
+- `scripts/validate_pipeline.py` and the `assets/` templates live inside this
+  bundle; run them with a local Python interpreter via the shell using the
+  `resourceBase` directory path reported by the skill load result, with
+  `PYTHONUTF8=1` on Windows. Prefer writing a temporary .py file over PowerShell
+  one-line `-c` calls.
+- The DSH environment preflight is `scripts/dsh-doctor.py` in the
+  `math-research-dsh` repository checkout (when installed by the repository
+  `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
+- The DSH adaptation keeps every upstream file byte-identical except this block
+  and the doctor-related passages rewritten for DSH; the synced upstream commit
+  is recorded in the repository `upstream.lock.json`.
+
+# Math Research Workflow (管理-研究-验证一体化流水线)
+
+## Purpose
+
+This skill is the **orchestration layer** for the three-skill pipeline. It
+sequences, delegates, and hands off work between:
+
+- `$manage-math-research-program` -- program context, task packets, tool
+  library, accepted knowledge, git sync (stage A);
+- `$rigorous-open-math-research` -- theorem contracts, routes, adversarial
+  proof audit, candidate proofs (stage B);
+- `$lean-verify` -- Lean 4 formalization, machine checks, obligation-level
+  audit, structured verdicts (stage C).
+
+It never re-implements any of their workflows. Its only job is to decide
+**what** runs **when**, **by whom** (sub-agents), and to enforce the **handoff
+contract** between stages.
+
+## Dependency direction
+
+```text
+math-research-workflow -> manage-math-research-program -> rigorous-open-math-research
+math-research-workflow -> lean-verify
+```
+
+No reverse calls. Each referenced skill keeps its own hard boundaries (see
+`manage-math-research-program` "Hard non-overlap rule").
+
+## Trigger boundary
+
+Use this skill when the user asks to:
+
+- run a complete research program end to end (manage -> solve -> verify);
+- formalize a batch of already-proved results into Lean and verify them;
+- coordinate several sub-agents (solve / audit / formalize / verify) on one
+  project with a shared task packet;
+- sync a mathematics project repository (git) across research sessions;
+- resume or checkpoint a multi-stage research pipeline.
+
+Do **not** use this skill for a single proof request (use
+`$rigorous-open-math-research`), a single formalization audit (use
+`$lean-verify`), or project bookkeeping only (use
+`$manage-math-research-program`).
+
+## Pipeline protocol
+
+### Stage A -- Program (manager)
+
+1. Read the project entry point (`AGENTS.md` if present), `lean-proof/STATUS.md`
+   (formalization matrix) and the program index produced by
+   `manage-math-research-program`.
+2. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
+   math-research-dsh repository checkout, installed under
+   `$DSH_HOME/math-research-dsh`). On a hard `FAIL`, apply the printed repair
+   command before any dispatch. It verifies that all four skill bundles are
+   mounted under the DSH skill roots (`$DSH_HOME/skills` or the project
+   `.dsh/skills`), that a Python interpreter is available, and that the Lean
+   toolchain exists when stage C is planned.
+3. Run the git-sync check (manage skill section 0): record dirty files,
+   ahead/behind, current commit hash.
+4. Run the deterministic pipeline gate shipped with this plugin
+   (`scripts/validate_pipeline.py --project .`). Fix every hard `FAIL` before
+   dispatch; treat `warn:` lines as advisory notes to record, not as blockers.
+5. For each task: build or refresh the **task packet** (contract, source
+   documents, obligations, verification criteria, hashes) and delegate.
+
+**Stage B0 -- Openness and novelty preflight (mandatory before dispatch):**
+
+Before any solver is dispatched, every concrete problem in the packet must
+carry a completed novelty preflight (recorded in the packet's
+`## Novelty preflight` section):
+
+1. **Openness check** (per `$rigorous-open-math-research` Phase 0/1): verify
+   whether the problem is genuinely open as of the research date, unless the
+   user explicitly requested a blind benchmark phase. Record the checked date
+   and the sources consulted.
+2. **Novelty audit**: run the divergent search contract (keyword families ->
+   project KB/tool library -> arXiv/OpenAlex/zbMATH -> general web), then
+   deep-read promising hits. Write/refresh the run's
+   `status_and_literature.md` with exact known theorems, citations recorded
+   as `query -> result -> locator`, and a novelty-risk line. Never fabricate
+   a paper, statement, or locator; abstract-only or paywalled evidence is
+   recorded as such and never promoted to theorem level.
+3. **Snapshot backfill**: ingest the audit conclusions into the manage
+   skill's literature frontier (paper records with stable links, portfolio
+   `novelty risk` field, evidence status) and bind them to the current
+   knowledge snapshot hash. On `SNAPSHOT_MISMATCH`, discard accumulated
+   retrieval and re-fetch before dispatch.
+4. **Gate**: a solver is dispatched only when the packet carries the
+   openness verdict, the audit path (or an explicit `skip:` record such as
+   `blind_benchmark` / `search_forbidden` with a scheduled post-discovery
+   audit), and the snapshot hash. A missing preflight is a hard `FAIL` at
+   the A -> B boundary (enforced by `validate_pipeline.py`).
+
+### Stage B -- Research (solver)
+
+For every concrete problem in the packet, invoke `$rigorous-open-math-research`
+with the exact contract. Its run artifacts (`problem_contract.md`,
+`candidate_proof.md`, `audit_report.md`, `reproducibility/`, ...) are produced
+in a per-run directory and ingested by reference (never rewritten by the
+manager).
+
+**Sub-agent division (efficiency):**
+
+- **Solver agent**: builds routes, derives, records ledger entries.
+- **Adversarial audit agent**: independently re-derives each obligation and
+  attacks the candidate proof; reports F-xxx findings.
+- The two alternate in bounded loops until either `CANDIDATE_COMPLETE_PROOF`
+  or an exact gap report is reached. The audit agent never shares a chain of
+  thought with the solver; only artifacts are exchanged.
+
+**Numerical evidence discipline (hard rule):**
+
+- Numerical computation is allowed for exploration, counterexample search, and
+  corroboration only. It is never a delivery: a result may not be labeled
+  `已证` / `CANDIDATE_COMPLETE_PROOF` / `FORMALLY_VERIFIED` on
+  numerical evidence alone.
+- Every deliverable that uses numerical labels must carry either a strict
+  label (`严格证明` / `定理已证` / `STRICT` /
+  `机器验证` / `形式化验证`) or an
+  explicit downgrade statement (e.g. "evidence only", "does not constitute
+  proof"). The stage gate (`validate_pipeline.py`) enforces this mechanically.
+- If a solver starts substituting numerical evidence for proof, the audit
+  agent must fail the run and report the exact missing obligations; the
+  manager records the F-xxx finding and does not advance the packet.
+
+### Stage C -- Verification (formalizer)
+
+For every result labeled `已证` / `CANDIDATE_COMPLETE_PROOF` that the user
+wants formalized:
+
+1. Create/update the Lean project (`lean-proof/`), map each obligation to a
+   `.lean` declaration (obligation map O1..On).
+2. **Formalizer agent** writes the Lean files; **verifier agent** runs
+   `verify_lean_project.py --project . --build` (sorry/axiom scan + lake
+   build) and refreshes `run-manifest.json`.
+3. Write/extend `audit_report.md` (per-obligation fidelity) and
+   `verification.json` (structured verdict), then update `STATUS.md` and
+   `README.md`. Fix source-document errors found in the process in place and
+   record them as F-xxx in the audit report (do not silently change sources).
+4. Machine evidence required: build exit 0, zero sorry/admit/axiom hits,
+   obligation map complete. No machine evidence => no "FORMALLY_VERIFIED".
+
+### Stage boundary checks (mandatory)
+
+- A -> B: packet contains contract + source paths + obligation list; B0
+  novelty preflight recorded (openness verdict + audit path or skip +
+  snapshot hash); no open questions left unresolved.
+- B -> C: only results with an honest status label (`已证`, not numerical
+  evidence) enter formalization; numerical/猜想 results are excluded and
+  recorded as such.
+- C -> done: verification.json verdict, audit report, STATUS matrix updated;
+  git synced; AGENTS.md session log appended.
+- Every dispatch and every stage close re-runs
+  `scripts/validate_pipeline.py`; a hard `FAIL` must not be left open at a
+  stage boundary. Statuses outside the formalization gate are reported as
+  warnings, never silently promoted.
+
+### Interruption handoff and resume (mandatory)
+
+When any stage stops before completion (budget exhausted, user requests a
+stop, tool/environment failure, or any cross-session cut), the interrupting
+agent writes an interruption handoff before returning control:
+
+1. **Write the record**: use `assets/interruption-handoff.template.md`, saved
+   as `runs/<skill>/<run_id>/handoff-interrupted-<UTC timestamp>.md`. Record
+   the run ID, packet ID, date, interrupt reason, task state, completed/open
+   obligations, **every route and method already tried with outcome markers**
+   (`[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` plus the failure mechanism or partial
+   progress), the exact next actions, and path + sha256 for every key
+   artifact. Do not promote numerical evidence here: reuse upstream status
+   labels verbatim.
+2. **Register**: the manager records the handoff path and hash in the project
+   index and appends a one-line session-log entry. Commit when the working
+   tree allows it.
+3. **Resume**: the successor agent starts by reading the latest handoff, then
+   `research_ledger.md` (last entries first), then `approach_registry.md`,
+   then the key artifacts, then the task packet. It continues only the listed
+   next actions; re-running a `[FAILED]` route requires a new reason recorded
+   in the handoff first.
+4. **Gate**: `validate_pipeline.py` hard-fails handoffs that miss required
+   fields/sections (run ID, packet ID, date, interrupt reason, task state,
+   obligations, attempted routes, next actions), so a successor never resumes
+   blind. Project-level recovery (`state/RESUME.md`, checkpoints) stays with
+   the manage skill (stage A); this protocol covers run-level details from
+   stages B and C.
+
+## Efficiency rules
+
+- Parallelize where dependencies allow: stage B's audit agent may review
+  obligations while the solver opens the next route; stage C's verifier may
+  scan files as the formalizer writes them.
+- Reuse before redo: check the tool library (`tools/`), the accepted-knowledge
+  base, and `STATUS.md` before starting a route or a formalization; hash-bound
+  artifacts prevent duplicate work.
+- One artifact per claim: never maintain two copies of a proof state; the
+  manager records paths and hashes verbatim.
+- Automatic git sync after every stage (manage skill section 0, generic
+  remote-topology configuration). This plugin does not hard-code any fork
+  layout; if `project.json` declares `git_sync.push_order`, sync every listed
+  remote in that order (e.g. parent first, child fork second) and state the
+  direction in the session log.
+
+## Reference files
+
+- `references/workflow-design.md` -- full design: roles, handoff schemas,
+  parallelism, checklists, and failure handling.
+- `assets/pipeline-handoff.template.md` -- normal stage-transition
+  handoff record template.
+- `assets/interruption-handoff.template.md` -- interrupted-work handoff
+  template (routes tried, open obligations, next actions) for cross-session
+  resume.
+- `scripts/validate_pipeline.py` -- deterministic task-packet, hash-binding,
+  run-manifest, numerical-evidence discipline, and git gate checks for stage
+  boundaries.
+- Repository-level `scripts/dsh-doctor.py` -- DSH environment preflight: the
+  four skill bundles under the DSH skill roots, a Python interpreter, and the
+  Lean toolchain for stage C.
+
+## Changelog (2026-08-14, DSH adaptation)
+
+- DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.
+  Added the DSH runtime notes block; the Codex environment preflight
+  (`scripts/doctor.py`) is replaced by the repository-level `scripts/dsh-doctor.py`
+  (DSH skill roots, Python interpreter, Lean toolchain); Stage A step 2 and the
+  reference-file list were rewritten accordingly. Upstream content is otherwise
+  byte-identical (see `upstream.lock.json`).
+
+## Changelog (2026-08-13)
+
+- Added `scripts/doctor.py`, an environment preflight: verifies the workflow
+  plugin, the three dependency skills, the marketplace, and the `config.toml`
+  enable entry; prints exact repair commands. Stage A runs it before dispatch
+  (guards against the desktop app rewriting `config.toml` and dropping the
+  plugin-enable entry).
+- `validate_pipeline.py` now enforces numerical-evidence discipline: a gate
+  status requires `candidate_proof.md` or `audit_report.md` in the run
+  directory; numerical labels mixed with strong claims need a strict label or
+  an explicit downgrade statement; `verification.json` verdict
+  `FORMALLY_VERIFIED` requires `machine.build_passed == true` and zero
+  sorry/axiom hits; `STATUS.md` cannot claim `FORMALLY_VERIFIED` without the
+  verdict file. Fixed lean-manifest input-hash resolution (paths are relative
+  to `lean-proof/` and may use Windows separators).
+- Fork-sync specifics removed from this plugin; git sync now defers to the
+  manage skill's generic remote-topology configuration.
+- Cachebuster bumped to `0.1.0+codex.20260813054312` to propagate the gate.
+
+- Stage B now starts with a mandatory B0 novelty preflight: openness check
+  (genuinely open as of the research date), divergent novelty audit with
+  `query -> result -> locator` provenance, snapshot-hash backfill into the
+  manage skill's literature frontier, and a deterministic gate - every
+  solve/disprove/construct task packet must carry a `## Novelty preflight`
+  section (openness verdict + audit path or explicit skip + snapshot hash),
+  enforced by `validate_pipeline.py`. A missing preflight is a hard FAIL at
+  the A -> B boundary.
+- Cachebuster bumped to `0.1.0+codex.20260813101438` to propagate the B0 gate.
+
+- Interruption handoff and resume protocol: when a stage stops before
+  completion, the interrupting agent writes
+  `runs/<run_id>/handoff-interrupted-<ts>.md` from
+  `assets/interruption-handoff.template.md` - run/packet IDs, interrupt
+  reason, task state, completed/open obligations, every route tried with
+  `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` outcome markers, exact next actions,
+  and hashed artifact paths; the successor agent resumes from the handoff and
+  must not re-run a FAILED route without a new recorded reason.
+  `validate_pipeline.py` hard-fails handoffs missing required fields or
+  sections. Added `tests/smoke_handoff.py` (+ good/bad fixtures) and wired it
+  into CI.
+- Cachebuster bumped to `0.1.0+codex.20260813144928` to propagate the handoff protocol.

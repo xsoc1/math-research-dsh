@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "project_id": "{{PROJECT_ID}}",
+  "name": {{PROJECT_NAME_JSON}},
+  "slug": {{PROJECT_SLUG_JSON}},
+  "created_at": "{{CREATED_AT}}",
+  "updated_at": "{{CREATED_AT}}",
+  "lifecycle_state": "SETUP",
+  "scope": "",
+  "research_budget": {
+    "mode": "effective_time",
+    "target_hours": {{TARGET_HOURS}},
+    "scope": "project",
+    "counting_policy": "evidence_backed",
+    "configured_by": {{BUDGET_CONFIGURED_BY_JSON}},
+    "configured_at": "{{CREATED_AT}}"
+  },
+  "literature_cutoff": null,
+  "upstream_skill": "$rigorous-open-math-research",
+  "git_sync": {
+    "push_order": ["origin"]
+  },
+  "notes": []
+}

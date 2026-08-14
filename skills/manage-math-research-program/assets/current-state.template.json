@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "project_id": "{{PROJECT_ID}}",
+  "lifecycle_state": "SETUP",
+  "current_stage": "initialization",
+  "current_objective": "Define scope and begin the first literature pass.",
+  "active_direction_ids": [],
+  "active_paper_ids": [],
+  "active_problem_ids": [],
+  "active_task_ids": [],
+  "active_run_ids": [],
+  "latest_checkpoint_path": null,
+  "next_actions": [
+    "Complete PROJECT.md scope and inclusion criteria.",
+    "Create the first dated literature search log."
+  ],
+  "blockers": [],
+  "budget": {
+    "target_hours": {{TARGET_HOURS}},
+    "recorded_effective_hours": 0.0,
+    "remaining_hours": {{TARGET_HOURS}}
+  },
+  "last_literature_cutoff": null,
+  "updated_at": "{{CREATED_AT}}"
+}

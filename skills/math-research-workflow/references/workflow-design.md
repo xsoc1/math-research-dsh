@@ -1,0 +1,85 @@
+# Math Research Workflow -- design notes
+
+## 1. Roles and ownership
+
+| Role | Owns | Produces |
+| --- | --- | --- |
+| Manager (stage A) | program context, task packets, tool library, accepted knowledge, git sync | `state/current.json`, task packets, project index |
+| Solver agent (stage B) | theorem contract, routes, derivations, ledger | `problem_contract.md`, `research_ledger.md`, `candidate_proof.md` |
+| Audit agent (stage B) | independent re-derivation, adversarial review | `audit_report.md`, F-xxx findings |
+| Formalizer agent (stage C) | Lean declarations, obligation map | `lean-proof/SL/*.lean` |
+| Verifier agent (stage C) | machine checks, manifests, verdicts | `run-manifest.json`, `verification.json` |
+
+Independence rule: the audit agent and the verifier agent never reuse the
+solver's / formalizer's reasoning as authority; they re-derive from the
+source documents. Artifacts (not conversations) are the only interface.
+
+## 2. Task packet schema (stage A -> B)
+
+```text
+id:           <Q-YYYYMMDD-<tag>-<hash8>>
+contract:     <exact normalized statement + completion criteria>
+source_docs:  <paths to docs/SL_*.tex or papers/, with DOIs/URLs>
+obligations:  <O1..On list with source sections>
+verification: <criteria: strict proof required, numerical evidence excluded>
+fork_sync:    <parent repo -> child fork direction, if any>
+```
+
+## 3. Handoff contract B -> C (formalization gate)
+
+Only these labels enter stage C:
+
+- `已证` / `CANDIDATE_COMPLETE_PROOF` with all obligations closed;
+- `STRICT` results from source documents.
+
+Excluded: `数值证据`, `EVIDENCE`, `猜想`, `开放` (record them in STATUS.md
+as not formalized). The gate is checked by the manager at the stage boundary,
+not by the formalizer.
+
+## 4. Parallelism
+
+- Stage B: solver opens route n+1 while audit agent reviews route n; bounded
+  alternation (2 loops by default, expandable on user request).
+- Stage C: verifier runs `lake env lean` on each file as it is written;
+  full `verify_lean_project.py` run at the end.
+- Serial points: contract freeze (A), result label freeze (B->C), verdict
+  freeze (C). Nothing is committed to the accepted-knowledge base before the
+  verdict.
+
+## 5. Failure handling
+
+- F-xxx finding in source document: fix in place, record the correction and
+  the counterexample/justification in the audit report; the formal statement
+  always uses the corrected hypothesis.
+- Numerical-evidence substitution: if a deliverable promotes numerical checks
+  to a proof without a strict label or an explicit downgrade statement, the
+  gate fails it; the manager returns the packet with the exact missing labels
+  or obligations. The status is never silently promoted.
+- Machine verification failure: no verdict; iterate formalizer/verifier loop
+  (bounded 5-15 rounds per file, then report the exact obstacle).
+- Git conflict or fork divergence: stop, record state, do not overwrite
+  uncommitted artifacts.
+
+## 5.1 Interruption handoff and resume
+
+Any stage that stops before completion writes an interruption handoff
+(`runs/<run_id>/handoff-interrupted-<ts>.md`, template
+`assets/interruption-handoff.template.md`) before returning control. It
+records: run/packet IDs, interrupt reason, task state, completed/open
+obligations, every attempted route with `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]`
+outcome markers and failure mechanism, exact next actions, and hashed key
+artifacts. The successor reads handoff -> research_ledger (last entries
+first) -> approach_registry -> artifacts -> task packet, and never re-runs a
+FAILED route without a new recorded reason. `validate_pipeline.py` hard-fails
+incomplete handoffs. Project-level recovery (RESUME/checkpoints) remains the
+manage skill's job; this protocol covers run-level continuity for stages B
+and C.
+
+## 6. Efficiency checklist
+
+- [ ] Environment preflight (scripts/doctor.py) passed before dispatch
+- [ ] Tool library and STATUS.md consulted before new work
+- [ ] Task packet hash-bound before delegation
+- [ ] No duplicate artifact locations
+- [ ] Git synced after every stage (parent first, fork second)
+- [ ] AGENTS.md session log appended with the stage summary
