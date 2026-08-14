@@ -1,5 +1,22 @@
 # Upstream changelog history
 
+## Changelog (2026-08-14)
+
+- Distilled the OpenProver method (arXiv:2607.09217, github.com/kripner/OpenProver)
+  into stage B/C: Planner-Worker-Verifier solve loop with a mandatory compact
+  `whiteboard.md` per run (current plan, route history with outcome markers,
+  deferred ideas, open obligations, key-artifact index); independent parallel
+  Workers that never see each other's or the Planner's reasoning traces;
+  independent Verifier feedback on finished Worker outputs; repository items
+  addressed by slug with a verified-items-only rule for Lean snippets; a Lean
+  real-time verification loop (`lean_verify` / `lean_search` via LeanExplore /
+  `lean_store` context accumulation); a formalization feedback loop that routes
+  proof-layer flaws back to the solve-run lead; and interactive steering for
+  human-in-the-loop runs. `validate_pipeline.py` hard-requires the whiteboard
+  (fields + sections) for stage B runs started on or after 2026-08-14; new
+  `tests/smoke_whiteboard.py` wired into CI.
+- Cachebuster bumped to `0.1.0+codex.20260814120000` to propagate the protocol.
+
 ## Changelog (2026-08-13)
 
 - Added `scripts/doctor.py`, an environment preflight: verifies the workflow

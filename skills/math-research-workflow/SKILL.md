@@ -157,6 +157,64 @@ manager).
   or an exact gap report is reached. The audit agent never shares a chain of
   thought with the solver; only artifacts are exchanged.
 
+**OpenProver-style solve loop (distilled, mandatory for stage B runs):**
+
+The solve loop follows the Planner-Worker-Verifier pattern: a single
+solve-run lead (Planner role) keeps a compact memory and decomposes work into
+independent Workers whose outputs are reviewed by an independent Verifier.
+This is a refined form of the solver/audit alternation above; it does not
+replace the theorem contract, B0 gate, or evidence discipline.
+
+1. **Whiteboard memory (mandatory).** Every stage B run keeps
+   `runs/<skill>/<run_id>/whiteboard.md` (template
+   `assets/whiteboard.template.md`). It holds the current plan, the route
+   history with `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` outcome markers, deferred
+   ideas, open obligations, and the key-artifact index (slug + one-line
+   summary + sha256). The solve-run lead rewrites it after every planner step
+   and reads it at every step; old plans are replaced, not appended. The
+   interruption handoff is a frozen snapshot of this record plus recovery
+   context. The stage gate hard-requires the whiteboard for runs started on or
+   after 2026-08-14 and validates its fields and sections.
+2. **Independent parallel Workers.** A Worker explores exactly one
+   deliverable: a proof direction, a lemma, a counterexample search, a
+   simplified variant, or a formalization task. A Worker does not observe the
+   reasoning traces of other Workers or the Planner's chain of thought; only
+   the whiteboard plan and the repository slugs are shared. This keeps
+   distinct attempts genuinely independent and prevents one fashionable but
+   flawed line of thought from contaminating the portfolio.
+3. **Independent Verifier feedback.** Each finished Worker output is reviewed
+   by the adversarial audit agent without access to the Worker's reasoning
+   trace. The Verifier returns structured feedback (verdict + critical errors
+   + gaps + repair hints); the Planner decides continue / repair / branch /
+   block / refute / archive. Feedback is an artifact, never an approval chain
+   of thought.
+4. **Repository with verified-items-only rule.** Every intermediate item
+   lives in the run directory and is addressed by slug (relative path); the
+   whiteboard keeps only slugs plus one-line summaries. A **Lean item is
+   stored only if it passes machine verification**; otherwise the verifier's
+   errors and warnings are fed back to the responsible Worker, giving tighter
+   feedback than a final-answer check.
+5. **Lean real-time verification loop (worker tools).** Workers may call
+   three Lean tools (mechanics delegated to `$lean-verify`):
+   - `lean_verify <snippet>` -- verify a Lean snippet and return the exact
+     errors/warnings; never store an unverified snippet as a repository item.
+   - `lean_search <query>` -- semantic search over Mathlib declarations
+     (LeanExplore, arXiv:2506.11085) before re-proving a known lemma; record
+     hits with their source and never fabricate a declaration name.
+   - `lean_store <snippet>` -- append an already-verified snippet (imports,
+     namespace openings, definitions, proven sub-lemmas) to
+     `runs/<run_id>/lean_scratch/context.lean`, which is prepended to later
+     `lean_verify` calls in that run.
+6. **Loop control.** The Planner iterates: spawn Workers -> collect outputs ->
+   independent review -> update whiteboard and repository -> next plan step,
+   until `CANDIDATE_COMPLETE_PROOF`, an exact gap report, or the compute
+   budget runs out. Do not use fixed worker counts as a principle; allocate
+   dynamically by marginal information gain.
+7. **Interactive steering.** When the user is in the loop, present each plan
+   or action set before executing it, allow the user to redirect Workers,
+   interrupt unpromising routes, and accept or reject the next actions with
+   feedback. In autonomous mode skip the prompts but keep everything else.
+
 **Numerical evidence discipline (hard rule):**
 
 - Numerical computation is allowed for exploration, counterexample search, and
@@ -188,6 +246,21 @@ wants formalized:
    record them as F-xxx in the audit report (do not silently change sources).
 4. Machine evidence required: build exit 0, zero sorry/admit/axiom hits,
    obligation map complete. No machine evidence => no "FORMALLY_VERIFIED".
+
+**Formalization feedback loop (mandatory):**
+
+Formalization errors are feedback, not dead ends. On every Lean failure,
+classify the error (statement / proof / dependency / boundary-convention),
+then repair at the correct layer:
+
+- If the flaw is in the Lean proof, repair the Lean file (statement freeze:
+  a statement change is a new audit, not a repair) and re-verify.
+- If the flaw is in the natural-language proof, route back to the solve-run
+  lead: fix the candidate proof, re-audit the affected obligations, then
+  re-formalize. Never silently patch a formalization around a real flaw in
+  the source argument.
+- Keep bounded loops (5-15 rounds per file by default), then report the exact
+  obstacle instead of weakening the claim.
 
 ### Stage boundary checks (mandatory)
 
@@ -258,6 +331,9 @@ agent writes an interruption handoff before returning control:
 - `assets/interruption-handoff.template.md` -- interrupted-work handoff
   template (routes tried, open obligations, next actions) for cross-session
   resume.
+- `assets/whiteboard.template.md` -- compact Planner-memory whiteboard
+  template (current plan, route history, deferred ideas, open obligations,
+  artifact index) for the OpenProver-style solve loop.
 - `scripts/validate_pipeline.py` -- deterministic task-packet, hash-binding,
   run-manifest, numerical-evidence discipline, and git gate checks for stage
   boundaries.

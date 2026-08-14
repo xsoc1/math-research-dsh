@@ -15,6 +15,9 @@ Checks:
   - run manifests under runs/** and lean-proof/run-manifest.json parse;
   - interruption handoff records (runs/**/handoff-interrupted-*.md) carry
     the required fields/sections so a successor agent can resume work;
+  - stage B solver runs started on or after the whiteboard cutover date carry
+    runs/<run_id>/whiteboard.md, and every whiteboard found carries the
+    required fields/sections of the OpenProver-style solve-loop memory;
   - completed manager runs carry a non-empty upstream status, and statuses
     outside the formalization gate are reported;
   - a run that claims a gate status (CANDIDATE_COMPLETE_PROOF / \u5df2\u8bc1)
@@ -54,6 +57,8 @@ MANAGER_MANIFEST_GLOB = "runs/**/run-manifest.json"
 LEAN_MANIFEST = "lean-proof/run-manifest.json"
 LEAN_VERDICT = "lean-proof/verification.json"
 LEAN_STATUS = "lean-proof/STATUS.md"
+WHITEBOARD_GLOB = "runs/**/whiteboard.md"
+WHITEBOARD_CUTOVER = 20260814
 
 PLACEHOLDER_VALUES = {"TASK-ID", "PROJECT-ID", "PROBLEM-ID", "RUN_ROOT"}
 ALLOWED_TASK_TYPES = {"solve", "disprove", "construct", "formalize", "rigorously audit"}
@@ -73,11 +78,20 @@ REQUIRED_HANDOFF_HEADINGS = {
     "Attempted routes",
     "Next actions",
 }
+REQUIRED_WHITEBOARD_FIELDS = ("Run ID", "Task packet ID")
+REQUIRED_WHITEBOARD_HEADINGS = {
+    "Current plan",
+    "Route history",
+    "Ideas to return to",
+    "Open obligations",
+    "Key artifacts",
+}
 HANDOFF_STATE_VALUES = {"IN_PROGRESS", "BLOCKED"}
 HANDOFF_ROUTE_RESULT_RE = re.compile(
     r"\[(FAILED|BLOCKED|PARTIAL|SUCCEEDED)\]",
     re.IGNORECASE,
 )
+RUN_DATE_RE = re.compile(r"R-(\d{8})T")
 DEFAULT_GATE_STATUSES = {"\u5df2\u8bc1", "CANDIDATE_COMPLETE_PROOF"}
 
 REQUIRED_PACKET_HEADINGS = {
@@ -500,6 +514,70 @@ def check_interruption_handoffs(root: Path, report: Report) -> None:
             )
 
 
+def run_start_date(run_dir: Path) -> int | None:
+    """Parse the R-YYYYMMDD start date embedded in a run directory name."""
+    match = RUN_DATE_RE.search(run_dir.name)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except ValueError:
+        return None
+
+
+def check_whiteboards(root: Path, report: Report) -> None:
+    """Validate the whiteboard memory protocol (OpenProver-style solve loop).
+
+    Stage B solver runs (identified by research_ledger.md) that start on or
+    after the whiteboard cutover date must carry runs/<run_id>/whiteboard.md;
+    historical runs are not retrofitted. Every whiteboard found must carry the
+    required fields and sections so the solve-run lead and any successor can
+    resume from it, and route lines should carry outcome markers.
+    """
+    whiteboards = sorted(root.glob(WHITEBOARD_GLOB))
+    if whiteboards:
+        report.ok(f"found {len(whiteboards)} run whiteboard(s)")
+    seen_dirs = {path.parent for path in whiteboards}
+    for path in whiteboards:
+        rel = path.relative_to(root)
+        fields, headings, text = parse_packet(path)
+        for key in REQUIRED_WHITEBOARD_FIELDS:
+            if not strip_inline_code(fields.get(key, "")):
+                report.bad(f"{rel}: missing required field {key!r} (whiteboard)")
+        for heading in REQUIRED_WHITEBOARD_HEADINGS:
+            if heading not in headings:
+                report.bad(f"{rel}: missing required section {heading!r} (whiteboard)")
+        routes = extract_section(text, "Route history")
+        unmarked = [
+            line.strip()
+            for line in routes.splitlines()
+            if line.strip().startswith("-") and not HANDOFF_ROUTE_RESULT_RE.search(line)
+        ]
+        if unmarked:
+            report.warn(
+                f"{rel}: {len(unmarked)} route line(s) without a "
+                "[FAILED|BLOCKED|PARTIAL|SUCCEEDED] outcome marker"
+            )
+    for run_dir in sorted(root.glob("runs/**")):
+        if not run_dir.is_dir() or run_dir in seen_dirs:
+            continue
+        if not (run_dir / "research_ledger.md").is_file():
+            continue
+        start = run_start_date(run_dir)
+        rel = run_dir.relative_to(root)
+        if start is None:
+            report.warn(
+                f"{rel}: solver run without a parseable start date; "
+                "cannot enforce the whiteboard cutover"
+            )
+            continue
+        if start >= WHITEBOARD_CUTOVER:
+            report.bad(
+                f"{rel}: solver run started {start} has no whiteboard.md "
+                f"(whiteboard protocol since {WHITEBOARD_CUTOVER})"
+            )
+
+
 def extract_section(text: str, heading: str) -> str:
     marker = f"## {heading}"
     parts = text.split(marker, 1)
@@ -579,6 +657,7 @@ def main() -> int:
 
     check_status_declaration(root, report)
     check_interruption_handoffs(root, report)
+    check_whiteboards(root, report)
 
     claim_files = iter_claim_files(root)
     report.ok(f"found {len(claim_files)} claim-bearing markdown file(s)")

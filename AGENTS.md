@@ -144,3 +144,16 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   (profiles/web/cordis.patch.yml).
 - 待办: dsh web 重启后 view_image 工具才生效 (重启会结束当前会话, 由用户决定时机);
   重启后可先用一张图片验证 view_image -> 本地 qwen3-vl 链路.
+### 2026-08-14 会话 (继承上游 25b380d: OpenProver 求解循环 + whiteboard 门禁)
+- 上游更新 (25b380d, 双仓已同步): workflow 插件蒸馏 OpenProver 求解循环 -
+  whiteboard 记忆协议 (assets/whiteboard.template.md) + 独立 Worker/Verifier 反馈 +
+  Lean 实时验证回路 (lean_verify/lean_search/lean_store) + 形式化反馈环 + 人工引导;
+  validate_pipeline.py 门禁硬校验 cutover 后求解 run 的 whiteboard (+81 行);
+  SKILL.md +93 行, workflow-design.md +64 行; cachebuster 0.1.0+codex.20260814120000.
+- 继承: 重跑 sync-from-parent.py (DSH 层自动重放, 无锚点冲突), lock 80 文件;
+  移植 smoke_whiteboard.py (路径改为 skills/ 布局) + pipeline-whiteboard-good/bad
+  fixtures; 公共 fixtures 与上游逐文件一致 (parity 检查通过).
+- 说明: 首次同步曾瞬时中断 (copy 阶段, 部分树 + validate 23 FAIL), 原样重跑即恢复,
+  无代码缺陷; 第二次同步全量成功.
+- 校验: 48 项全绿, 8 个 smoke 全过 (新增 whiteboard), sync-check 干净 (25b380d);
+  CI 待确认.
