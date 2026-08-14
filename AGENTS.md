@@ -58,3 +58,17 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   修复: regen_manifest 改按相对路径 as_posix() 字符串排序 (码点序, 跨平台确定);
   重同步后 MANIFEST/lock 更新, 本地 36 项 + 5 smoke + check 全绿. 诊断输出保留在
   run_check 中 (漂移文件打印 expected/current 哈希与首处差异行).
+### 2026-08-14 会话 (DSH 性能适配层)
+- 结合 DSH 运行时机制做性能适配 (全部经 sync-from-parent.py 层重放, 上游文件仍字节一致):
+  - 加载瘦身: 4 个 SKILL.md 的 changelog 段落迁出到 references/upstream-changelog.md,
+    正文替换为指针; 上游 changelog 以后增长不再拖累 skill 加载 (validate_all 新增
+    指针/参考文件/无残留 changelog 标题 3 项检查, 共 48 项).
+  - 截断感知: 新增 scripts/dsh_run.py (verdict 头 + FAIL 行 + verdict 尾 + 完整日志
+    落盘) 与 tests/smoke_dsh_run.py; 校验器忽略 .dsh_run.log 执行产物.
+  - DSH 执行模式: runtime notes 全部升级 (后台任务/spawn 子代理隔离/workflow fan-out/
+    goal 工具); 新增层自有文件 references/dsh-execution.md (rigorous+workflow) 与
+    assets/dsh-solve-audit-workflow.js (workflow 模板).
+  - README 中英同步更新 (DSH 性能适配表 + 同步契约 4 项 + 目录树).
+- 校验: 48 项全绿, 6 个 smoke 全过, sync --check 干净, lock 69 文件.
+- 诚实声明: rigorous changelog 本体仅 ~26 行, 该 skill 单次加载节省有限 (~1K tokens);
+  主要收益是 changelog 随上游增长的长期有界性与 workflow (~40 行) 的立省.

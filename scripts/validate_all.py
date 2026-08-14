@@ -39,10 +39,15 @@ EXPECTED_SKILLS = (
 
 
 def is_transient(path: pathlib.Path) -> bool:
-    """Python bytecode caches are execution artifacts, not repository content."""
-    return "__pycache__" in path.parts or path.suffix == ".pyc"
+    """Execution artifacts (bytecode caches, dsh_run logs), not repo content."""
+    return (
+        "__pycache__" in path.parts
+        or path.suffix == ".pyc"
+        or ".dsh_run.log" in path.name
+    )
 
 RUNTIME_NOTES_MARKER = "## DSH runtime notes (DSH adaptation)"
+CHANGELOG_POINTER_MARKER = "Changelog history (upstream entries and DSH adaptation entries) lives in"
 
 TEXT_SUFFIXES = frozenset(
     {".md", ".json", ".yaml", ".yml", ".txt", ".tex", ".lean", ".py", ".csv", ".svg", ".mmd"}
@@ -119,6 +124,20 @@ class Validator:
             self.check(
                 RUNTIME_NOTES_MARKER in joined or RUNTIME_NOTES_MARKER in "\n".join(lines),
                 f"skill '{name}' carries the DSH runtime notes block",
+            )
+            body_lines = "\n".join(lines)
+            self.check(
+                CHANGELOG_POINTER_MARKER in body_lines,
+                f"skill '{name}' SKILL.md points to the relocated changelog",
+            )
+            self.check(
+                not any(line.startswith("## Changelog (") for line in lines),
+                f"skill '{name}' has no un-relocated changelog headings in the body",
+            )
+            changelog_ref = skill_dir / "references" / "upstream-changelog.md"
+            self.check(
+                changelog_ref.is_file(),
+                f"skill '{name}' has references/upstream-changelog.md",
             )
 
     def check_manifest(self) -> None:

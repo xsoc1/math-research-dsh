@@ -87,11 +87,15 @@ This repository keeps every upstream file byte-identical except a minimal,
 machine-applied **DSH layer**:
 
 1. a `## DSH runtime notes (DSH adaptation)` block after each `SKILL.md`
-   frontmatter (explains the `$name` -> skill-tool mapping, `resourceBase`
-   file access, and how to run the bundled Python scripts);
-2. a DSH changelog block in each `SKILL.md`;
+   frontmatter (the `$name` -> skill-tool mapping, `resourceBase` file access,
+   how to run the bundled Python scripts, and the DSH execution patterns);
+2. each `SKILL.md`'s changelog sections moved to
+   `references/upstream-changelog.md` (keeps DSH skill loads light), replaced
+   by a one-line pointer in the body;
 3. the workflow `SKILL.md` doctor passages rewritten for the repository-level
-   `scripts/dsh-doctor.py` (the Codex `scripts/doctor.py` is dropped).
+   `scripts/dsh-doctor.py` (the Codex `scripts/doctor.py` is dropped);
+4. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow)
+   and `assets/dsh-solve-audit-workflow.js` (workflow).
 
 `scripts/sync-from-parent.py` copies the parent bundles, re-applies the layer,
 regenerates the manage bundle `MANIFEST.sha256`, and writes
@@ -106,6 +110,21 @@ python scripts\sync-from-parent.py --upstream "$env:DSH_HOME\_math-research-upst
 python scripts\sync-from-parent.py --upstream <parent-clone> --check
 ```
 
+## DSH performance adaptation
+
+Targeted adaptations for how the DSH runtime actually works (details in each
+bundle's `references/dsh-execution.md` and runtime notes):
+
+| DSH mechanism | Adaptation |
+|---|---|
+| skill load puts the whole body in context | changelog history moved out of the SKILL.md bodies; references/assets read on demand through `resourceBase` |
+| tool results truncated (~8K, head 4096 + tail 1024) | repository-level `scripts/dsh_run.py` wrapper: verdict + FAIL lines at the head, verdict repeated at the tail, full output on disk; scripts print verdicts last |
+| background jobs (no timeout) | long computations (numerical scans, lake build) run with `run_in_background: true`, collected via job_output |
+| spawn subagents start without the conversation | adversarial audit / verify roles use fresh `subagent` (zero chain-of-thought sharing by construction); `subagent_fork` is for context-heavy continuation |
+| workflow tool | `assets/dsh-solve-audit-workflow.js` template: per-packet parallel solve + audit, verify stage for qualified results only |
+| goal tools | multi-round objectives tracked with create_goal / get_goal / update_goal |
+| Windows environment | PYTHONUTF8=1, full python path, avoid one-line -c (write a temp .py) |
+
 ## Validation
 
 ```powershell
@@ -116,6 +135,7 @@ python smoke_handoff.py               # interruption handoff fixtures
 python smoke_lean_verify.py           # lean-verify scanner (no Lean toolchain needed)
 python smoke_sync_remotes.py          # multi-remote sync (local bare repos, no network)
 python smoke_doctor.py                # dsh-doctor via simulated environments
+python smoke_dsh_run.py               # prune-aware dsh_run wrapper
 ```
 
 GitHub Actions runs all of the above plus the `--check` drift comparison
@@ -129,10 +149,14 @@ skills/                         DSH skill bundles (synced from the parent + DSH 
   manage-math-research-program/   (incl. MANIFEST.sha256)
   math-research-workflow/
   lean-verify/
+  inside each bundle: references/upstream-changelog.md (relocated changelogs)
+                      references/dsh-execution.md (rigorous/workflow, execution playbook)
+                      assets/dsh-solve-audit-workflow.js (workflow, fan-out template)
 scripts/
   sync-from-parent.py             parent sync + layer replay + lock
   validate_all.py                 repository validation
   dsh-doctor.py                   DSH environment preflight
+  dsh_run.py                      prune-aware script wrapper (verdict head+tail, full log on disk)
 tests/                            smoke tests + fixtures
 upstream.lock.json                parent commit + per-file hashes
 install.ps1                       junction install into $DSH_HOME/skills

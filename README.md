@@ -75,10 +75,13 @@ python "$env:DSH_HOME\math-research-dsh\scripts\dsh-doctor.py"
 
 1. 每个 `SKILL.md` frontmatter 之后注入 `## DSH runtime notes (DSH adaptation)`
    (说明 `$name` -> skill 工具的映射, `resourceBase` 访问方式, 包内 Python 脚本
-   运行方式);
-2. 每个 `SKILL.md` 追加 DSH changelog 条目;
+   运行方式, 以及 DSH 执行模式);
+2. 每个 `SKILL.md` 的 changelog 段落迁出到 `references/upstream-changelog.md`
+   (保持 skill 加载轻量), 正文替换为一行指针;
 3. workflow `SKILL.md` 的 doctor 段落改写为仓库级 `scripts/dsh-doctor.py`
-   (Codex 版 `scripts/doctor.py` 移除).
+   (Codex 版 `scripts/doctor.py` 移除);
+4. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow) 与
+   `assets/dsh-solve-audit-workflow.js` (workflow).
 
 `scripts/sync-from-parent.py` 拷贝父仓库 bundles, 重放 DSH 层, 重生成 manage bundle
 的 `MANIFEST.sha256`, 并写入 `upstream.lock.json` (父仓库 commit + 逐文件哈希).
@@ -92,6 +95,21 @@ python scripts\sync-from-parent.py --upstream "$env:DSH_HOME\_math-research-upst
 python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 ```
 
+## DSH 性能适配
+
+针对 DSH 运行时的实际机制做的专项适配 (详见各 bundle 的 `references/dsh-execution.md`
+与 runtime notes):
+
+| DSH 机制 | 适配 |
+|---|---|
+| skill 工具加载全文进上下文 | changelog 历史迁出 SKILL.md 正文; references/assets 按需用 read 工具经 resourceBase 读取 |
+| 工具结果截断 (约 8K, 保留头 4096 + 尾 1024) | 仓库级 `scripts/dsh_run.py` 包装器: verdict 与 FAIL 行放头部, verdict 尾部重复, 完整输出落盘; 脚本惯例 = verdict 在末尾打印 |
+| 后台任务 (无超时) | 长计算 (数值扫描, lake build) 一律 `run_in_background: true` + job_output 收集, 不占轮次 |
+| spawn 子代理无会话种子 | 对抗性审计/验证用全新 `subagent` (天然零思维链共享); `subagent_fork` 留给上下文续接 |
+| workflow 工具 | `assets/dsh-solve-audit-workflow.js` 模板: 每个任务包 solve + audit 并行, 仅合格结果进 verify 阶段 |
+| goal 工具 | 多轮目标用 create_goal/get_goal/update_goal 跟踪 |
+| Windows 环境 | PYTHONUTF8=1, python 全路径, 避免一行 -c (写临时 .py) |
+
 ## 校验
 
 ```powershell
@@ -102,6 +120,7 @@ python smoke_handoff.py               # 中断交接 fixtures
 python smoke_lean_verify.py           # lean-verify 扫描 (无需 Lean 工具链)
 python smoke_sync_remotes.py          # 多远程同步 (本地 bare 仓库, 无网络)
 python smoke_doctor.py                # dsh-doctor 模拟环境
+python smoke_dsh_run.py               # dsh_run 截断感知包装器
 ```
 
 GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移比较.
@@ -114,10 +133,14 @@ skills/                         DSH skill bundles (父仓库同步 + DSH 层)
   manage-math-research-program/   (含 MANIFEST.sha256)
   math-research-workflow/
   lean-verify/
+  每个 bundle 内: references/upstream-changelog.md (changelog 迁出)
+                  references/dsh-execution.md (rigorous/workflow, 执行手册)
+                  assets/dsh-solve-audit-workflow.js (workflow, fan-out 模板)
 scripts/
   sync-from-parent.py             父仓库同步 + 层重放 + lock
   validate_all.py                 仓库校验
   dsh-doctor.py                   DSH 环境自检
+  dsh_run.py                      截断感知脚本包装器 (verdict 头尾 + 完整日志落盘)
 tests/                            冒烟测试 + fixtures
 upstream.lock.json                父仓库 commit + 逐文件哈希
 install.ps1                       junction 安装到 $DSH_HOME/skills
