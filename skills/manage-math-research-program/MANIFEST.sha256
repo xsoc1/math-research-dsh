@@ -1,9 +1,10 @@
+89bc8fac6e363ef3e5c91249483da8699db3a634044c1501b26cb395670803fd  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
+76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
 7e847c9d4f537c5147b7ba3c9783c1fe56db211e4eae32c9df74a542c77d543f  ./assets/blueprint-accepted-knowledge/blueprint.json
 97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5  ./assets/blueprint-accepted-knowledge/dependency_graph.mmd
 0422657e3a35ff5a7a2ef761fc6bb6270852d81b9a091027d4ce549fe3d46c51  ./assets/blueprint-accepted-knowledge/evidence_inventory.csv
-76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/submissions/.gitkeep
 efc24e7b4539d6741e11a013d5cd05b0a78d289e2f60511174b1fa8cb2ad3951  ./assets/blueprint-accepted-knowledge/tools/blueprint_common.py
 e382901b3047d2d9b2def10b662be7fe6e1d22c39a00d63fd077d6ccb197157d  ./assets/blueprint-accepted-knowledge/tools/blueprint_query.py
@@ -12,10 +13,10 @@ e382901b3047d2d9b2def10b662be7fe6e1d22c39a00d63fd077d6ccb197157d  ./assets/bluep
 9983c914070939addc9debf04126a2f1a673fef156be433afb5207dc77373be9  ./assets/blueprint-accepted-knowledge/tools/render_dependency_graph.py
 d78b9d40eab044bd31b056aee6fd21b5278c10a27e561380f2c4c7b841a37cd7  ./assets/blueprint-accepted-knowledge/tools/serve_blueprint_viewer.py
 609cf17bbc61df20491feadc32b444096f44b7c81e18f4d743752b6d155ca84f  ./assets/blueprint-accepted-knowledge/tools/validate_blueprint.py
+6cd95340c9747bfd7d3dca8c4a4f605ee09483def6d7bc708c9b22aef3034347  ./assets/blueprint-accepted-knowledge/viewer/README.md
 624f39ec99afdfc82310b318efbba2ee202c542f05f19473989bf7688030251b  ./assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.css
 b161b01080121752d134615e1019737f8c9869febdb8efcd0164783b41cba053  ./assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.js
 12479ab9acb62823c88384be649264786aa76549a949e12514a384982c514784  ./assets/blueprint-accepted-knowledge/viewer/index.html
-6cd95340c9747bfd7d3dca8c4a4f605ee09483def6d7bc708c9b22aef3034347  ./assets/blueprint-accepted-knowledge/viewer/README.md
 061550879a99328810ffe69b09ac220e1750359cb8eee58af27926c17bbf3e5b  ./assets/checkpoint.template.md
 f44bae2d84b2b1e4285cc8d52df0a626b73d877c85bfb6ec480acffbea40f52d  ./assets/current-state.template.json
 e19927c1197312b5934db790e8fc31692ad0b66016c5afb2485701666c65b48b  ./assets/open-problem-record.template.json
@@ -41,4 +42,3 @@ d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/t
 ebdb838aea20223c2841825fe135f0e549a47aacfc877e962e0beec8371d6b48  ./scripts/init_project.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
 389ab2df14424d92384072a17123682e1fb8712a98fb6915cdd7d86ad9c409ee  ./scripts/validate_project.py
-89bc8fac6e363ef3e5c91249483da8699db3a634044c1501b26cb395670803fd  ./SKILL.md

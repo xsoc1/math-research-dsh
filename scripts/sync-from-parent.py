@@ -303,10 +303,17 @@ def is_transient(path: Path) -> bool:
 
 
 def regen_manifest(bundle: Path) -> None:
+    # Sort by the POSIX-style relative path STRING: Path objects compare
+    # case-insensitively on Windows (pathlib normcase) but case-sensitively
+    # on POSIX, which would make the generated MANIFEST content differ
+    # between platforms. Plain str comparison is code-point based everywhere.
+    files = [
+        p
+        for p in bundle.rglob("*")
+        if p.is_file() and p.name != "MANIFEST.sha256" and not is_transient(p)
+    ]
     entries = []
-    for p in sorted(p for p in bundle.rglob("*") if p.is_file()):
-        if p.name == "MANIFEST.sha256" or is_transient(p):
-            continue
+    for p in sorted(files, key=lambda path: path.relative_to(bundle).as_posix()):
         rel = "./" + p.relative_to(bundle).as_posix()
         entries.append(f"{sha256_norm(p)}  {rel}")
     write_norm(bundle / "MANIFEST.sha256", "\n".join(entries) + "\n")

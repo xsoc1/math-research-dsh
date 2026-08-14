@@ -52,3 +52,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   (22 个 FAIL); validate_all.py 与 sync-from-parent.py 全部文件遍历统一忽略
   __pycache__ 与 *.pyc (is_transient), 清理存量缓存后 36 项全绿, 5 个 smoke 全过,
   sync --check 干净.
+- 修复: CI sync-check 报 drift in MANIFEST.sha256. 根因 = pathlib 平台排序差异:
+  sorted() 对 Path 对象在 Windows 按大小写不敏感 (normcase), 在 Linux 按大小写敏感,
+  导致两端生成的 MANIFEST 行序不同 (本地首行 ./assets/..., CI 首行 ./SKILL.md).
+  修复: regen_manifest 改按相对路径 as_posix() 字符串排序 (码点序, 跨平台确定);
+  重同步后 MANIFEST/lock 更新, 本地 36 项 + 5 smoke + check 全绿. 诊断输出保留在
+  run_check 中 (漂移文件打印 expected/current 哈希与首处差异行).
