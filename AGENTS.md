@@ -94,3 +94,19 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   路径被实际使用. 结论: 行为质量无退化 (n=1 单样本, 不宣称提升); 机器性能
   43.6KB->10.7KB/load. 诚实标注: A2 回传收束未被本 A/B 检验 (审计 prompt 未走
   workflow 模板路径), 如需验证 A2 需按模板再跑一轮.
+### 2026-08-14 会话 (社区方法蒸馏吸收)
+- 检索开源 DSH 生态 (官方 deepseek-ai/deepseek-harness 63K stars + awesome 清单),
+  将可借鉴方法全部蒸馏进插件 (方法级借鉴, 自撰措辞, 无文字复制):
+  - 上游 (01140b1, 双仓同步, cachebuster 0.1.0+codex.20260814125833): rigorous
+    phase 文件纯增量 5 处 - 答案空间/验收标准 (phase-01), 覆盖维度 + coverage_gaps
+    (phase-23), 边际增益停止规则 + 证据三态 (phase-45), 零增益停止见证 (phase-12),
+    角色模型分层 (agent-orchestration); 来源 dsh-deep-research + dsh-multiagent-modes.
+  - 本仓库层: workflow 模板 v2 (manifest 头部/依赖声明 + 波次执行/roster 注入/
+    模型分层), dsh-execution.md 分级回报格式 + 第 7 节 context audit.
+  - 新工具: scripts/context-audit.py (指令链 64KB 截断标记/技能体积/重复段落/名字
+    遮蔽) + tests/smoke_context_audit.py.
+  - 观察不集成: jacobian (数学内核 MCP), dsh-automation (定时任务), dsh_workflow
+    (完整资产层) - 待真实痛点.
+  - 许可证: 全部方法级借鉴; dsh-multiagent-modes 为 CC BY-SA 4.0, 未来直接引用其
+    文字需同样开源署名 (README 已注明).
+- 校验: 48 项全绿, 7 个 smoke 全过, sync-check 干净 (01140b1), lock 77 文件; CI 待确认.
