@@ -37,6 +37,11 @@ EXPECTED_SKILLS = (
     "lean-verify",
 )
 
+
+def is_transient(path: pathlib.Path) -> bool:
+    """Python bytecode caches are execution artifacts, not repository content."""
+    return "__pycache__" in path.parts or path.suffix == ".pyc"
+
 RUNTIME_NOTES_MARKER = "## DSH runtime notes (DSH adaptation)"
 
 TEXT_SUFFIXES = frozenset(
@@ -138,7 +143,7 @@ class Validator:
         on_disk = {
             "./" + p.relative_to(skill_dir).as_posix()
             for p in skill_dir.rglob("*")
-            if p.is_file() and p.name != "MANIFEST.sha256"
+            if p.is_file() and p.name != "MANIFEST.sha256" and not is_transient(p)
         }
         for rel in sorted(set(listed) ^ on_disk):
             bad += 1
@@ -157,7 +162,7 @@ class Validator:
         self.check(isinstance(locked, dict) and len(locked) > 0, "lock lists at least one file")
         on_disk: dict[str, str] = {}
         for p in (self.root / "skills").rglob("*"):
-            if p.is_file():
+            if p.is_file() and not is_transient(p):
                 on_disk[p.relative_to(self.root / "skills").as_posix()] = hashlib.sha256(
                     norm(p.read_bytes())
                 ).hexdigest()

@@ -48,3 +48,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   与 "仓库间关系" 章节 (父仓库/fork/本仓库拓扑 + 单向同步关系 + 与 DSH 运行时关系).
 - AGENTS.md 维护规则新增第 7 条 (README 中英同步); 本文件追加会话记录.
 - 校验: validate_all 全绿; 提交后 push origin.
+- 修复: 跑 smoke 会在 bundle 内生成 __pycache__/*.pyc, 污染 lock/MANIFEST 覆盖检查
+  (22 个 FAIL); validate_all.py 与 sync-from-parent.py 全部文件遍历统一忽略
+  __pycache__ 与 *.pyc (is_transient), 清理存量缓存后 36 项全绿, 5 个 smoke 全过,
+  sync --check 干净.

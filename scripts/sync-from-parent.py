@@ -297,10 +297,15 @@ def copy_bundles(upstream: Path, dest_root: Path) -> None:
         apply_dsh_layer(dst, name)
 
 
+def is_transient(path: Path) -> bool:
+    """Python bytecode caches are execution artifacts, not repository content."""
+    return "__pycache__" in path.parts or path.suffix == ".pyc"
+
+
 def regen_manifest(bundle: Path) -> None:
     entries = []
     for p in sorted(p for p in bundle.rglob("*") if p.is_file()):
-        if p.name == "MANIFEST.sha256":
+        if p.name == "MANIFEST.sha256" or is_transient(p):
             continue
         rel = "./" + p.relative_to(bundle).as_posix()
         entries.append(f"{sha256_norm(p)}  {rel}")
@@ -322,7 +327,7 @@ def upstream_head(upstream: Path) -> str:
 def build_lock(skills_root: Path, upstream_commit: str) -> dict:
     files = {}
     for p in sorted(skills_root.rglob("*")):
-        if p.is_file():
+        if p.is_file() and not is_transient(p):
             files[p.relative_to(skills_root).as_posix()] = sha256_norm(p)
     return {"upstream_commit": upstream_commit, "files": files}
 
@@ -330,7 +335,7 @@ def build_lock(skills_root: Path, upstream_commit: str) -> dict:
 def current_state(skills_root: Path) -> dict:
     state = {}
     for p in sorted(skills_root.rglob("*")):
-        if p.is_file():
+        if p.is_file() and not is_transient(p):
             state[p.relative_to(skills_root).as_posix()] = sha256_norm(p)
     return state
 
