@@ -122,6 +122,8 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 | [dsh-agent-presets 队长模式](https://github.com/MoreChanger/dsh-agent-presets) | 角色 roster 数据化 (args.roles 注入, 加角色不改模板) | workflow 模板 v2 |
 | [dsh_workflow](https://github.com/icetomoyo/dsh_workflow) | workflow 资产化: manifest 头部 (intent/inputs/provenance/limits) | workflow 模板 v2 |
 | [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | 上下文注入审计: 指令链 64KB 截断标记 / 技能体积 / 重复段落 / 名字遮蔽 | `scripts/context-audit.py` |
+| [dsh-vision](https://github.com/william-jin-cmu/dsh-vision) + [dsh-vision-toolkit](https://github.com/Anionex/dsh-vision-toolkit) | 视觉调用约定 (VLM 输出 = 未验证输入, 回查规则, 免费档/本地端点) | `references/dsh-optional-capabilities.md` (rigorous + manage) |
+| [dsh-plugin-mineru](https://github.com/HuanLinOTO/dsh-plugin-mineru) + [dsh-paddle-ocr](https://github.com/omdsh-dev/dsh-paddle-ocr) | 文档解析调用约定 (PDF→结构化 Markdown, 长文档落盘引用) | 同上 + 上游 phase-01 第 9 条 |
 | 观察中: [jacobian](https://github.com/morluto/jacobian) (数学内核) / [dsh-automation](https://github.com/titanwings/dsh-automation) (定时任务) | 待真实痛点出现再集成 | — |
 
 许可证注意: 全部为方法级借鉴 (自撰措辞), 未复制任何仓库文字; 其中

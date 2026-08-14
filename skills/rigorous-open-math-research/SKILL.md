@@ -41,7 +41,9 @@ beside this bundle under the same skill roots.
   scripts print verdicts last; for long outputs run them through the
   repository-level wrapper scripts/dsh_run.py, which pins the verdict and the
   FAIL lines outside the truncated middle and keeps the full log on disk.
-- Full details: references/dsh-execution.md in this bundle.
+- Full details: references/dsh-execution.md in this bundle. Optional external
+  capabilities (vision for text-only models, document parsing to Markdown)
+  and their invocation conventions: references/dsh-optional-capabilities.md.
 
 # Rigorous Open Mathematics Research
 

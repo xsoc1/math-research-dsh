@@ -11,6 +11,7 @@ Before mathematical search:
 6. Record tool and web restrictions exactly.
 7. Separate historical facts from reconstructed prompts or suggested workflows.
 8. When the run workspace is a git repository, check its state before starting: record the current commit hash and any dirty files in the ledger. Do not silently overwrite uncommitted artifacts; commit them or record the divergence first.
+9. When scanned or layout-heavy documents must be read and a document-parsing service (PDF/images to structured Markdown, e.g. a MinerU-style parser) or an image-transcription service is available, use it and record the service and its version in the ledger. Parser and vision output is unverified input: re-check it against the original source before it may support any proof step. (Method distilled from the DSH ecosystem: https://github.com/HuanLinOTO/dsh-plugin-mineru, https://github.com/william-jin-cmu/dsh-vision, https://github.com/Anionex/dsh-vision-toolkit.)
 
 If exact-solution search is forbidden for benchmarking, use two phases:
 

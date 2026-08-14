@@ -1,4 +1,4 @@
-50c625fd247b6bf1ddb0acee29f2209696ff064bc032fd3d59f339477fc87505  ./SKILL.md
+819d932f25ee3759919e5f76e8dbabb99baa4ee7ad621459a70d62309ef19417  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -34,6 +34,7 @@ f18e9c21941d5cdada041ef1dc7acf6e7b82d869ddbf842e465ca7896eedd5ab  ./examples/01-
 d0824e428c4eb4ba48a18ae2bf539f3a73e22cb1cc0fcb2943a51c913fa55888  ./references/accepted-knowledge-pipeline.md
 54fe75dcfeccc47c2d42716a660f42c5512b9261b9df86de67a69fd5b08ce027  ./references/boundary-checklist.md
 e677b4bac672f77eb41f885835fa763b3c50308a2f13923e881e76e421872c1e  ./references/delegation-and-ingestion.md
+f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/dsh-optional-capabilities.md
 6546f9f45d72c72ad61d96284bc1356c457b0490f36281095bad4440c6e72c9c  ./references/git-sync.md
 5fe2b617034ec64d754afe7f31ed778e8bfa51ff8e31680ad1a966af8dc59713  ./references/literature-and-paper-analysis.md
 9185122c519bfa5399d9c2695ef33c87f3f71fe862a1adef18380746fcbf459a  ./references/project-repository-spec.md

@@ -110,3 +110,14 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   - 许可证: 全部方法级借鉴; dsh-multiagent-modes 为 CC BY-SA 4.0, 未来直接引用其
     文字需同样开源署名 (README 已注明).
 - 校验: 48 项全绿, 7 个 smoke 全过, sync-check 干净 (01140b1), lock 77 文件; CI 待确认.
+### 2026-08-14 会话 (可选外部能力目录)
+- 多模态检索结论: DSH 生态视觉插件以桥接外部 VLM 实现 (dsh-vision-toolkit 232 stars,
+  dsh-vision 13 stars 免费档), 文档解析 dsh-plugin-mineru (公式友好 PDF->Markdown).
+- 本部署机制核实: profiles/web 的 dsh.profile.bundles 层栈 + checkout 内 dsh plugin
+  (转发 pnpm) 存在, Node v24.17 满足要求; dsh CLI 不在 PATH (经 checkout bin 调用);
+  安装会动线上 web profile, 建议先副本 profile 试装 (未实际安装).
+- 蒸馏: 上游 dd3bfec phase-01 新增第 9 条 (解析/视觉输出 = 未验证输入, 回查原源;
+  cachebuster 0.1.0+codex.20260814154520); 本仓库新增层文件
+  references/dsh-optional-capabilities.md (vision 约定/文档解析约定/何时不用,
+  挂 rigorous + manage), runtime notes 指针同步; lock 79 文件.
+- 校验: 48 项全绿, 7 smoke 全过, sync-check 干净 (dd3bfec); CI 待确认.

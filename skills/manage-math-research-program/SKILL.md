@@ -44,7 +44,9 @@ beside this bundle under the same skill roots.
   update_goal).
 - Bundled scripts print verdicts last; for long outputs use the repository
   wrapper scripts/dsh_run.py (verdict + FAIL lines at the head, verdict at
-  the tail, full log on disk).
+  the tail, full log on disk). Optional external capabilities (document
+  parsing for the literature frontier, vision for scanned sources):
+  references/dsh-optional-capabilities.md.
 
 # Manage Mathematics Research Programs
 

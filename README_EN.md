@@ -138,6 +138,8 @@ Methods absorbed from the open-source DSH ecosystem into this plugin
 | [dsh-agent-presets captain mode](https://github.com/MoreChanger/dsh-agent-presets) | role roster as data (args.roles injection; extend roles without editing the template) | workflow template v2 |
 | [dsh_workflow](https://github.com/icetomoyo/dsh_workflow) | workflow-as-asset manifest header (intent/inputs/provenance/limits) | workflow template v2 |
 | [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | context injection audit: 64KB instruction-chain truncation, skill sizes, duplicate paragraphs, name shadowing | `scripts/context-audit.py` |
+| [dsh-vision](https://github.com/william-jin-cmu/dsh-vision) + [dsh-vision-toolkit](https://github.com/Anionex/dsh-vision-toolkit) | vision invocation conventions (VLM output = unverified input, re-check rule, free tier / local endpoints) | `references/dsh-optional-capabilities.md` (rigorous + manage) |
+| [dsh-plugin-mineru](https://github.com/HuanLinOTO/dsh-plugin-mineru) + [dsh-paddle-ocr](https://github.com/omdsh-dev/dsh-paddle-ocr) | document-parsing conventions (PDF to structured Markdown, long-output file references) | same + upstream phase-01 item 9 |
 | watching: [jacobian](https://github.com/morluto/jacobian) (math kernel) / [dsh-automation](https://github.com/titanwings/dsh-automation) (scheduled tasks) | integrate when a real need appears | — |
 
 License note: methods only, own wording, no text copied; dsh-multiagent-modes is

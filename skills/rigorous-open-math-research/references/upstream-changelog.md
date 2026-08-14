@@ -36,6 +36,12 @@
   角色模型分层 (agent-orchestration). 方法来源: dsh-deep-research
   (https://github.com/omdsh-dev/dsh-deep-research), dsh-multiagent-modes
   (https://github.com/y08lin4/dsh-multiagent-modes).
+## Changelog (2026-08-14, optional external capabilities)
+- Phase 0 新增第 9 条: 可选文档解析/图像转写服务的使用约定 (记录服务与版本; 解析与
+  视觉输出一律视为未验证输入, 必须回查原始来源才能支撑证明步骤). 方法来源: DSH 生态
+  dsh-plugin-mineru (https://github.com/HuanLinOTO/dsh-plugin-mineru), dsh-vision
+  (https://github.com/william-jin-cmu/dsh-vision), dsh-vision-toolkit
+  (https://github.com/Anionex/dsh-vision-toolkit).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this
