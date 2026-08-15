@@ -15,6 +15,8 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `scripts/validate_all.py` -- 仓库校验 (结构/MANIFEST/lock/UTF-8+LF/py_compile/JSON+YAML)
 - `scripts/dsh-doctor.py` -- DSH 环境自检 (skill 挂载/python/lake)
 - `tests/` -- fixtures + 5 个 smoke
+- `package.json` / `index.mjs` / `cordis.patch.yml` -- 官方 bundle 技能包 (社区一键安装)
+- `scripts/dsh-check-bundle.py` -- bundle 打包门禁 (package.json/patch/index.mjs/skills)
 - `upstream.lock.json` -- 父仓库 commit + 逐文件哈希
 - `install.ps1` -- 安装到 $DSH_HOME/skills 的 junction (热更新)
 
@@ -29,6 +31,8 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 5. 提交后按 project.json 的 git_sync.push_order push (当前只有 origin).
 6. 本机安装用 install.ps1 (junction 热更新); `git pull` 后无需重装.
 7. README 中英两版必须同步更新 (README.md 中文 + README_EN.md 英文, 顶部互链).
+8. 内容变更 (skill 正文/脚本) 时同步 bump package.json 的 version.
+9. bundle 安装与 junction 安装二选一, 不要同时用 (同一批 skill 会双份注册).
 
 ## 会话记录
 ### 2026-08-14 会话: 初始适配 (从 Codex 父仓库)
@@ -185,3 +189,25 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   smoke_handoff; whiteboard -> smoke_whiteboard; 形式化决策 -> smoke_formalization;
   Lean 扫描/机器证据 -> smoke_lean_verify; 多远程同步 -> smoke_sync_remotes;
   环境 -> smoke_doctor (DSH 版). 48 项 + 9 smoke 全绿, CI 待确认.
+### 2026-08-16 会话: 社区市场接入 (安装 dsh-market + 本仓库打包提交社区)
+- 任务: 在社区搜索并安装一个插件市场的插件, 然后把本仓库提交到社区.
+- 调研结论: 官方 0811 已删除 repository 插件机制, 社区插件统一经 profile bundle 安装
+  (dsh.bundle 包进 dsh.profile.bundles 层栈 / 纯 cordis 包走 cordis.patch.yml insert);
+  本机 checkout 无 marketplace 子命令, 也无 dsh.skills 字段支持; 技能包插件范式 =
+  package.json (dsh.bundle.patch) + index.mjs (FileSystemSkillProvider + customSkillDirs,
+  includeDefaultRoots: false 隔离根) + cordis.patch.yml (insert 行).
+- 安装市场: dshmarket 1.3.0 (dsh-market, awesome 列表推荐) 装进 web profile
+  (dependencies + bundles + minimumReleaseAgeExclude; 免构建授权, 产物已入库);
+  重启 dsh web 后设置页出现插件市场.
+- 本仓库打包 (e74f163): package.json (name math-research-dsh, version 0.1.0,
+  dsh.bundle.patch + marketplace 声明), index.mjs (4 skill 目录注册, 隔离 provider),
+  cordis.patch.yml; 新增 scripts/dsh-check-bundle.py 门禁并接入 CI;
+  README 双语加社区安装路径 + badge + 目录/规则更新.
+- 验证: dsh-check-bundle BUNDLE OK; node --check 通过; validate_all 48 项全绿;
+  sync --check 无漂移; 真实 runtime 包 (profiles closure 的 dsh-skill-filesystem)
+  发现并加载全部 4 个 skill (正文/描述/resourceBase 正常); CI (e74f163) success.
+- 社区提交: 仓库打上 dsh-plugin topic; fork awesome-dsh-plugin 并 PR #445
+  (README.md + README.zh.md Skills/技能包分类各一条目); 收录经合并后
+  awesome-dsh-plugin.com 与 dsh-market 自动生效 (通常一天内).
+- 待办: 重启 dsh web 后可在设置页看到插件市场 (dshmarket); 如用 bundle 安装本仓库
+  则与 junction 二选一; PR #445 等待维护者合并.
