@@ -6,8 +6,8 @@
     "lean-verify/assets/verification_output.schema.json": "cf2f2532843b8b03fe7f3d42ccbf5bc8565a3871afe44a14bc7bb1e8fd4f7b26",
     "lean-verify/references/upstream-changelog.md": "42e6a7b7626392276d6656a01405855fd8178b769f996a95013f1c100741827b",
     "lean-verify/scripts/verify_lean_project.py": "4e80166a445af2c8b3246fdec93fd4e91b6659c77470958df61e64796040005c",
-    "manage-math-research-program/MANIFEST.sha256": "714c41e3552224a824e4c75c7f4034de4059b59ea6899d4b46bec22d9a20cfaf",
-    "manage-math-research-program/SKILL.md": "42d127daef69b72be533a5476fe8af563d0a7659f158246f5d5743d453af3886",
+    "manage-math-research-program/MANIFEST.sha256": "ca36b7d5ae48ad0bb8be9257b23ab02eb01296cf4be45a3ad158a442f41ccf18",
+    "manage-math-research-program/SKILL.md": "198c15247c2b9914f7a9309f93f53a0309839fe01937c4a4c635261fcd1b0cd4",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/.blueprint/config.json": "43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/README.md": "76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
@@ -82,5 +82,5 @@
     "rigorous-open-math-research/references/subagent-delegation.md": "c09bb12d99aa0f7e41d21664e6752f4ba23d8aba63b2f7e0c19be13fab0cc719",
     "rigorous-open-math-research/references/upstream-changelog.md": "d6e15e091ec09582527e50303f231fe06cb80dbcd48471ccf856cb17ba73e486"
   },
-  "upstream_commit": "dfd03f99f960ca0bc9c2a6963cee26ab6680fd29"
+  "upstream_commit": "3279e1a457dad355f869a0a9deaeb42534f1bcd0"
 }
