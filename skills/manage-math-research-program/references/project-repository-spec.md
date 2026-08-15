@@ -61,6 +61,12 @@ PROJECT_ROOT/
 ├── runs/
 │   └── rigorous-open-math-research/
 ├── reports/
+├── papers/
+│   └── <SLUG>/
+│       ├── <SLUG>-en.tex      (arXiv-style human-readable proof, English)
+│       ├── <SLUG>-zh.tex      (Chinese companion, same statement/proof structure)
+│       ├── <SLUG>-en.pdf      (compiled, when a toolchain is available)
+│       └── build/             (intermediate LaTeX artifacts)
 └── archive/
     ├── superseded/
     └── rejected-duplicates/
@@ -74,6 +80,7 @@ The `runs/rigorous-open-math-research/` directory is an allowed destination for 
 |---|---|---|
 | `project.json`, `PROJECT.md`, `state/`, `index/` | manager | Authoritative program state. |
 | `literature/`, `agenda/`, `knowledge/`, `reports/` | manager | Project-level curation and synthesis only. |
+| `papers/` | manager | Human-readable LaTeX proofs of Lean-verified theorems (workflow 8c): English arXiv-style version + Chinese companion, each bound to its machine verification. |
 | `knowledge/blueprint.json`, `knowledge/evidence_inventory.csv`, `knowledge/submissions/` | deterministic receiver | Canonical accepted-knowledge base; changes only through the receiver after independent review. |
 | `runs/rigorous-open-math-research/RUN_ID/` | upstream solver | May contain upstream standard artifacts. Manager records paths and hashes. |
 | `archive/` | manager | Superseded records and rejected duplicates; never use as an active premise. |
@@ -193,7 +200,8 @@ Every relation includes source and target IDs, type, evidence location, date rec
 
 At minimum validate:
 
-- required files and directories exist;
+- required files and directories exist (including `papers/` with its README);
+- every `papers/<SLUG>/*.tex` header carries the formalization contract (Lean paths, verification commit hash, zero sorry/axiom) and, when a PDF is present, the PDF exists for both the English and the Chinese source;
 - JSON parses;
 - IDs are unique within and across indexes where required;
 - canonical record paths resolve;

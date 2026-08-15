@@ -36,6 +36,7 @@ REQUIRED_FILES = [
     "knowledge/blueprint.json",
     "knowledge/evidence_inventory.csv",
     "knowledge/blueprint_update_requests.jsonl",
+    "papers/README.md",
 ]
 
 REQUIRED_DIRECTORIES = [
@@ -52,6 +53,7 @@ REQUIRED_DIRECTORIES = [
     "knowledge/artifacts",
     "runs/rigorous-open-math-research",
     "reports",
+    "papers",
     "archive/superseded",
     "archive/rejected-duplicates",
 ]

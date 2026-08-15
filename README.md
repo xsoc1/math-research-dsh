@@ -39,7 +39,7 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 | DSH skill | 角色 | 随包工具 |
 |---|---|---|
 | `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/validate_pipeline.py`, `assets/` 模板 |
-| `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线 | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
+| `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
 | `rigorous-open-math-research` | 求解层: 定理契约, 路线搜索, 对抗性审计, 校准式报告 | `references/`, `assets/` |
 | `lean-verify` | Lean 4 形式化审计: sorry/axiom 扫描, 义务级审计, 结构化裁决 | `scripts/verify_lean_project.py`, `assets/` 模板 |
 

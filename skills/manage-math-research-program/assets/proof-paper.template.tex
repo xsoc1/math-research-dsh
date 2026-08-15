@@ -1,0 +1,103 @@
+% proof-paper.template.tex
+% Human-readable proof delivery for a Lean-verified theorem
+% (manage-math-research-program workflow 8c).
+%
+% Conventions (arXiv-style, English version):
+%   - documentclass amsart (the arXiv-recommended class);
+%   - amsthm + amsmath + hyperref; every reference carries a DOI or arXiv link;
+%   - compile with xelatex to zero warnings; record the compile result in the
+%     checkpoint; keep intermediate files under papers/<SLUG>/build/.
+%
+% Chinese companion:
+%   - copy this file to <SLUG>-zh.tex, switch the preamble to a CJK-capable
+%     setup (e.g. xelatex with \usepackage{xeCJK} or the ctexart class), and
+%     keep the SAME theorem statements, proof structure, and references.
+%
+% Statement/proof discipline:
+%   - the header MUST state the formalization contract (Lean file paths,
+%     verification commit hash, lake build, zero sorry/axiom) and the LaTeX
+%     statement MUST match the formalized statement;
+%   - keep STRICT vs EVIDENCE labels: numerical checks, conjectures, and open
+%     problems are labeled (STRICT / EVIDENCE / conjecture / open) and never
+%     presented as proved.
+
+\documentclass{amsart}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{<SLUG>: <Human-readable title of the theorem>}
+\author{<Author or project name>}
+\date{\today}
+
+\begin{document}
+
+\begin{abstract}
+<One-paragraph statement of the result and its context.>
+\end{abstract}
+
+\maketitle
+
+\section{Formalization contract}
+\label{sec:formalization}
+
+This document is the human-readable companion of a machine-verified proof.
+
+\begin{center}
+\begin{tabular}{ll}
+Lean file(s): & \texttt{<path/to/SL*.lean>}\\
+Verified statement: & \texttt{<statement name in Lean>}\\
+Verification commit: & \texttt{<commit hash>}\\
+\texttt{lake build}: & passed\\
+\texttt{sorry}/\texttt{axiom} hits: & 0\\
+Audit: & <link to audit_report.md / verification.json>
+\end{tabular}
+\end{center}
+
+The statement below matches the formalized statement exactly. The proof that
+follows is a human re-derivation; the machine check remains authoritative.
+
+\section{Statement}
+\label{sec:statement}
+
+\begin{theorem}[<Name, matching the Lean declaration>]
+\label{thm:main}
+<State the theorem exactly as formalized, including every hypothesis and the
+precise conclusion.>
+\end{theorem}
+
+\section{Proof}
+\label{sec:proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+<Give the full natural-language proof, step by step, with every claim either
+proved in place or referred to an explicit lemma. Do not assert anything the
+machine-checked statement does not imply.>
+\end{proof}
+
+\section{Remarks, evidence, and open questions}
+\label{sec:remarks}
+
+\begin{itemize}
+\item Numerical checks in this project are \emph{evidence only}
+(\texttt{EVIDENCE}) and do not constitute proof; see <path to repro script>.
+\item The following points remain \emph{conjectures} / \emph{open}: <...>.
+\end{itemize}
+
+\bibliographystyle{amsplain}
+\begin{thebibliography}{9}
+
+\bibitem{<key>}
+<Author>. <Title>. <Venue, year>, \href{<doi or arxiv url>}{<stable link>}.
+
+\end{thebibliography}
+
+\end{document}

@@ -46,7 +46,7 @@ xsoc1/math-research-dsh                     this repo (DSH adaptation, public)
 | DSH skill | Role | Bundled tooling |
 |---|---|---|
 | `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/validate_pipeline.py`, `assets/` templates |
-| `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
+| `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline; mandatory arXiv-style bilingual LaTeX proof delivery (`papers/`) after Lean verification | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
 | `rigorous-open-math-research` | Solver layer: theorem contracts, route search, adversarial audit, calibrated reporting | `references/`, `assets/` |
 | `lean-verify` | Lean 4 formalization audit: sorry/axiom scan, obligation audit, structured verdict | `scripts/verify_lean_project.py`, `assets/` templates |
 

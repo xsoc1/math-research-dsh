@@ -32,6 +32,7 @@ DIRECTORIES = [
     "knowledge/artifacts",
     "runs/rigorous-open-math-research",
     "reports",
+    "papers",
     "archive/superseded",
     "archive/rejected-duplicates",
 ]
@@ -206,6 +207,24 @@ python /path/to/manage-math-research-program/scripts/validate_project.py "{root}
         "agenda/PRIORITIES.md": "# Portfolio priorities\n\nRecord planning priorities and rationales here.\n",
         "knowledge/GLOSSARY.md": "# Project glossary\n\n",
         "knowledge/FAILURE_PATTERNS.md": "# Reusable failure and obstruction patterns\n\nOnly add source-located or upstream-supported mechanisms.\n",
+        "papers/README.md": (
+            "# Papers (human-readable LaTeX proofs)\n\n"
+            "Every theorem whose Lean verification passes (FORMALLY_VERIFIED, "
+            "build_passed, zero sorry/axiom) must be delivered here as a "
+            "human-readable LaTeX proof, per manage-math-research-program "
+            "workflow 8c:\n\n"
+            "- one folder per result: `papers/<SLUG>/`;\n"
+            "- `<SLUG>-en.tex`: English version, arXiv style "
+            "(`\\documentclass{amsart}` + amsthm/amsmath/hyperref, title, "
+            "abstract, numbered theorem environments, references with DOI or "
+            "arXiv links);\n"
+            "- `<SLUG>-zh.tex`: Chinese companion, same statement and proof "
+            "structure;\n"
+            "- the header states the formalization contract (Lean file paths, "
+            "verification commit hash, lake build, zero sorry/axiom);\n"
+            "- STRICT vs EVIDENCE labels stay explicit; compiled PDFs go next "
+            "to the sources or under `papers/<SLUG>/build/`.\n"
+        ),
     }
     for relative_path, content in seed_files.items():
         write_new(root / relative_path, content)

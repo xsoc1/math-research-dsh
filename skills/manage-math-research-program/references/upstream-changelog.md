@@ -12,6 +12,17 @@
 - 任务包模板新增可选 `Verify: yes|no|not-requested` 字段: yes 表示该 run 进入
   Stage C Lean 验证, run-manifest 必须记录 formalization: requested 并产出机器
   验证证据; 配合 workflow 门禁的形式化决策检查 (静默跳过验证 = FAIL).
+
+## Changelog (2026-08-16, human-readable LaTeX proof delivery)
+- 新增第 8c 节 (强制): Lean 验证通过 (FORMALLY_VERIFIED + build_passed +
+  零 sorry/axiom) 的定理必须在 `papers/<SLUG>/` 交付人类可读 LaTeX 证明文档 -
+  英文 arXiv 规范版 (`\documentclass{amsart}` + amsthm/amsmath/hyperref, 标题/
+  摘要/编号定理环境/带 DOI 或 arXiv 链接的参考文献, xelatex 零警告) 与中文对照版
+  (同一陈述/证明结构/文献), 文档头绑定机器验证契约 (Lean 路径/验证提交哈希/
+  lake build/零 sorry-axiom), 陈述与形式化一致, STRICT vs EVIDENCE 标签纪律
+  不变; 证据规则 13 与项目完成清单同步; 新增模板
+  `assets/proof-paper.template.tex`; init/validate 创建并校验 `papers/`
+  (目录 + README), MANIFEST.sha256 重新生成.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

@@ -285,6 +285,43 @@ When the user authorizes acceptance and an upstream run produced reusable knowle
 
 Full contracts and CLI details are in `references/accepted-knowledge-pipeline.md`.
 
+## 8c. Deliver human-readable proofs as arXiv-style LaTeX (papers/)
+
+Every theorem whose run passes Lean verification (machine verdict
+`FORMALLY_VERIFIED` with `build_passed: true` and zero sorry/axiom hits) must
+also be delivered as a human-readable LaTeX proof document under `papers/`,
+so people can read and check the result without touching the Lean code. This
+is a mandatory delivery for formally verified results, not an optional extra.
+
+1. **Location and naming.** One folder per result: `papers/<SLUG>/` holding
+   `<SLUG>-en.tex` (English, the arXiv-style version) and `<SLUG>-zh.tex`
+   (Chinese companion). Compiled PDFs may sit next to the sources or under
+   `papers/<SLUG>/build/`. `<SLUG>` is the stable result slug used in the
+   indexes.
+2. **arXiv-style conventions (English version).** Use `\documentclass{amsart}`
+   (the arXiv-recommended class) with `amsthm`, `amsmath`, and `hyperref`;
+   include a title, author, date, abstract, numbered theorem/lemma/proof
+   environments, and a references list in which every cited paper carries a
+   stable DOI or arXiv link. Compile with `xelatex` (or `latexmk`) to zero
+   warnings when a toolchain is available, and record the compile result in
+   the checkpoint. The template is `assets/proof-paper.template.tex`.
+3. **Machine-verification binding.** The header or first section must state
+   the formalization contract: Lean file paths, the verified statement, the
+   verification commit hash, `lake build` success, and zero sorry/axiom hits.
+   The LaTeX statement must match the formalized statement; the prose proof
+   is a human re-derivation, never a replacement for the machine check, and
+   must not assert anything the machine-checked statement does not imply.
+4. **Evidence discipline.** Keep the STRICT vs EVIDENCE label discipline in
+   the document. Anything not machine-verified (numerical checks, conjectures,
+   open problems) must be explicitly labeled (`STRICT`, `EVIDENCE`, `猜想`,
+   `开放`) and never presented as proved.
+5. **Bilingual parity.** The Chinese version states the same theorems, proof
+   structure, and references as the English version; it may add explanatory
+   prose but must not change the statement or the proof obligations.
+6. **Registration.** Record the `papers/` paths and the source-tex hashes in
+   the run record, the artifact index, and (when the accepted-knowledge
+   pipeline is used) the receipt.
+
 ## 9. Checkpoint and close a stage
 
 After every substantial literature batch, paper analysis, delegation, or ingestion:
@@ -315,6 +352,7 @@ Before closing a stage, rebuild the program state from files only (indexes, `sta
 10. The canonical accepted-knowledge base changes only through the deterministic receiver. Never edit `knowledge/blueprint.json`, `knowledge/evidence_inventory.csv`, or any submission artifact by hand.
 11. Bind task packets and research sub-agents to a knowledge snapshot hash. A snapshot mismatch invalidates all accumulated retrieval.
 12. Keep transaction status separate from research status. A merged partial lemma means the record was accepted, not that the goal is solved; report `research_status` such as `partial_progress` until the target belongs to the post-merge trusted closure.
+13. Every Lean-verified theorem must ship a human-readable LaTeX proof under `papers/` (English arXiv-style version + Chinese companion) bound to the machine verification as described in workflow 8c; no formally verified result is complete without it.
 
 # Project-level completion
 
@@ -326,6 +364,7 @@ A program-management stage is complete when:
 - the current state and recovery entry are current;
 - every concrete mathematical task is either delegated, queued, or explicitly out of scope;
 - upstream results are linked and represented without changing their status;
+- every formally verified theorem has its `papers/` LaTeX delivery (English + Chinese versions, bound to the machine verification);
 - the accepted-knowledge base (when present) is consistent and its latest snapshot is recorded;
 - the project repository is committed and synchronized with its remote;
 - the stage summary states what changed, what remains, and what should happen next.

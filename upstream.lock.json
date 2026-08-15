@@ -6,8 +6,8 @@
     "lean-verify/assets/verification_output.schema.json": "cf2f2532843b8b03fe7f3d42ccbf5bc8565a3871afe44a14bc7bb1e8fd4f7b26",
     "lean-verify/references/upstream-changelog.md": "706de333d03194f23cd4c0524a12d9a5aafcb8a981647d3af58ba28fab7eacf2",
     "lean-verify/scripts/verify_lean_project.py": "4e80166a445af2c8b3246fdec93fd4e91b6659c77470958df61e64796040005c",
-    "manage-math-research-program/MANIFEST.sha256": "c93518b7381114a7e14242246829ea11980692d389cd5e5c09c43104b048ec7a",
-    "manage-math-research-program/SKILL.md": "819d932f25ee3759919e5f76e8dbabb99baa4ee7ad621459a70d62309ef19417",
+    "manage-math-research-program/MANIFEST.sha256": "4e35d16f0ab7b64a0929f0dc7c3b1b590dac0320519590797d9735ee1cf75083",
+    "manage-math-research-program/SKILL.md": "3efe338e7a483b42c405c499787628706c0f391d47dd2bab7ffef152977df2f4",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/.blueprint/config.json": "43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/README.md": "76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
@@ -33,6 +33,7 @@
     "manage-math-research-program/assets/paper-record.template.json": "332c1abf9be8fbad21fcb15890b2454f48c85792e4cab678fd50a44e4cd153e7",
     "manage-math-research-program/assets/project-overview.template.md": "c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7",
     "manage-math-research-program/assets/project.template.json": "5803efec74de8c2f974bed2b69dd920790cf2089830db9558f7be2d2bcec439f",
+    "manage-math-research-program/assets/proof-paper.template.tex": "3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d",
     "manage-math-research-program/assets/run-manifest.template.json": "d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20",
     "manage-math-research-program/assets/search-log.template.md": "3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47",
     "manage-math-research-program/assets/stage-summary.template.md": "c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca",
@@ -46,13 +47,13 @@
     "manage-math-research-program/references/dsh-optional-capabilities.md": "f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95",
     "manage-math-research-program/references/git-sync.md": "6546f9f45d72c72ad61d96284bc1356c457b0490f36281095bad4440c6e72c9c",
     "manage-math-research-program/references/literature-and-paper-analysis.md": "5fe2b617034ec64d754afe7f31ed778e8bfa51ff8e31680ad1a966af8dc59713",
-    "manage-math-research-program/references/project-repository-spec.md": "9185122c519bfa5399d9c2695ef33c87f3f71fe862a1adef18380746fcbf459a",
+    "manage-math-research-program/references/project-repository-spec.md": "731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f",
     "manage-math-research-program/references/state-checkpoints-and-reports.md": "9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051",
     "manage-math-research-program/references/tool-library-spec.md": "d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2",
-    "manage-math-research-program/references/upstream-changelog.md": "dc50d9bd3bc3c00f1fddb81e93aaeaaef98389cb9062839cb70b5b562b842741",
-    "manage-math-research-program/scripts/init_project.py": "ebdb838aea20223c2841825fe135f0e549a47aacfc877e962e0beec8371d6b48",
+    "manage-math-research-program/references/upstream-changelog.md": "0129542c08b4fddb3e24af2d60956cbc01d5bf671930006d9e0231c3d37bd0ff",
+    "manage-math-research-program/scripts/init_project.py": "30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0",
     "manage-math-research-program/scripts/sync_remotes.py": "5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324",
-    "manage-math-research-program/scripts/validate_project.py": "389ab2df14424d92384072a17123682e1fb8712a98fb6915cdd7d86ad9c409ee",
+    "manage-math-research-program/scripts/validate_project.py": "545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940",
     "math-research-workflow/SKILL.md": "ef55b6e8ce5469c8a2c53894bfd57da85c07eac1b8c0143a915273cf232e92d3",
     "math-research-workflow/assets/dsh-solve-audit-workflow.js": "cffb365e08c12a16ec30ed5d2d73366daf2b80c9382a2264048533163e3d6591",
     "math-research-workflow/assets/interruption-handoff.template.md": "c8a0c45f360436d204b19af1df5b2c4d10bd6f5014c14e50475898f21f657fff",
@@ -81,5 +82,5 @@
     "rigorous-open-math-research/references/subagent-delegation.md": "c09bb12d99aa0f7e41d21664e6752f4ba23d8aba63b2f7e0c19be13fab0cc719",
     "rigorous-open-math-research/references/upstream-changelog.md": "3f1d98f113a7272d3f82714774ab9a51442699bdc7ca6ece835d9aed96842a75"
   },
-  "upstream_commit": "56d66575bb3da9cce124b19a11a1e1e7fc34fed9"
+  "upstream_commit": "b2f45c937e83d95798fce3169e198137c4146daa"
 }

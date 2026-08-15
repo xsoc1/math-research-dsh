@@ -1,4 +1,4 @@
-819d932f25ee3759919e5f76e8dbabb99baa4ee7ad621459a70d62309ef19417  ./SKILL.md
+3efe338e7a483b42c405c499787628706c0f391d47dd2bab7ffef152977df2f4  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -24,6 +24,7 @@ e19927c1197312b5934db790e8fc31692ad0b66016c5afb2485701666c65b48b  ./assets/open-
 332c1abf9be8fbad21fcb15890b2454f48c85792e4cab678fd50a44e4cd153e7  ./assets/paper-record.template.json
 c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7  ./assets/project-overview.template.md
 5803efec74de8c2f974bed2b69dd920790cf2089830db9558f7be2d2bcec439f  ./assets/project.template.json
+3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d  ./assets/proof-paper.template.tex
 d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-manifest.template.json
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
@@ -37,10 +38,10 @@ e677b4bac672f77eb41f885835fa763b3c50308a2f13923e881e76e421872c1e  ./references/d
 f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/dsh-optional-capabilities.md
 6546f9f45d72c72ad61d96284bc1356c457b0490f36281095bad4440c6e72c9c  ./references/git-sync.md
 5fe2b617034ec64d754afe7f31ed778e8bfa51ff8e31680ad1a966af8dc59713  ./references/literature-and-paper-analysis.md
-9185122c519bfa5399d9c2695ef33c87f3f71fe862a1adef18380746fcbf459a  ./references/project-repository-spec.md
+731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-dc50d9bd3bc3c00f1fddb81e93aaeaaef98389cb9062839cb70b5b562b842741  ./references/upstream-changelog.md
-ebdb838aea20223c2841825fe135f0e549a47aacfc877e962e0beec8371d6b48  ./scripts/init_project.py
+0129542c08b4fddb3e24af2d60956cbc01d5bf671930006d9e0231c3d37bd0ff  ./references/upstream-changelog.md
+30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
-389ab2df14424d92384072a17123682e1fb8712a98fb6915cdd7d86ad9c409ee  ./scripts/validate_project.py
+545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940  ./scripts/validate_project.py

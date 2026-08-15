@@ -211,3 +211,18 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   awesome-dsh-plugin.com 与 dsh-market 自动生效 (通常一天内).
 - 待办: 重启 dsh web 后可在设置页看到插件市场 (dshmarket); 如用 bundle 安装本仓库
   则与 junction 二选一; PR #445 等待维护者合并.
+### 2026-08-16 会话: manage 继承上游 8c 规范 (人类可读 LaTeX 双语证明交付)
+- 任务: 在 manage-math-research-program 加入规范 - Lean 验证之后必须有存放 LaTeX
+  格式证明的文件夹供人类自然语言阅读, 参考 arXiv 论文规范, 中英两个版本.
+- 上游变更 (b2f45c9, 双推 origin+fork): SKILL.md 新增工作流 8c (强制) - Lean 验证
+  通过 (FORMALLY_VERIFIED + build_passed + 零 sorry/axiom) 的定理必须在
+  `papers/<SLUG>/` 交付 `<SLUG>-en.tex` (arXiv 规范: amsart + amsthm/amsmath/
+  hyperref, 摘要/编号定理环境/DOI 或 arXiv 链接, xelatex 零警告) + `<SLUG>-zh.tex`
+  (中文对照, 同一陈述/证明结构); 文档头绑定机器验证契约; STRICT/EVIDENCE 标签
+  纪律; 证据规则 13 + 完成清单; 模板 assets/proof-paper.template.tex;
+  init/validate 创建并校验 papers/; MANIFEST 45 条; cachebuster
+  0.1.0+codex.20260815170001; 根 README 中英版本历史.
+- 本仓库: sync-from-parent.py 继承 (upstream.lock 81 文件, DSH 层重放, MANIFEST 重
+  生成); validate_all 48 项 + BUNDLE OK + 9 冒烟全绿; package.json bump 0.1.1;
+  README 双语 manage 行补 papers/ 交付说明.
+- 待办: CI 确认; 若用 bundle 安装本仓库则与 junction 二选一.
