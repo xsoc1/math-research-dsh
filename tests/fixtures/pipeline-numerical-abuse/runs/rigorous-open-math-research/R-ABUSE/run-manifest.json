@@ -1,8 +1,9 @@
 {
-  "run_id": "R-ABUSE",
-  "task_packet_path": "agenda/task-packets/Q-20260813-abuse-AB12CD34.md",
-  "task_packet_sha256": "5E069C0469BC0F93E79B35E3577FA6A99B1AD96641F586968B84D9EF68012135",
-  "completed_at": "2026-08-13T05:00:00Z",
-  "upstream_status_verbatim": "CANDIDATE_COMPLETE_PROOF",
-  "manager_ingestion_state": "COMPLETED"
+    "run_id":  "R-ABUSE",
+    "task_packet_path":  "agenda/task-packets/Q-20260813-abuse-AB12CD34.md",
+    "task_packet_sha256":  "5E069C0469BC0F93E79B35E3577FA6A99B1AD96641F586968B84D9EF68012135",
+    "completed_at":  "2026-08-13T05:00:00Z",
+    "upstream_status_verbatim":  "CANDIDATE_COMPLETE_PROOF",
+    "manager_ingestion_state":  "COMPLETED",
+    "formalization":  "not_requested"
 }

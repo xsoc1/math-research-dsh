@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test for the manage-skill multi-remote sync helper (DSH layout).
+"""Smoke test for the manage-skill multi-remote sync helper.
 
 Uses local bare repositories only; no network access is required.
 """
@@ -14,7 +14,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPT = ROOT / "skills" / "manage-math-research-program" / "scripts" / "sync_remotes.py"
+SCRIPT = (
+    ROOT
+    / "skills" / "manage-math-research-program"
+    / "scripts"
+    / "sync_remotes.py"
+)
 
 
 def run(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -52,6 +57,7 @@ def main() -> int:
         bare_b = tmp / "bare-b.git"
         for bare in (bare_a, bare_b):
             subprocess.run(["git", "init", "--bare", str(bare)], capture_output=True, check=True)
+            # bare repos need a default branch for push to be deterministic
             subprocess.run(
                 ["git", "--git-dir", str(bare), "symbolic-ref", "HEAD", "refs/heads/main"],
                 capture_output=True,

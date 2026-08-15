@@ -1,8 +1,9 @@
 {
-  "run_id": "R-NOEVID",
-  "task_packet_path": "agenda/task-packets/Q-20260813-noevid-AB12CD34.md",
-  "task_packet_sha256": "92D239673A83840B3EEA3E4D61B6D635B76BFF0AB46D871434151A1AA3157BE2",
-  "completed_at": "2026-08-13T05:00:00Z",
-  "upstream_status_verbatim": "CANDIDATE_COMPLETE_PROOF",
-  "manager_ingestion_state": "COMPLETED"
+    "run_id":  "R-NOEVID",
+    "task_packet_path":  "agenda/task-packets/Q-20260813-noevid-AB12CD34.md",
+    "task_packet_sha256":  "92D239673A83840B3EEA3E4D61B6D635B76BFF0AB46D871434151A1AA3157BE2",
+    "completed_at":  "2026-08-13T05:00:00Z",
+    "upstream_status_verbatim":  "CANDIDATE_COMPLETE_PROOF",
+    "manager_ingestion_state":  "COMPLETED",
+    "formalization":  "not_requested"
 }

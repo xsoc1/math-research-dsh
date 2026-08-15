@@ -3,8 +3,9 @@
 
 Copies the four plugin skill directories (plus the workflow and lean-verify
 plugin-level scripts and assets) from the parent repository, re-applies the
-DSH adaptation layer, regenerates the manage-skill MANIFEST.sha256, and writes
-upstream.lock.json.
+DSH adaptation layer, regenerates the manage-skill MANIFEST.sha256, syncs the
+upstream tests tree (smokes path-rewritten to the skills/ layout, full
+fixtures), and writes upstream.lock.json.
 
 Usage:
     python scripts/sync-from-parent.py [--upstream PATH] [--check]
@@ -37,6 +38,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -657,6 +659,55 @@ LAYER_FILES = {
 }
 
 
+def rewrite_smoke_paths(text: str) -> str:
+    """Rewrite upstream smoke-test bundle paths to the DSH layout.
+
+    Upstream tests run against the Codex plugin layout
+    (plugins/<plugin>/skills/<plugin>/...), while DSH bundles live under
+    skills/<plugin>/... . The rewrites handle both one-line and multi-line
+    path expressions; smoke_doctor.py is not synced (replaced by the DSH
+    doctor smoke for scripts/dsh-doctor.py).
+    """
+    text = re.sub(
+        r'"plugins"\s*/\s*"manage-math-research-program"\s*/\s*"skills"\s*/\s*"manage-math-research-program"',
+        '"skills" / "manage-math-research-program"',
+        text,
+    )
+    text = re.sub(
+        r'"plugins"\s*/\s*"math-research-workflow"',
+        '"skills" / "math-research-workflow"',
+        text,
+    )
+    text = re.sub(
+        r'"plugins"\s*/\s*"lean-verify"',
+        '"skills" / "lean-verify"',
+        text,
+    )
+    return text
+
+
+def expected_tests(upstream: Path) -> dict[str, str]:
+    """Expected DSH tests tree: upstream smokes (path-rewritten, minus the
+    Codex doctor smoke) plus the full fixtures tree, LF-normalized."""
+    out: dict[str, str] = {}
+    tests_root = upstream / "tests"
+    for p in sorted(tests_root.glob("smoke_*.py")):
+        if p.name == "smoke_doctor.py":
+            continue
+        out[f"tests/{p.name}"] = rewrite_smoke_paths(read_norm(p))
+    fixtures_root = tests_root / "fixtures"
+    for p in sorted(fixtures_root.rglob("*")):
+        if p.is_file():
+            rel = p.relative_to(fixtures_root).as_posix()
+            out[f"tests/fixtures/{rel}"] = read_norm(p)
+    return out
+
+
+def sync_tests(upstream: Path) -> None:
+    for rel, content in expected_tests(upstream).items():
+        write_norm(REPO / rel, content)
+
+
 def default_upstream() -> Path:
     dsh_home = Path(os.environ.get("DSH_HOME") or Path.home() / ".dsh")
     return dsh_home / "_math-research-upstream" / "rigorous-open-math-research"
@@ -860,6 +911,7 @@ def main() -> int:
     commit = upstream_head(upstream)
     copy_bundles(upstream, REPO / "skills")
     regen_manifest(REPO / "skills" / "manage-math-research-program")
+    sync_tests(upstream)
     lock = build_lock(REPO / "skills", commit)
     write_norm(
         REPO / "upstream.lock.json",
@@ -905,6 +957,14 @@ def run_check(upstream: Path) -> int:
                             print(f"      expected: {a[:160]!r}")
                             print(f"      current:  {b[:160]!r}")
                             break
+        # tests tree parity: upstream smokes (path-rewritten) + fixtures must
+        # match the repository copy exactly, so upstream test additions can
+        # never be forgotten again
+        for rel, expected_text in sorted(expected_tests(upstream).items()):
+            cur_path = REPO / rel
+            cur_text = read_norm(cur_path) if cur_path.is_file() else None
+            if cur_text != expected_text:
+                problems.append(f"drift in {rel}")
     if problems:
         print("FAIL: sync check found drift:")
         for line in problems:

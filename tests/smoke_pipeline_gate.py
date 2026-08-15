@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test for the deterministic pipeline gate validator (DSH layout)."""
+"""Smoke test for the deterministic pipeline gate validator."""
 
 from __future__ import annotations
 

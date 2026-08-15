@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test for the lean-verify scanner (no Lean toolchain required, DSH layout)."""
+"""Smoke test for the lean-verify scanner (no Lean toolchain required)."""
 
 from __future__ import annotations
 

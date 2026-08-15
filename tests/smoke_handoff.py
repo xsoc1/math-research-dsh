@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test for interruption handoff validation (DSH layout)."""
+"""Smoke test for interruption handoff validation."""
 
 from __future__ import annotations
 
