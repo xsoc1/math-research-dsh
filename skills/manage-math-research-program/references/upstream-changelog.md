@@ -23,6 +23,18 @@
   不变; 证据规则 13 与项目完成清单同步; 新增模板
   `assets/proof-paper.template.tex`; init/validate 创建并校验 `papers/`
   (目录 + README), MANIFEST.sha256 重新生成.
+
+## Changelog (2026-08-16, distilled methods round 2)
+- 检索证据契约 (第 3 节): 每条检索条目携带 fetch status (fetched-verified /
+  abstract-only / paywalled / unreachable), uncertainty vs warnings 二分,
+  摘要级命中不得视为定理已定; 本地已读文献先查 (有界证据片段 + 章节名引用),
+  检索历史键复用防重走. 方法来源: modsearch, argo, dsh-zotero, dsh-kb-sieve,
+  dsh-web-search-pro.
+- 工具库溯源 (第 5 节): 工具条目必须带产物溯源 (产生 run/命令/输入/环境/源
+  hash + 追加型验证注记), 无溯源的工具条目只是线索. 方法来源: dsh-science.
+- 已接受知识流水线新增第 8 条证据边界 (8b): Chat/stdout/交互终端输出本身不
+  成为正式证据, 只有受控 run 产物 (hash 绑定输入 + 冻结环境) 经独立评审才可
+  晋升; 正式计算须绑定不可变快照与固定环境. 方法来源: dsh-scholar.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

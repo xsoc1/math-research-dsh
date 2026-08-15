@@ -140,6 +140,22 @@ For each Lean declaration mapped to an obligation:
 4. Record the machine results exactly as observed: exit code, error text, scan hits. Do not
    summarize away failures.
 
+**Single structured judgment (gate protocol).** Every machine check emits one
+structured judgment - `build_passed`, `sorry_axiom_hits`, `first_error`
+(location + error layer) - in the machine-readable verdict; free-text parsing
+of build logs is never acceptable as evidence. The judgment separates the two
+branches explicitly: a clean build is the *proved* branch, a build failure is
+localized counter-evidence (first error + smallest failing claim), never a
+vague "did not compile". (Distilled from forge-gates:
+https://github.com/jinguanghai/deepseek-harness-forge-plugins.)
+
+**Atomic, bounded, stateless checks.** Run each check in a request-scoped
+temporary directory against the pinned environment; the check retains no
+proof-state session and no source beyond its own inputs. A check result is a
+typed value consumed by the obligation map, so the same check can be composed
+into later stages. (Distilled from jacobian lean.check:
+https://github.com/morluto/jacobian.)
+
 ### Four gates and semantic review
 
 Any edited declaration proposed for acceptance must pass four gates: (1) compile check,
@@ -157,6 +173,10 @@ When the build fails or obligations remain open, repair instead of regenerating 
 - **Statement freeze**: keep the statement signatures fixed while repairing proofs; a statement change is a new audit, not a repair.
 - **Sorrifier decomposition**: replace the failing proof block with `sorry`, re-check that the remaining skeleton compiles, extract the failing block as a clean subproblem, and solve it recursively.
 - **Error taxonomy first**: classify each failure (statement layer / proof layer / dependency layer / boundary-convention) before fixing; diagnose in the order 判定 -> 分类 -> 定位 -> 修正.
+- **Same-gap convergence**: when the same obligation is blocked by the same gap for three
+  consecutive repair rounds, stop repairing; record the strongest derivation reached plus the
+  exact gap (and the counterexample when one exists) and downgrade the verdict accordingly.
+  Infinite repair loops are worse than an honest `REPAIRABLE_GAP`.
 - Track every `sorry`; the final artifact must contain none.
 
 ### Phase 4 - Independent audit
@@ -199,6 +219,13 @@ Status labels (first line of any report):
 - `REPAIRABLE_GAP` - localized defect found and specified, conclusion unaffected.
 - `FATAL_GAP` - a required obligation is false, unsupported, or unfaithful.
 - `VERIFICATION_INCOMPLETE` - any required check is missing; report what remains.
+
+Falsification-first verdict rule: one obligation refuted by a verified
+counterexample or contradiction vetoes the whole verdict (no partial
+`FORMALLY_VERIFIED` around a refuted obligation), and obligations whose status
+is uncertain never count as passed - all-uncertain means the verdict is not
+`FORMALLY_VERIFIED`. (Distilled from Vibe-Mathematics:
+https://github.com/ChongCyrus/Vibe-Mathematics.)
 
 Do not present `MACHINE_ACCEPTED_PENDING_AUDIT` as `FORMALLY_VERIFIED`. Do not bury a fatal gap
 in a footnote.

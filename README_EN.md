@@ -165,7 +165,29 @@ Methods absorbed from the open-source DSH ecosystem into this plugin
 | [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | context injection audit: 64KB instruction-chain truncation, skill sizes, duplicate paragraphs, name shadowing | `scripts/context-audit.py` |
 | [dsh-vision](https://github.com/william-jin-cmu/dsh-vision) + [dsh-vision-toolkit](https://github.com/Anionex/dsh-vision-toolkit) | vision invocation conventions (VLM output = unverified input, re-check rule, free tier / local endpoints) | `references/dsh-optional-capabilities.md` (rigorous + manage) |
 | [dsh-plugin-mineru](https://github.com/HuanLinOTO/dsh-plugin-mineru) + [dsh-paddle-ocr](https://github.com/omdsh-dev/dsh-paddle-ocr) | document-parsing conventions (PDF to structured Markdown, long-output file references) | same + upstream phase-01 item 9 |
-| watching: [jacobian](https://github.com/morluto/jacobian) (math kernel) / [dsh-automation](https://github.com/titanwings/dsh-automation) (scheduled tasks) | integrate when a real need appears | — |
+| watching: [dsh-automation](https://github.com/titanwings/dsh-automation) (scheduled tasks) | integrate when a real need appears | — |
+
+### Round 2 (2026-08-16, four directions)
+
+| Direction | Source | Distilled method | Landed in |
+|---|---|---|---|
+| search / status | [modsearch](https://github.com/liustack/modsearch) | retrieval output contract: status tri-state (ok/degraded/unavailable) + uncertainty-vs-warnings split + engine attempt order; never invent relevance scores | rigorous phase-23 + manage §3 |
+| search / status | [argo](https://github.com/taxueseek/argo) | target-problem status confirmation (fetch_required, fetch-status quartet, layered confirmation, corroboration ordering, gap hints, cross-session backfill) | rigorous phase-23/01 + workflow B0 |
+| search / status | [dsh-zotero](https://github.com/Vncntvx/dsh-zotero) | local read-literature first: bounded evidence fragments (budget caps) + section-name/record-ID citation | rigorous phase-23 + manage §3 |
+| search / status | [dsh-kb-sieve](https://github.com/omdsh-dev/dsh-kb-sieve) | deterministic retrieval loop + OOV gate + same-input-same-output | rigorous phase-23 semantic retrieval |
+| search / status | [dsh-web-search-pro](https://github.com/anweat/dsh-web-search-pro) / [dsh-exa-mcp](https://github.com/MicroHEROX/dsh-exa-mcp) | search-log key reuse against re-tracing; semantic recall + full-text fetch pairs | manage §3 / rigorous phase-23 |
+| multi-agent | [dsh-suite plugin-team-board](https://github.com/whyihaveyou/dsh-suite/tree/main/packages/plugins/plugin-team-board) | obligation claim ownership (claim before work, single owner, no duplicate proofs) | workflow Stage B |
+| multi-agent | [dsh-proof](https://github.com/EvilIrving/dsh-proof) | gap re-injection hard rule (every non-pass review output consumed by a revision round; silent drop = gate failure) | workflow Stage B |
+| multi-agent | [dsh-agent-team-gui](https://github.com/toolclub/dsh-agent-team-gui) | parallel member failure aggregation (no first-fail short-circuit) | workflow Efficiency rules |
+| multi-agent | [dsh-trajectory-governance](https://github.com/dfycaly98931680/dsh-trajectory-governance) | loop detection (re-attempt without a new mechanism is blocked) | workflow + rigorous phase-45 |
+| Lean | [forge-gates](https://github.com/jinguanghai/deepseek-harness-forge-plugins) | single structured judgment gate protocol (proved branch / localized counter-evidence branch; no free-text parsing as evidence) | lean-verify Phase 3 |
+| Lean | [jacobian](https://github.com/morluto/jacobian) | lean.check atomization: pinned env + request-scoped temp dir + typed diagnostics, no session, no retained source | lean-verify Phase 3 |
+| Lean | [dsh-rigorquant](https://github.com/linxichen/dsh-rigorquant) | dual-wire ground truth + counterexample-only adversary + Lean-before-implementation escalation + same-gap three-round convergence | rigorous phase-78 + workflow Stage C + lean-verify |
+| Lean | [Vibe-Mathematics](https://github.com/ChongCyrus/Vibe-Mathematics) | falsification-first verdict (a verified counterexample vetoes; uncertain obligations never pass) | lean-verify Phase 4/5 |
+| methodology | [Aegis](https://github.com/GanyuanRan/Aegis) | completion claim = fresh evidence + covered scope + residual risk | rigorous phase-78/12 |
+| methodology | [dsh-science](https://github.com/biociao/dsh-science) | route hypothesis state machine + forward-only; artifact provenance fields (run/inputs/env/hash + append-only notes) | rigorous phase-45 + manage §5 |
+| methodology | [dsh-scholar](https://github.com/lzszq/dsh-scholar) | evidence boundary: uncontrolled outputs (chat/stdout) never become formal evidence; frozen env for controlled runs | manage 8b item 8 |
+| methodology | [dsh-design-skills](https://github.com/zhaiyateng/dsh-design-skills) / [dsh-ops-kit](https://github.com/LeslieWylie/dsh-ops-kit) | contract forbidden-moves list; evidence-integrity triple (prechecks/inventory/integrity) | rigorous phase-01 + manage 8b |
 
 License note: methods only, own wording, no text copied; dsh-multiagent-modes is
 CC BY-SA 4.0, so any future verbatim reuse must be open-sourced alike.

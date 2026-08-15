@@ -19,6 +19,20 @@ Write the candidate proof with obligation IDs in comments or margins until the a
 
 Use an independent verifier, a different model or prompt when possible, and formal/computational checks where appropriate.
 
+Two discipline rules for the adversarial role (distilled from dsh-rigorquant:
+https://github.com/linxichen/dsh-rigorquant):
+
+- **Counterexample-only elimination.** The adversary eliminates routes and
+  refutes claims by producing counterexamples or verified contradictions
+  only; argument-style rebuttals ("this cannot work because ...") without a
+  concrete counterexample, contradiction, or impossible-precondition audit
+  do not eliminate a route.
+- **Ground-truth dual-wire check.** For simplified cases with known closed
+  forms, invariants, or bounds, re-derive the ground truth twice, by two
+  independent means, before the simplified case is used as a scaffold for the
+  general proof. Two independent derivations agreeing is a strong consistency
+  signal; one derivation is not.
+
 The verifier must return one of:
 
 - `PASS`
@@ -98,10 +112,14 @@ Record the audit in a machine-readable shape so downstream revision and ingestio
   "verdict": "PASS | REPAIRABLE_GAP | FATAL_GAP | WRONG_PROBLEM | CIRCULAR_OR_EQUIVALENT_REDUCTION | UNVERIFIED_CITATION | COMPUTATIONAL_ONLY | UNCERTAIN",
   "critical_errors": [{"location": "...", "issue": "..."}],
   "gaps": [{"location": "...", "issue": "..."}],
-  "repair_hints": "..."
+  "repair_hints": "...",
+  "covered_scope": "...",
+  "residual_risk": "..."
 }
 ```
 
 Strict rule: `PASS` only when `critical_errors` and `gaps` are both empty. Every finding carries a location and, whenever possible, the smallest failing claim (or a counterexample / explicit missing obligation). Any non-`PASS` verdict must include non-empty `repair_hints`. Aggregate without dropping issues; the revision phase consumes the exact gap list.
+
+Every verdict additionally states what was actually checked (`covered_scope`: which hypotheses, cases, and dependency classes the audit covered) and what remains unproven or unchecked (`residual_risk`: boundary cases not covered, tool mismatches, machine checks not run). A completion claim without a stated covered scope and residual risk is incomplete. (Distilled from Aegis: https://github.com/GanyuanRan/Aegis.)
 
 For canonical promotion, structure the audit as four mandatory audits, each bound to the exact content-hashed proof package: **definition audit** (objects, maps, quotients, multiplicities, orientation, notation, local/global distinctions, category membership), **logic audit** (quantifier order, implication direction, necessity versus sufficiency, induction decrease, termination, existence choices, circularity, local-to-global transitions), **boundary audit** (empty, zero, disconnected, low-dimensional, parity, equality, singular, noncompact, noncomplete, non-smooth, critical-parameter, and degenerate cases), and **adversarial audit** (attack the weakest step, enumerate smallest objects, search extreme parameters, verify every obvious compatibility condition, test whether the central missing lemma restates the target).

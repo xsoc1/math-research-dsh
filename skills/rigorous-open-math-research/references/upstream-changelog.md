@@ -41,6 +41,23 @@
   视觉输出一律视为未验证输入, 必须回查原始来源才能支撑证明步骤). 方法来源: DSH 生态
   dsh-plugin-mineru (https://github.com/HuanLinOTO/dsh-plugin-mineru), dsh-vision
   (https://github.com/william-jin-cmu/dsh-vision), dsh-vision-toolkit
+## Changelog (2026-08-16, distilled methods round 2)
+- 检索契约增强 (phase-23): 每条检索记录 `query -> result -> locator` 之外再记
+  `status` (ok/degraded/unavailable) 与 `uncertainty` vs `warnings` 二分、引擎尝试
+  顺序; 禁止编造相关性分数; 本地已读文献/确定性索引取有界证据片段并以章节名引用;
+  新增目标问题状态确认小节 (fetch_required: 摘要级不足以判定开放/已解决, 逐条记
+  fetch status fetched-verified/abstract-only/paywalled/unreachable, 分层确认 +
+  证据强度排序启发 + 缺口侦察清单 + 跨会话回填复用). 方法来源: modsearch, argo,
+  dsh-zotero, dsh-exa-mcp, dsh-kb-sieve, dsh-web-search-pro.
+- 对抗审计增强 (phase-78): 对抗者只以反例/矛盾排除路线 (counterexample-only);
+  简化情形 ground truth 双导线重导 (两次独立手段一致才算一致); 结构化输出新增
+  covered_scope 与 residual_risk 字段, 完成声明必须陈述覆盖范围与残余风险.
+  方法来源: dsh-rigorquant, Aegis.
+- 路线循环增强 (phase-45): 路线尝试视为有状态假说 (预测->测试->终止并记录精确
+  缺口, forward-only 重开需新机制); 循环检测 (无新机制重试 REFUTED/BLOCKED 路线
+  即拒绝). 方法来源: dsh-science, dsh-trajectory-governance.
+- 契约增强 (phase-01): 目标问题状态命中一律 fetch_required; 契约新增
+  `## Forbidden moves` 每问题禁用清单. 方法来源: argo, dsh-design-skills.
   (https://github.com/Anionex/dsh-vision-toolkit).
 ## Changelog (2026-08-14, DSH adaptation)
 

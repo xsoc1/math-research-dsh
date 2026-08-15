@@ -62,6 +62,20 @@ Use these route states:
 - `PROVED`
 - `FORMALIZED`
 
+Treat every route attempt as a stateful hypothesis, not a one-shot tool call:
+a route enters `ACTIVE` with an explicit prediction (what new fact this
+attempt expects), moves through testing to `PROMISING` / `PARTIAL`, and
+terminates as `PROVED`, `REFUTED`, or `BLOCKED` with the exact gap recorded.
+Progression is forward-only: a terminated route reopens only when a
+materially new invariant, construction, or proof mechanism appears; an
+`inconclusive` outcome is recorded as such and never silently re-filed as
+active. (Distilled from dsh-science: https://github.com/biociao/dsh-science.)
+
+Loop detection: re-attempting a `REFUTED` or `BLOCKED` route without a new
+mechanism is a loop, not progress; the route-history record (whiteboard or
+ledger) must show the new input on every reopen, or the attempt is rejected.
+(Distilled from dsh-trajectory-governance: https://github.com/dfycaly98931680/dsh-trajectory-governance.)
+
 ### Marginal information gain rule and evidence tri-state
 
 Resource allocation follows information gain, not activity:

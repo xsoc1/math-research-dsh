@@ -145,7 +145,29 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 | [dsh-context-doctor](https://github.com/Zhenyu98/dsh-context-doctor) | 上下文注入审计: 指令链 64KB 截断标记 / 技能体积 / 重复段落 / 名字遮蔽 | `scripts/context-audit.py` |
 | [dsh-vision](https://github.com/william-jin-cmu/dsh-vision) + [dsh-vision-toolkit](https://github.com/Anionex/dsh-vision-toolkit) | 视觉调用约定 (VLM 输出 = 未验证输入, 回查规则, 免费档/本地端点) | `references/dsh-optional-capabilities.md` (rigorous + manage) |
 | [dsh-plugin-mineru](https://github.com/HuanLinOTO/dsh-plugin-mineru) + [dsh-paddle-ocr](https://github.com/omdsh-dev/dsh-paddle-ocr) | 文档解析调用约定 (PDF→结构化 Markdown, 长文档落盘引用) | 同上 + 上游 phase-01 第 9 条 |
-| 观察中: [jacobian](https://github.com/morluto/jacobian) (数学内核) / [dsh-automation](https://github.com/titanwings/dsh-automation) (定时任务) | 待真实痛点出现再集成 | — |
+| 观察中: [dsh-automation](https://github.com/titanwings/dsh-automation) (定时任务) | 待真实痛点出现再集成 | — |
+
+### 第二轮 (2026-08-16, 四方向)
+
+| 方向 | 来源 | 蒸馏内容 | 落点 |
+|---|---|---|---|
+| 搜索/状态确认 | [modsearch](https://github.com/liustack/modsearch) | 检索输出契约: status 三态 (ok/degraded/unavailable) + uncertainty vs warnings 二分 + 引擎尝试顺序; 禁止编造相关性分数 | rigorous phase-23 + manage §3 |
+| 搜索/状态确认 | [argo](https://github.com/taxueseek/argo) | 目标问题状态确认 (fetch_required, fetch status 四态, 分层确认, 证据强度排序启发, 缺口侦察清单, 跨会话回填) | rigorous phase-23/01 + workflow B0 |
+| 搜索/状态确认 | [dsh-zotero](https://github.com/Vncntvx/dsh-zotero) | 本地已读文献先查: 有界证据片段 (预算上限) + 章节名/记录 ID 引用 | rigorous phase-23 + manage §3 |
+| 搜索/状态确认 | [dsh-kb-sieve](https://github.com/omdsh-dev/dsh-kb-sieve) | 确定性检索闭环 + OOV 越界门 + 同输入同产出 | rigorous phase-23 语义检索 |
+| 搜索/状态确认 | [dsh-web-search-pro](https://github.com/anweat/dsh-web-search-pro) / [dsh-exa-mcp](https://github.com/MicroHEROX/dsh-exa-mcp) | 检索历史键复用防重走; 语义召回 + 全文抓取成对 | manage §3 / rigorous phase-23 |
+| 多 agent | [dsh-suite plugin-team-board](https://github.com/whyihaveyou/dsh-suite/tree/main/packages/plugins/plugin-team-board) | 义务认领协议 (claim before work, 唯一所有者, 防重复证明) | workflow Stage B |
+| 多 agent | [dsh-proof](https://github.com/EvilIrving/dsh-proof) | 缺口回灌硬规则 (非 PASS 评审输出必须被修订轮消费, 静默丢弃 = 门禁失败) | workflow Stage B |
+| 多 agent | [dsh-agent-team-gui](https://github.com/toolclub/dsh-agent-team-gui) | 并行成员失败聚合 (不短路) | workflow Efficiency rules |
+| 多 agent | [dsh-trajectory-governance](https://github.com/dfycaly98931680/dsh-trajectory-governance) | 循环检测 (无新机制重试失败路线即阻断) | workflow + rigorous phase-45 |
+| Lean | [forge-gates](https://github.com/jinguanghai/deepseek-harness-forge-plugins) | 单一结构化判定 gate 协议 (proved 分支 / 局部反证分支, 禁止自由文本当证据) | lean-verify Phase 3 |
+| Lean | [jacobian](https://github.com/morluto/jacobian) | lean.check 原子化: 固定环境 + 请求级临时目录 + 类型化诊断, 无会话不保留源码 | lean-verify Phase 3 |
+| Lean | [dsh-rigorquant](https://github.com/linxichen/dsh-rigorquant) | 双导线 ground-truth + 反例-only 对抗者 + 关键断言先 Lean 再实现 + 同缺口三轮收敛 | rigorous phase-78 + workflow Stage C + lean-verify |
+| Lean | [Vibe-Mathematics](https://github.com/ChongCyrus/Vibe-Mathematics) | 证伪优先裁决 (已核验反例整体否决; 不确定义务不通过) | lean-verify Phase 4/5 |
+| 方法论 | [Aegis](https://github.com/GanyuanRan/Aegis) | 完成声明 = 新鲜证据 + covered scope + residual risk | rigorous phase-78/12 |
+| 方法论 | [dsh-science](https://github.com/biociao/dsh-science) | 路线假说状态机 + forward-only; 工具/产物溯源字段 (run/输入/环境/hash + 追加型注记) | rigorous phase-45 + manage §5 |
+| 方法论 | [dsh-scholar](https://github.com/lzszq/dsh-scholar) | 证据边界: 非受控输出 (Chat/stdout) 不成为正式证据; 受控 run 冻结环境 | manage 8b 第 8 条 |
+| 方法论 | [dsh-design-skills](https://github.com/zhaiyateng/dsh-design-skills) / [dsh-ops-kit](https://github.com/LeslieWylie/dsh-ops-kit) | 契约新增 Forbidden moves 禁用清单; 证据完整性三件套 (prechecks/inventory/integrity) | rigorous phase-01 + manage 8b |
 
 许可证注意: 全部为方法级借鉴 (自撰措辞), 未复制任何仓库文字; 其中
 dsh-multiagent-modes 为 CC BY-SA 4.0, 若未来直接引用其文字需同样开源署名.

@@ -67,6 +67,16 @@
   门禁机械强制 (validate_pipeline.py), 缺失决策即 FAIL.
 - 任务包模板新增可选 Verify: yes|no|not-requested 字段 (manage skill).
 - 新增 tests/smoke_formalization.py + 三个 fixtures (good/missing/requested).
+
+## Changelog (2026-08-16, distilled methods round 2)
+- 多 agent 协作增强 (纯增量): Stage B 新增义务认领协议 (claim before work -
+  ledger 记录唯一所有者, 防重复证明; 来自 dsh-suite plugin-team-board);
+  Loop control 新增缺口回灌硬规则 (非 PASS 评审输出必须被修订轮消费或登记为
+  路由义务, 静默丢弃 = 门禁失败; 来自 dsh-proof); Efficiency rules 新增并行
+  失败聚合 (收集全部成员失败, 不短路; 来自 dsh-agent-team-gui) 与循环检测
+  (无新机制重试失败路线即阻断并记录见证; 来自 dsh-trajectory-governance).
+- Stage C 新增 Lean 升级通道: 证明关键且可机器验证的断言先形式化验证再声称
+  完成状态 (先 Lean 再落地, 非事后补验; 来自 dsh-rigorquant).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

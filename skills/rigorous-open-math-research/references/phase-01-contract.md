@@ -4,7 +4,7 @@
 Before mathematical search:
 
 1. Identify the authoritative problem statement and date/version.
-2. Check whether the problem is genuinely open as of the research date, unless the user explicitly requests a blind benchmark phase.
+2. Check whether the problem is genuinely open as of the research date, unless the user explicitly requests a blind benchmark phase. For the target problem itself every status-relevant hit is `fetch_required`: an abstract or secondary summary never settles openness; fetch the full text or record the paywall/unreachability explicitly (see phase-23, target-problem status confirmation).
 3. Locate variants whose quantifiers or definitions differ.
 4. Inventory every attachment, program, verifier, seed, example, formal library, and environment version.
 5. When the run provides a per-problem reference directory (for example `data/<id>.refs/` with markdown, LaTeX, plain text, or pre-extracted PDF text), read those user-provided files before external search. Treat them as user-provided context, not verified facts; cite them in the ledger and in proof steps when they influence the proof. Never present user-provided notes as independently verified results.
@@ -40,6 +40,7 @@ Write `problem_contract.md` with this schema:
 ## Answer space (what decision or judgment the result must support)
 ## Acceptance criteria per subproblem (when a subproblem is done)
 ## Results that do not count as completion
+## Forbidden moves (per-problem discipline list; e.g. numerical evidence as proof, silent use of an unverified recalled theorem, reformulating the statement without re-audit)
 ## Tool, citation, and search constraints
 ## Ambiguities or competing interpretations
 ## Contract audit
