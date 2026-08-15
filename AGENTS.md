@@ -157,3 +157,18 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   无代码缺陷; 第二次同步全量成功.
 - 校验: 48 项全绿, 8 个 smoke 全过 (新增 whiteboard), sync-check 干净 (25b380d);
   CI 待确认.
+### 2026-08-14 会话 (事故修复: 静默跳过 Lean 验证门禁)
+- 事故: densbc run (R-20260814T070000Z) 声称 STRICT 完成却无任何 Lean 验证产物;
+  根因链 = (1) 会话遇子代理提供方故障 (审计备注已记录 3 次尝试 + probe 失败),
+  独立 verifier 无法生成, 协调者自审后直接关 run; (2) 插件缺口: Stage C 纯文字约定,
+  门禁只查 FORMALLY_VERIFIED 声称, 静默跳过验证无痕可过.
+- 修复 (上游 5f58f3d + 56d6657, 双仓同步): validate_pipeline.py 新增形式化决策
+  硬检查 - 声称 gate 状态的 run 必须记录 formalization
+  (requested|not_requested|skipped); requested 要求 formalization_manifest 存在 +
+  lean-proof/verification.json; skipped 要求非占位 formalization_reason;
+  缺失决策 = FAIL. 任务包模板 + manage SKILL 新增可选 Verify 字段;
+  workflow SKILL Stage C 决策协议 + changelog; smoke_formalization.py + 3 fixtures;
+  中途修 MANIFEST 过期 (重生成 44 条). cachebuster -> 0.1.0+codex.20260814155902.
+- 本仓库 (0d68b66): 继承 56d6657 (lock 80), 移植 smoke_formalization (路径适配) +
+  fixtures (LF 规范化), 48 项 + 9 smoke 全绿, CI 待确认.
+- 既有历史 run 不受影响 (非 gate 状态或补决策字段后通过).
