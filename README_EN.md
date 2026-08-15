@@ -2,6 +2,8 @@
 
 [中文版: README.md](README.md)
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 DSH (DeepSeek Harness) adaptation of the `math-research` Codex plugin
 marketplace: the four Codex plugins (rigorous-open-math-research /
 manage-math-research-program / math-research-workflow / lean-verify) ship here
@@ -14,11 +16,12 @@ as native DSH skills with their scripts and assets bundled.
   which DSH cannot consume. This repository turns each plugin into a DSH skill
   bundle (directory + SKILL.md frontmatter) and keeps the content in sync with
   upstream.
-- Status as of 2026-08-14: all four skills adapted; installed on this machine
+- Status as of 2026-08-16: all four skills adapted; installed on this machine
   via `install.ps1` as junctions under `$DSH_HOME/skills`; the skills appear in
   DSH session catalogs immediately (the watcher follows the junctions);
   repository validation and the five smoke tests are green; GitHub Actions is
-  wired up.
+  wired up; the repo root now ships as an official bundle skill pack (one
+  command install + a submitted listing request).
 
 ## Repository topology
 
@@ -62,6 +65,26 @@ directly (the DSH equivalent of the Codex `$skill-name` mention; every
 
 ## Install
 
+**Option A: one-command community install (official bundle plugin)**
+
+```sh
+dsh plugin --profile web add github:xsoc1/math-research-dsh
+```
+
+The repository root ships as an official bundle skill pack (`package.json`
+declares `dsh.bundle.patch`; `index.mjs` registers the four skills as a custom
+skill root through the official `FileSystemSkillProvider`, mounting only the
+packaged directories and never re-scanning user/project skill roots). A `dsh
+web` restart activates it; community markets such as
+[dsh-market](https://github.com/dsh-market/dsh-market) can then find it. A
+listing request has been submitted to
+[awesome-dsh-plugin](https://awesome-dsh-plugin.com).
+
+> Note: use Option A or Option B (junctions) - never both, or the same skills
+> get registered twice.
+
+**Option B: junction hot-update (development / local use)**
+
 ```powershell
 git clone https://github.com/xsoc1/math-research-dsh.git "$env:DSH_HOME\math-research-dsh"
 powershell -ExecutionPolicy Bypass -File "$env:DSH_HOME\math-research-dsh\install.ps1"
@@ -94,8 +117,10 @@ machine-applied **DSH layer**:
    by a one-line pointer in the body;
 3. the workflow `SKILL.md` doctor passages rewritten for the repository-level
    `scripts/dsh-doctor.py` (the Codex `scripts/doctor.py` is dropped);
-4. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow)
-   and `assets/dsh-solve-audit-workflow.js` (workflow).
+4. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow),
+   `assets/dsh-solve-audit-workflow.js` (workflow), and the official bundle
+   packaging at the repo root (`package.json` / `index.mjs` /
+   `cordis.patch.yml`) with its gate `scripts/dsh-check-bundle.py`.
 
 `scripts/sync-from-parent.py` copies the parent bundles, re-applies the layer,
 regenerates the manage bundle `MANIFEST.sha256`, and writes
@@ -149,6 +174,7 @@ CC BY-SA 4.0, so any future verbatim reuse must be open-sourced alike.
 
 ```powershell
 python scripts\validate_all.py .      # structure, MANIFEST, lock, UTF-8/LF, py_compile, JSON/YAML
+python scripts\dsh-check-bundle.py    # official bundle gate (package.json / patch / index.mjs / skills)
 cd tests
 python smoke_pipeline_gate.py         # pipeline gate fixtures
 python smoke_handoff.py               # interruption handoff fixtures
@@ -164,6 +190,9 @@ against the parent repository on every push.
 ## Repository layout
 
 ```text
+package.json                      official bundle declaration (dsh.bundle.patch / marketplace info)
+index.mjs                         bundle entry: registers skills/ via FileSystemSkillProvider
+cordis.patch.yml                  layer-stack insert row (id = index.mjs name, name = package name)
 skills/                         DSH skill bundles (synced from the parent + DSH layer)
   rigorous-open-math-research/
   manage-math-research-program/   (incl. MANIFEST.sha256)
@@ -175,6 +204,7 @@ skills/                         DSH skill bundles (synced from the parent + DSH 
 scripts/
   sync-from-parent.py             parent sync + layer replay + lock
   validate_all.py                 repository validation
+  dsh-check-bundle.py             official bundle packaging gate
   dsh-doctor.py                   DSH environment preflight
   dsh_run.py                      prune-aware script wrapper (verdict head+tail, full log on disk)
 tests/                            smoke tests + fixtures
@@ -190,7 +220,9 @@ install.ps1                       junction install into $DSH_HOME/skills
 3. Keep both READMEs in sync (README.md in Chinese + README_EN.md in English,
    cross-linked at the top).
 4. Keep every new file UTF-8 without BOM, LF line endings, ASCII punctuation.
-5. After pushing `origin`, update `upstream.lock.json` via a fresh sync if
+5. Bump `package.json` `version` whenever content (skill bodies / scripts)
+   changes, so markets can detect updates.
+6. After pushing `origin`, update `upstream.lock.json` via a fresh sync if
    the parent moved.
 
 License: MIT (same as the parent repository).

@@ -16,6 +16,8 @@ jobs:
         run: pip install pyyaml
       - name: Repository validation
         run: python scripts/validate_all.py .
+      - name: Bundle packaging check
+        run: python scripts/dsh-check-bundle.py
       - name: Smoke tests
         run: |
           cd tests

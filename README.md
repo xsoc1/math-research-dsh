@@ -2,6 +2,8 @@
 
 [English: README_EN.md](README_EN.md)
 
+[![Awesome DSH Plugin](https://awesome-dsh-plugin.com/badge.svg)](https://awesome-dsh-plugin.com)
+
 `math-research` Codex 插件市场的 DSH (DeepSeek Harness) 适配版: 4 个 Codex 插件
 (rigorous-open-math-research / manage-math-research-program / math-research-workflow /
 lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
@@ -11,9 +13,10 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
 - 上游是 Codex marketplace 仓库, 只能以 Codex 打包格式安装 (plugin.json / openai.yaml /
   marketplace.json / cachebuster), DSH 无法直接消费. 本仓库把每个插件转为一个 DSH skill
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
-- 当前状态 (2026-08-14): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
+- 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 5 个冒烟全绿; GitHub Actions 已接入.
+  仓库校验与 5 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
 
@@ -52,6 +55,22 @@ preset 自带 bundle. 一个 skill 是一个含 `SKILL.md` 的目录, 其 YAML f
 
 ## 安装
 
+**方式一: 社区一键安装 (官方 bundle 插件)**
+
+```sh
+dsh plugin --profile web add github:xsoc1/math-research-dsh
+```
+
+仓库根以官方 bundle 技能包格式发布 (`package.json` 声明 `dsh.bundle.patch`,
+`index.mjs` 用官方 `FileSystemSkillProvider` 把 4 个 skill 注册为自定义技能根,
+只挂载包内目录, 不重扫用户/项目技能根). 安装后重启 `dsh web` 生效, 之后
+[dsh-market](https://github.com/dsh-market/dsh-market) 等社区市场可直接检索;
+收录申请已提交 [awesome-dsh-plugin](https://awesome-dsh-plugin.com).
+
+> 注意: 方式一与方式二 (junction) 二选一, 不要同时安装, 否则同一批 skill 会双份注册.
+
+**方式二: junction 热更新 (开发/本机使用)**
+
 ```powershell
 git clone https://github.com/xsoc1/math-research-dsh.git "$env:DSH_HOME\math-research-dsh"
 powershell -ExecutionPolicy Bypass -File "$env:DSH_HOME\math-research-dsh\install.ps1"
@@ -80,8 +99,10 @@ python "$env:DSH_HOME\math-research-dsh\scripts\dsh-doctor.py"
    (保持 skill 加载轻量), 正文替换为一行指针;
 3. workflow `SKILL.md` 的 doctor 段落改写为仓库级 `scripts/dsh-doctor.py`
    (Codex 版 `scripts/doctor.py` 移除);
-4. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow) 与
-   `assets/dsh-solve-audit-workflow.js` (workflow).
+4. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow),
+   `assets/dsh-solve-audit-workflow.js` (workflow), 以及仓库根官方 bundle 打包
+   `package.json` / `index.mjs` / `cordis.patch.yml` 与门禁
+   `scripts/dsh-check-bundle.py`.
 
 `scripts/sync-from-parent.py` 拷贝父仓库 bundles, 重放 DSH 层, 重生成 manage bundle
 的 `MANIFEST.sha256`, 并写入 `upstream.lock.json` (父仓库 commit + 逐文件哈希).
@@ -133,6 +154,7 @@ dsh-multiagent-modes 为 CC BY-SA 4.0, 若未来直接引用其文字需同样�
 
 ```powershell
 python scripts\validate_all.py .      # 结构 / MANIFEST / lock / UTF-8+LF / py_compile / JSON+YAML
+python scripts\dsh-check-bundle.py    # 官方 bundle 打包门禁 (package.json / patch / index.mjs / skills)
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
 python smoke_handoff.py               # 中断交接 fixtures
@@ -147,6 +169,9 @@ GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移
 ## 目录结构
 
 ```text
+package.json                      官方 bundle 声明 (dsh.bundle.patch / marketplace 信息)
+index.mjs                         bundle 入口: FileSystemSkillProvider 注册 skills/
+cordis.patch.yml                  层栈 insert 行 (id = index.mjs 的 name, name = 包名)
 skills/                         DSH skill bundles (父仓库同步 + DSH 层)
   rigorous-open-math-research/
   manage-math-research-program/   (含 MANIFEST.sha256)
@@ -158,6 +183,7 @@ skills/                         DSH skill bundles (父仓库同步 + DSH 层)
 scripts/
   sync-from-parent.py             父仓库同步 + 层重放 + lock
   validate_all.py                 仓库校验
+  dsh-check-bundle.py             官方 bundle 打包门禁
   dsh-doctor.py                   DSH 环境自检
   dsh_run.py                      截断感知脚本包装器 (verdict 头尾 + 完整日志落盘)
 tests/                            冒烟测试 + fixtures
@@ -172,6 +198,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
    只允许改该脚本内的层常量.
 3. README 中英两版必须同步更新 (本文件 + README_EN.md, 顶部互链).
 4. 新文件一律 UTF-8 无 BOM, LF 换行, 英文标点.
-5. 提交后按 project.json 的 git_sync.push_order 推送 (当前只有 origin).
+5. 内容变更 (skill 正文/脚本) 时同步 bump `package.json` 的 `version`, 让市场能检出更新.
+6. 提交后按 project.json 的 git_sync.push_order 推送 (当前只有 origin).
 
 版权: MIT (与父仓库一致).
