@@ -7,6 +7,11 @@
 - 新增失败入档分类 (第 8 节 5b): 上游审计报告缺口记录首错位置与错误层 (陈述/证明/依赖/边界约定), 后续按最小责任路由.
 - 新增新鲜上下文收敛检查 (第 9 节): 阶段收尾只从文件重建程序状态, 判断收敛/发散, 只登记不重写.
 - 方法来源: MMAT kb-manager/searcher (https://github.com/MechMath/MechMath-agent-team), EvE (https://github.com/scaling-group/eve, arXiv:2605.09018), Archon-Horizon (https://github.com/frenzymath/Archon-Horizon).
+
+## Changelog (2026-08-14, formalization decision field)
+- 任务包模板新增可选 `Verify: yes|no|not-requested` 字段: yes 表示该 run 进入
+  Stage C Lean 验证, run-manifest 必须记录 formalization: requested 并产出机器
+  验证证据; 配合 workflow 门禁的形式化决策检查 (静默跳过验证 = FAIL).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

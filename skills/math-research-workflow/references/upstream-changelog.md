@@ -58,6 +58,15 @@
   sections. Added `tests/smoke_handoff.py` (+ good/bad fixtures) and wired it
   into CI.
 - Cachebuster bumped to `0.1.0+codex.20260813144928` to propagate the handoff protocol.
+
+## Changelog (2026-08-14, formalization decision gate)
+- 修复静默跳过 Lean 验证: 声称完成状态 (已证/CANDIDATE_COMPLETE_PROOF) 的 run 必须在
+  run-manifest 记录形式化决策 (formalization: requested | not_requested | skipped);
+  requested 要求 formalization_manifest 指向存在文件 + lean-proof/verification.json
+  干净机器裁决; skipped 要求非占位 formalization_reason 且重新验证义务保持开放;
+  门禁机械强制 (validate_pipeline.py), 缺失决策即 FAIL.
+- 任务包模板新增可选 Verify: yes|no|not-requested 字段 (manage skill).
+- 新增 tests/smoke_formalization.py + 三个 fixtures (good/missing/requested).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

@@ -6,6 +6,9 @@
 - **Task type:** solve | disprove | construct | formalize | rigorously audit
 - **Portfolio problem ID:** `PROBLEM-ID`
 - **Task state:** `DRAFT`
+- **Verify:** `yes | no | not-requested` (optional; `yes` marks the run for
+  Stage C Lean verification -- the run manifest must then record
+  `formalization: requested` and the machine verification evidence)
 
 ## Project reason for this task
 

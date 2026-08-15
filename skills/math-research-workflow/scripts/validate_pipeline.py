@@ -22,6 +22,12 @@ Checks:
     outside the formalization gate are reported;
   - a run that claims a gate status (CANDIDATE_COMPLETE_PROOF / \u5df2\u8bc1)
     must carry candidate_proof.md or audit_report.md in the same run directory;
+  - a run that claims a gate status must also record its formalization
+    decision (run-manifest formalization: requested | not_requested | skipped).
+    requested requires a formalization_manifest file and lean-proof/
+    verification.json; skipped requires a non-placeholder
+    formalization_reason. A silently skipped lean-verify step is therefore
+    rejected instead of passing unnoticed;
   - numerical-evidence labels must never be mixed with a strong claim
     (\u5df2\u89e3\u51b3 / \u5b9a\u7406\u5df2\u8bc1 / CANDIDATE_COMPLETE_PROOF /
     FORMALLY_VERIFIED) unless a strict-evidence label is present in the same
@@ -342,6 +348,38 @@ def check_manager_manifest(
                 f"{rel}: gate status {status!r} without candidate_proof.md or "
                 "audit_report.md in the run directory"
             )
+
+    # Formalization decision (lean-verify step): a run that claims a
+    # completion status must record whether Lean verification was requested,
+    # skipped (with a reason), or out of scope. Without this, a silently
+    # skipped lean-verify step is indistinguishable from a deliberate
+    # pipeline decision and passes every check.
+    formalization = data.get("formalization")
+    if status and status in gate_statuses:
+        if formalization not in ("requested", "not_requested", "skipped"):
+            report.bad(
+                f"{rel}: gate status {status!r} without a formalization decision "
+                "(run-manifest formalization: requested | not_requested | skipped)"
+            )
+        elif formalization == "requested":
+            fm = data.get("formalization_manifest")
+            fm_path = root.joinpath(fm) if isinstance(fm, str) and fm else None
+            if fm_path is None or not fm_path.is_file():
+                report.bad(
+                    f"{rel}: formalization requested but formalization_manifest "
+                    "does not point to an existing file"
+                )
+            if not (root / LEAN_VERDICT).is_file():
+                report.bad(
+                    f"{rel}: formalization requested but {LEAN_VERDICT} is missing"
+                )
+        elif formalization == "skipped":
+            reason = str(data.get("formalization_reason") or "").strip()
+            if not reason or "{{" in reason:
+                report.bad(
+                    f"{rel}: formalization skipped but formalization_reason is "
+                    "empty or a placeholder"
+                )
 
 
 def check_lean_manifest(path: Path, root: Path, report: Report) -> None:

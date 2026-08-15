@@ -27,7 +27,7 @@ c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7  ./assets/proje
 d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-manifest.template.json
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
-51b8df72bce6475bb87133d39020f0901fdee26b0eedfb0a8754a41066d3a379  ./assets/task-packet.template.md
+276d1708862bf1a72376abfc13024debd5dfa05f3451a26bb429ee9b25cdf94c  ./assets/task-packet.template.md
 aa7ce7fc764455ed757fe04bf56add8c23a8169331ca9eefab37501f08c3b882  ./assets/tool-entry.template.md
 f18e9c21941d5cdada041ef1dc7acf6e7b82d869ddbf842e465ca7896eedd5ab  ./examples/01-literature-only.md
 44fa0e7823155c3279ea04712630eee7e4bc4073d6e9e98940b4d00e166dfc7a  ./examples/02-delegated-open-problem.md
@@ -40,7 +40,7 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 9185122c519bfa5399d9c2695ef33c87f3f71fe862a1adef18380746fcbf459a  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-9e00ef690b04aee670261511dfba3c64022b006b049a3d42d23069da597473aa  ./references/upstream-changelog.md
+dc50d9bd3bc3c00f1fddb81e93aaeaaef98389cb9062839cb70b5b562b842741  ./references/upstream-changelog.md
 ebdb838aea20223c2841825fe135f0e549a47aacfc877e962e0beec8371d6b48  ./scripts/init_project.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
 389ab2df14424d92384072a17123682e1fb8712a98fb6915cdd7d86ad9c409ee  ./scripts/validate_project.py

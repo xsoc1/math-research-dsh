@@ -235,6 +235,23 @@ replace the theorem contract, B0 gate, or evidence discipline.
 For every result labeled `已证` / `CANDIDATE_COMPLETE_PROOF` that the user
 wants formalized:
 
+Every run that closes with a completion label records its formalization
+decision in `run-manifest.json` (`formalization: requested | not_requested |
+skipped`): a skipped lean-verify step must be a recorded decision, never a
+silent omission.
+
+- `requested` -- the formalizer/verifier agents MUST run, and the run must
+  reference the produced `lean-proof/run-manifest.json` in
+  `formalization_manifest`; `lean-proof/verification.json` must exist with a
+  clean machine verdict;
+- `skipped` -- requires a non-placeholder `formalization_reason` (for example
+  a tool outage) and the re-verification obligation must stay open in the
+  obligation graph;
+- `not_requested` -- the user did not ask for formalization for this result.
+
+The stage gate enforces all three mechanically: a run claiming a completion
+label without a decision fails.
+
 1. Create/update the Lean project (`lean-proof/`), map each obligation to a
    `.lean` declaration (obligation map O1..On).
 2. **Formalizer agent** writes the Lean files; **verifier agent** runs
