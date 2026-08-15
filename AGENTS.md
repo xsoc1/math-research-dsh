@@ -172,3 +172,16 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 本仓库 (0d68b66): 继承 56d6657 (lock 80), 移植 smoke_formalization (路径适配) +
   fixtures (LF 规范化), 48 项 + 9 smoke 全绿, CI 待确认.
 - 既有历史 run 不受影响 (非 gate 状态或补决策字段后通过).
+### 2026-08-14 会话 (全量功能面审计 + 测试机械同步)
+- 审计: 上游 71 个功能文件 vs DSH 全部核实 - 66 字节一致 + 4 LAYERED (SKILL.md,
+  sync --check 重放逐字节验证) + 1 有意替换 (doctor.py -> dsh-doctor.py),
+  0 缺失 0 差异; 12 个 fixture 目录逐文件齐全.
+- 发现真实漂移 (机械同步立刻纠正): 早先手工移植的 4 个 smoke (docstring/尾部换行
+  差异) 与 2 个 fixture manifest (JSON 格式差异) 与上游规范版不一致.
+- 机制升级 (8a05924): sync-from-parent.py 现在同步 tests 树 - 全部上游 smoke
+  (路径重写至 skills/ 布局, smoke_doctor 除外) + 完整 fixtures; --check 也校验
+  tests 平价; 上游新增门禁/交接测试从此不可能被漏继承.
+- 门禁覆盖映射: B0/任务包/hash 绑定/数值纪律 -> smoke_pipeline_gate; 交接 ->
+  smoke_handoff; whiteboard -> smoke_whiteboard; 形式化决策 -> smoke_formalization;
+  Lean 扫描/机器证据 -> smoke_lean_verify; 多远程同步 -> smoke_sync_remotes;
+  环境 -> smoke_doctor (DSH 版). 48 项 + 9 smoke 全绿, CI 待确认.
