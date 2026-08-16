@@ -53,6 +53,8 @@
 - 效率优化: 新增 `scripts/scaffold_result.py` (自动生成 Lean scaffold + STATUS +
   progress + audit record) 与 `scripts/index_lean_lemmas.py` (生成
   `LEMMA_INDEX.md` 复用索引); 引入 Tier 0/1/2 分级验证.
+- Rethlas 蒸馏: 问题记录维护反例库与失败综合记录; 8e 提交审计 Stage 1 先查反例库,
+  已被反例/失败阻塞的提交直接拒绝或转修订.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

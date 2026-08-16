@@ -232,6 +232,15 @@ replace the theorem contract, B0 gate, or evidence discipline.
    interrupt unpromising routes, and accept or reject the next actions with
    feedback. In autonomous mode skip the prompts but keep everything else.
 
+**Failure synthesis and counterexample reuse (distilled from Rethlas):**
+when a batch of plans/routes fails, synthesize the common stuck points into a
+`key_failures_summary`, store it in the whiteboard/ledger, and use it to propose
+the next generation of plans. Maintain a reusable counterexample library; before
+attacking a fragile claim, query stored counterexamples first. Search is a
+support tool, not a substitute for deep reasoning: when retrieval stops being
+useful, continue with non-search skills and record why the results were not
+useful.
+
 **Numerical evidence discipline (hard rule):**
 
 - Numerical computation is allowed for exploration, counterexample search, and

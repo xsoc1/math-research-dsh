@@ -99,6 +99,8 @@
   审计 -> 依规则加入 三阶段流程 (由 manage 8e 负责).
 - 效率优化: 引入 Tier 0/1/2 分级验证 (scaffold / 单引理机器验证 / 全量验证);
   新增 lemma reuse index, 证明前先查 `lean-proof/LEMMA_INDEX.md` 避免重复证明.
+- Rethlas 蒸馏: Stage B 增加失败综合与反例复用 (key_failures_summary + 反例库),
+  并明确搜索是支撑不是替代.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

@@ -76,6 +76,25 @@ mechanism is a loop, not progress; the route-history record (whiteboard or
 ledger) must show the new input on every reopen, or the attempt is rejected.
 (Distilled from dsh-trajectory-governance: https://github.com/dfycaly98931680/dsh-trajectory-governance.)
 
+### Failure synthesis and counterexample reuse (distilled from Rethlas)
+
+When a batch of routes/plans fails:
+
+1. Collect the concrete stuck points from every failed plan.
+2. Identify the **common** obstructions across plans (recurring counterexamples,
+   decomposition patterns that keep breaking, missing background facts).
+3. Store the synthesis as a `key_failures_summary` in the ledger / failed paths,
+   and use it to propose the next generation of plans. A new plan must state
+   which earlier failures or counterexamples it avoids.
+4. Maintain a reusable counterexample library: every useful counterexample (and
+   informative non-counterexample) is stored with the assumptions it satisfies
+   and the conclusion it violates. Before attacking a fragile claim, query this
+   library first.
+
+This turns many failed attempts into reusable guidance instead of discarded
+history. (Distilled from Rethlas:
+https://github.com/frenzymath/Rethlas.)
+
 ### Marginal information gain rule and evidence tri-state
 
 Resource allocation follows information gain, not activity:

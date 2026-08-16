@@ -308,3 +308,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `0.1.0+codex.20260816200000`.
 - 本仓库: sync 继承 (lock 85), package.json bump 0.1.7 -> 0.1.8; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“Rethlas 方法蒸馏”
+- 上游 (059813f, 双推): 新增 `references/rethlas-distilled.md`; rigorous
+  phase-45 增加失败综合与反例复用; workflow Stage B 增加 Rethlas 式失败综合/
+  反例库/搜索纪律; manage 增加反例库检查; rigorous/manage/workflow cachebuster
+  `0.1.0+codex.20260816210000`.
+- 本仓库: sync 继承 (lock 86), package.json bump 0.1.8 -> 0.1.9; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

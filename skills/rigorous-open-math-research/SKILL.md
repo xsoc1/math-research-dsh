@@ -124,6 +124,7 @@ executing a phase; every phase file repeats this contract at its top.
 | 9-11 revision, formalization, novelty | `references/phase-91011.md` |
 | 12 stopping and reporting (+ Result template) | `references/phase-12-reporting.md` |
 | delegation, sub-agents, role prompts | `references/agent-orchestration.md` |
+| Rethlas-distilled methods (memory/failure synthesis/counterexample reuse/search discipline) | `references/rethlas-distilled.md` |
 
 Global contracts (epistemic rules, artifacts, Output protocol, anti-patterns)
 stay in this file and bind every phase.

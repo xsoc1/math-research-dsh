@@ -220,7 +220,7 @@ Maintain project-level records for:
 - management priority, expected leverage, novelty risk, and verification cost;
 - unresolved bibliographic questions and missing sources.
 
-Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs. Every material progress item is registered: partial results, structural theorems, failed routes with precise failure mechanisms, and new reusable tools all become first-class records (problem record, route/tool index, knowledge card, or formalization progress). Nothing that changes the problem state is left only in a chat transcript. When a newer, more advanced result covers an earlier partial/scaffold result, mark the earlier record as `superseded` with a pointer to the newer result; keep the history, but never present the superseded record as the current state.
+Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs. Every material progress item is registered: partial results, structural theorems, failed routes with precise failure mechanisms, and new reusable tools all become first-class records (problem record, route/tool index, knowledge card, or formalization progress). Nothing that changes the problem state is left only in a chat transcript. Maintain a reusable counterexample library and a failure-synthesis record: common stuck points across failed plans are summarized and used to design the next generation of plans. When a newer, more advanced result covers an earlier partial/scaffold result, mark the earlier record as `superseded` with a pointer to the newer result; keep the history, but never present the superseded record as the current state.
 
 Tool-library and portfolio evolution follows a marginal-benefit rule: a new tool entry or priority change is adopted when it resolves a known blocker, raises an evidence level, or reduces retrieval cost; record the marginal benefit in the maintenance log. Tool entries carry artifact provenance: the producing run/command, inputs, environment, source hash, and an append-only verification note (what was checked, at which precision, and by whom); a tool entry without provenance is a lead, not a reusable tool. (Distilled from dsh-science: https://github.com/biociao/dsh-science.) Promotion and retirement triggers: a technique enters the library only after repeated confirmed use (e.g. three successful applications) or one machine-verified proof; an anti-pattern is retired after two confirmed failures with recorded mechanisms. (Distilled from dsh-task-planner: https://github.com/ztl34245881-commits/dsh-task-planner.)
 
@@ -382,6 +382,10 @@ repository state:
 4. If the submission contradicts an existing result, record the conflict
    explicitly and stop; a contradiction requires a resolution before any
    repository change.
+5. Check the reusable counterexample library and failure-synthesis records:
+   if the submission is already refuted or blocked by a recorded
+   counterexample/failure, reject or route to a revised attempt instead of
+   re-running the same path.
 
 ### Stage 2: Lean verification and audit
 
