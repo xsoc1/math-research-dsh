@@ -349,6 +349,24 @@ then repair at the correct layer:
   stage boundary. Statuses outside the formalization gate are reported as
   warnings, never silently promoted.
 
+### Proof submission audit (mandatory)
+
+Any proof document submitted for acceptance into the repository goes through
+the three-stage audit owned by `$manage-math-research-program` (workflow 8e):
+
+1. **Repository comparison** - check against `docs/`, `runs/`,
+   `lean-proof/STATUS.md`, `tools/`, `knowledge/`, `papers/` for duplicates,
+   superseded results, or contradictions.
+2. **Lean verification and audit** - `$lean-verify` machine checks + statement
+   fidelity + independent audit; informal completion claims require full Lean
+   formalization; partial/structural results require a Lean scaffold.
+3. **Add by rules** - update `lean-proof/STATUS.md`, `README.md`,
+   `formalization_progress.md`, indexes, `papers/`, `tools/`; mark superseded
+   old results; record audit decision and sync remotes.
+
+The submission audit record (`assets/proof-submission-audit.template.md` in
+the manage skill) must accompany the submission and be committed with it.
+
 ### Interruption handoff and resume (mandatory)
 
 When any stage stops before completion (budget exhausted, user requests a

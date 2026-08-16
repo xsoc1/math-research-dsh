@@ -126,6 +126,21 @@ result, record the earlier entry as `superseded` with a pointer to the newer
 result. Keep the old files and verdicts in history; do not delete them, and do
 not present a superseded result as the current state.
 
+## Submission audit
+
+When this skill is used as part of the proof submission audit pipeline
+(manage workflow 8e), the output must support an acceptance decision:
+
+1. After machine verification and independent audit, state whether the
+   submission is acceptable as `FORMALLY_VERIFIED`, acceptable only as a
+   scaffold (`SCAFFOLDED`), or not acceptable (`REPAIRABLE_GAP` /
+   `FATAL_GAP` / `VERIFICATION_INCOMPLETE`).
+2. Check consistency with the repository state (existing declarations,
+   STATUS.md entries, superseded records) and report any duplicate or
+   conflicting formalization.
+3. Record the audit trail in the submission audit record so the manager can
+   apply the "add by rules" stage.
+
 ## Workflow
 
 ### Phase 0 - Environment and input inventory

@@ -59,6 +59,9 @@
 - 契约增强 (phase-01): 目标问题状态命中一律 fetch_required; 契约新增
   `## Forbidden moves` 每问题禁用清单. 方法来源: argo, dsh-design-skills.
   (https://github.com/Anionex/dsh-vision-toolkit).
+## Changelog (2026-08-16, submission audit)
+- 新增规则 13: 候选证明提交仓库前必须经过证明文件提交审计流程 (manage 8e:
+  仓库比对 -> Lean 验证与审计 -> 依规则加入), 并附带提交审计记录.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

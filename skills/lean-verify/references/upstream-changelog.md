@@ -28,6 +28,11 @@
 - 明确 Lean 验证也是研究途中的校验工具: 承重中间引理尽早验证, 避免走弯路.
 - 更先进结果可覆盖旧结果: 旧 scaffold/partial/verified 记录标记 `superseded`
   并指向新结果, 保留历史但不得作为当前状态.
+
+## Changelog (2026-08-16, submission audit)
+- 新增 Submission audit 说明: 作为证明文件提交审计流程的一部分时, 输出必须支持
+  接受决策 (FORMALLY_VERIFIED / SCAFFOLDED / REPAIRABLE_GAP / FATAL_GAP /
+  VERIFICATION_INCOMPLETE), 并检查与仓库状态的一致性.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

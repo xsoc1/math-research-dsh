@@ -95,6 +95,8 @@
 - Lean 中间验证与覆盖: Stage B 增加 Intermediate Lean checkpoints (承重引理
   尽早 lean_verify); Stage C 明确更先进结果可把旧 scaffold/partial 标记
   `superseded` 并保留历史.
+- 新增 Proof submission audit: 证明文件提交仓库前必须走 仓库比对 -> Lean 验证与
+  审计 -> 依规则加入 三阶段流程 (由 manage 8e 负责).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

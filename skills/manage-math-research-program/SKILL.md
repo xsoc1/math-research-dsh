@@ -355,6 +355,59 @@ the solver rule in `$rigorous-open-math-research` Phase 10.
    formalization progress, with a pointer to the newer result. Keep history;
    do not delete it.
 
+## 8e. Proof submission audit pipeline (mandatory)
+
+Any proof document submitted for acceptance into the repository - Lean file,
+LaTeX proof, candidate proof, or scaffold - must pass the following three-stage
+audit before it is added. Use `assets/proof-submission-audit.template.md` as
+the record.
+
+### Stage 1: Repository comparison
+
+Before running any verification, compare the submission with the current
+repository state:
+
+1. Search existing results in `docs/`, `runs/`, `lean-proof/STATUS.md`,
+   `tools/`, `knowledge/`, and `papers/` for the same statement, hypotheses,
+   boundary cases, or proof technique.
+2. Record a comparison table: each existing result ID/path, whether it is
+   duplicate, superseded, contradictory, or unrelated.
+3. If the submission is a duplicate or is covered by an existing result, do
+   not re-add it; either reject or route to a supersession update.
+4. If the submission contradicts an existing result, record the conflict
+   explicitly and stop; a contradiction requires a resolution before any
+   repository change.
+
+### Stage 2: Lean verification and audit
+
+Run the verification pipeline on the submitted proof:
+
+1. If Lean files are submitted, invoke `$lean-verify`:
+   - pin environment; `lake build`; sorry/admit/axiom scan;
+   - statement fidelity audit;
+   - independent audit by an auditor different from the submitter.
+2. If only an informal proof (LaTeX/markdown) is submitted:
+   - a completion claim (`已证` / `CANDIDATE_COMPLETE_PROOF` /
+     `FORMALLY_VERIFIED`) requires a Lean formalization (full verification);
+   - a partial/structural result requires a Lean scaffold (workflow 8d).
+3. Record the machine verdict, fidelity results, critical errors, gaps, and
+   repair hints in the submission audit record.
+
+### Stage 3: Add by rules
+
+Only after Stage 1 and Stage 2 pass (or pass with explicit scaffold status):
+
+1. Update `lean-proof/STATUS.md`, `lean-proof/README.md`, and
+   `formalization_progress.md`.
+2. Update `index/`, `state/current.json`, `state/RESUME.md`.
+3. If the result is formally verified, add the human-readable LaTeX proof to
+   `papers/` (workflow 8c).
+4. If a new reusable method/tool appeared, add it to `tools/` with provenance.
+5. Mark any older result that this submission covers as `superseded`, with a
+   pointer to the new submission; keep history.
+6. Record the audit decision (`ACCEPT` / `ACCEPT_AS_SCAFFOLD` / `REJECT` /
+   `REVISE_AND_RESUBMIT`), commit, and sync remotes.
+
 ## 9. Checkpoint and close a stage
 
 After every substantial literature batch, paper analysis, delegation, or ingestion:
@@ -387,6 +440,7 @@ Before closing a stage, rebuild the program state from files only (indexes, `sta
 12. Keep transaction status separate from research status. A merged partial lemma means the record was accepted, not that the goal is solved; report `research_status` such as `partial_progress` until the target belongs to the post-merge trusted closure.
 13. Every Lean-verified theorem must ship a human-readable LaTeX proof under `papers/` (English arXiv-style version + Chinese companion) bound to the machine verification as described in workflow 8c; no formally verified result is complete without it.
 14. Every new result (including partial/structural ones) must be registered in the problem/route/tool records and must have a Lean scaffold + formalization-progress update when a `lean-proof/` project exists; a result without registration or scaffold is not considered fully ingested.
+15. No proof document is added to the repository without passing the proof submission audit pipeline (workflow 8e): repository comparison, Lean verification/audit, then rule-based integration. The audit record must be kept with the submission.
 
 # Project-level completion
 

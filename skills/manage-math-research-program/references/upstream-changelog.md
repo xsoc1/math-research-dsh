@@ -48,6 +48,8 @@
   工具/方法 (配合 workflow handoff 模板与门禁).
 - Lean 中间验证与覆盖: 承重中间引理尽早机器验证; 更新的结果可标记旧结果为
   `superseded` 并保留历史, 不得把旧结果当作当前状态.
+- 新增 8e 证明文件提交审计流程: 先仓库比对 -> Lean 验证与审计 -> 依规则加入;
+  模板 `assets/proof-submission-audit.template.md`, 证据规则 15.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

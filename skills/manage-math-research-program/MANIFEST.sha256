@@ -1,4 +1,4 @@
-b4cf2d30148813cabd97e5cbbf82cc9bcc963756247044dd5324529752381d3f  ./SKILL.md
+3ce1f05b8ae72cfc74b397783b8ef743ab61f368bc2d747a0719dc10f113ec8d  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -25,6 +25,7 @@ e19927c1197312b5934db790e8fc31692ad0b66016c5afb2485701666c65b48b  ./assets/open-
 c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7  ./assets/project-overview.template.md
 5803efec74de8c2f974bed2b69dd920790cf2089830db9558f7be2d2bcec439f  ./assets/project.template.json
 3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d  ./assets/proof-paper.template.tex
+83e5c1163bdc831b127389a952eee5e8abc009b2e867d2add48df74ce8a98e87  ./assets/proof-submission-audit.template.md
 d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-manifest.template.json
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
@@ -41,7 +42,7 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-2726a3830e3ab65492b068b5354b84585098ab5a67fac87e42b82636be2c81f5  ./references/upstream-changelog.md
+c51e9425520307c7d4575d35501c5434417412d4404059d339078e588d8a7716  ./references/upstream-changelog.md
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
 545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940  ./scripts/validate_project.py

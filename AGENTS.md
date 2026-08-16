@@ -294,3 +294,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   历史; 四插件 cachebuster `0.1.0+codex.20260816190000`.
 - 本仓库: sync 继承 (lock 82), package.json bump 0.1.5 -> 0.1.6; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“证明文件提交审计流程”
+- 上游 (4656a83, 双推): 新增 manage 8e 证明文件提交审计流程 - 提交证明文件必须
+  依次经过 仓库比对 -> Lean 验证与审计 -> 依规则加入; 新增模板
+  `assets/proof-submission-audit.template.md`; 四插件 cachebuster
+  `0.1.0+codex.20260816193000`.
+- 本仓库: sync 继承 (lock 83), package.json bump 0.1.6 -> 0.1.7; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.
