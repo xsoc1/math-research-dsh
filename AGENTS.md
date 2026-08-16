@@ -45,6 +45,8 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - **README 中英同步**: README.md 与 README_EN.md 必须同步更新; `validate_all.py` 会
   检查所有 `tests/smoke_*.py` 是否都出现在两份 README 中.
 - **测试数量**: 当前 11 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
+- **GitHub 网络**: 直连 github.com 失败时, 用本地代理 push:
+  `git -c http.proxy=http://127.0.0.1:7897 push origin main` (本机实测可用).
 
 ## 会话记录
 ### 2026-08-14 会话: 初始适配 (从 Codex 父仓库)
