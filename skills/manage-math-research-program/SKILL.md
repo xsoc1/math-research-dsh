@@ -354,6 +354,11 @@ the solver rule in `$rigorous-open-math-research` Phase 10.
    result, mark the older entry `superseded` in `lean-proof/STATUS.md` and the
    formalization progress, with a pointer to the newer result. Keep history;
    do not delete it.
+7. **Use automation.** Generate scaffolds and records with
+   `scripts/scaffold_result.py` (creates the `.lean` scaffold, updates
+   `STATUS.md`, `formalization_progress.md`, and `proof-submission-audit.md`).
+   Regenerate the reuse index with `scripts/index_lean_lemmas.py` after adding
+   or changing Lean files.
 
 ## 8e. Proof submission audit pipeline (mandatory)
 
@@ -386,11 +391,18 @@ Run the verification pipeline on the submitted proof:
    - pin environment; `lake build`; sorry/admit/axiom scan;
    - statement fidelity audit;
    - independent audit by an auditor different from the submitter.
-2. If only an informal proof (LaTeX/markdown) is submitted:
+2. Use the cheapest verification tier that answers the question:
+   - Tier 0: scaffold/statement skeleton compiles;
+   - Tier 1: load-bearing lemma machine-checked;
+   - Tier 2: full `FORMALLY_VERIFIED`.
+3. Before accepting a new lemma, check `lean-proof/LEMMA_INDEX.md` (or run
+   `scripts/index_lean_lemmas.py`) to reuse existing formalizations instead of
+   re-proving them.
+4. If only an informal proof (LaTeX/markdown) is submitted:
    - a completion claim (`已证` / `CANDIDATE_COMPLETE_PROOF` /
      `FORMALLY_VERIFIED`) requires a Lean formalization (full verification);
    - a partial/structural result requires a Lean scaffold (workflow 8d).
-3. Record the machine verdict, fidelity results, critical errors, gaps, and
+5. Record the machine verdict, fidelity results, critical errors, gaps, and
    repair hints in the submission audit record.
 
 ### Stage 3: Add by rules

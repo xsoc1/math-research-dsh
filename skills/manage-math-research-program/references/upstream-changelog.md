@@ -50,6 +50,9 @@
   `superseded` 并保留历史, 不得把旧结果当作当前状态.
 - 新增 8e 证明文件提交审计流程: 先仓库比对 -> Lean 验证与审计 -> 依规则加入;
   模板 `assets/proof-submission-audit.template.md`, 证据规则 15.
+- 效率优化: 新增 `scripts/scaffold_result.py` (自动生成 Lean scaffold + STATUS +
+  progress + audit record) 与 `scripts/index_lean_lemmas.py` (生成
+  `LEMMA_INDEX.md` 复用索引); 引入 Tier 0/1/2 分级验证.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

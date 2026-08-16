@@ -301,3 +301,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `0.1.0+codex.20260816193000`.
 - 本仓库: sync 继承 (lock 83), package.json bump 0.1.6 -> 0.1.7; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“插件效率优化”
+- 上游 (f814c03, 双推): 新增 `scripts/scaffold_result.py` (自动生成 Lean
+  scaffold + STATUS + progress + audit record) 与 `scripts/index_lean_lemmas.py`
+  (生成 `LEMMA_INDEX.md` 复用索引); 引入 Tier 0/1/2 分级验证; 四插件 cachebuster
+  `0.1.0+codex.20260816200000`.
+- 本仓库: sync 继承 (lock 85), package.json bump 0.1.7 -> 0.1.8; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

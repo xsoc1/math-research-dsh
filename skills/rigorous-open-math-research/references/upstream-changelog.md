@@ -62,6 +62,9 @@
 ## Changelog (2026-08-16, submission audit)
 - 新增规则 13: 候选证明提交仓库前必须经过证明文件提交审计流程 (manage 8e:
   仓库比对 -> Lean 验证与审计 -> 依规则加入), 并附带提交审计记录.
+## Changelog (2026-08-16, efficiency)
+- Phase 10 增加 Tier 0/1/2 分级验证与 lemma reuse index: 用最低足够档位验证,
+  证明前先查 `lean-proof/LEMMA_INDEX.md` 避免重复证明.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

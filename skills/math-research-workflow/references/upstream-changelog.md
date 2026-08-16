@@ -97,6 +97,8 @@
   `superseded` 并保留历史.
 - 新增 Proof submission audit: 证明文件提交仓库前必须走 仓库比对 -> Lean 验证与
   审计 -> 依规则加入 三阶段流程 (由 manage 8e 负责).
+- 效率优化: 引入 Tier 0/1/2 分级验证 (scaffold / 单引理机器验证 / 全量验证);
+  新增 lemma reuse index, 证明前先查 `lean-proof/LEMMA_INDEX.md` 避免重复证明.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

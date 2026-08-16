@@ -126,6 +126,20 @@ result, record the earlier entry as `superseded` with a pointer to the newer
 result. Keep the old files and verdicts in history; do not delete them, and do
 not present a superseded result as the current state.
 
+## Verification tiers
+
+Use the cheapest tier that answers the current question:
+
+- **Tier 0 - Statement scaffold**: write the declarations with `sorry` proof
+  holes and confirm the skeleton parses/compiles. Use this for every new
+  result before investing in a full proof.
+- **Tier 1 - Machine-checked lemma**: run `lean_verify` on a load-bearing
+  lemma or snippet and record a clean machine check for that snippet. Use this
+  for intermediate research checkpoints.
+- **Tier 2 - Full verification**: complete `lake build`, zero sorry/axiom,
+  statement fidelity audit, and independent per-obligation audit. This is
+  required only for completion labels (`FORMALLY_VERIFIED`).
+
 ## Submission audit
 
 When this skill is used as part of the proof submission audit pipeline

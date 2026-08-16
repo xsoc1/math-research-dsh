@@ -33,6 +33,10 @@
 - 新增 Submission audit 说明: 作为证明文件提交审计流程的一部分时, 输出必须支持
   接受决策 (FORMALLY_VERIFIED / SCAFFOLDED / REPAIRABLE_GAP / FATAL_GAP /
   VERIFICATION_INCOMPLETE), 并检查与仓库状态的一致性.
+
+## Changelog (2026-08-16, verification tiers)
+- 新增 Verification tiers: Tier 0 (scaffold skeleton) / Tier 1 (machine-checked
+  lemma) / Tier 2 (full FORMALLY_VERIFIED); 使用能满足当前问题的最低档位.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this
