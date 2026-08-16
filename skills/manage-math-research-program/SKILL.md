@@ -358,7 +358,7 @@ After every substantial literature batch, paper analysis, delegation, or ingesti
 - run `python scripts/validate_project.py PROJECT_ROOT` when available.
 - commit and push the stage: update `AGENTS.md` session records first, then `git add -A`, `git commit -m "<stage summary>"`, and `git push` (see `references/git-sync.md` for the proxy bypass); verify `git status` shows a clean tree in sync with the remote.
 
-At a stage boundary, write a project-level summary using `assets/stage-summary.template.md`. Preserve upstream result labels verbatim and link their independent proof and audit documents when present. If no proof was obtained, preserve the strongest rigorous intermediate results, failed mechanisms, and exact remaining gaps.
+At a stage boundary, write a project-level summary using `assets/stage-summary.template.md`. Preserve upstream result labels verbatim and link their independent proof and audit documents when present. If no proof was obtained, preserve the strongest rigorous intermediate results, failed mechanisms, and exact remaining gaps. When a run is interrupted, require the workflow handoff record to be independent and to include completed work progress plus tools/methods tried (see `$math-research-workflow` interruption handoff protocol); the manager registers its path and hash.
 
 ### Fresh-context convergence check
 

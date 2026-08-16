@@ -6,9 +6,20 @@
 - **Interrupt reason:** `RESOURCE_BOUND` (token budget exhausted mid-derivation)
 - **Task state:** `IN_PROGRESS`
 
+## Completed work progress
+
+- Reduced the gap-extremal problem to bang-bang configurations; established the
+  variational derivative sign for n=1 (partial). Current status:
+  `RIGOROUS_PARTIAL_RESULT`.
+
 ## Completed obligations
 
 - O1: reduction to bang-bang configurations (evidence: runs/R-20260813-demo-INTERRUPTED01/reduction_notes.md, sha256 abc123)
+
+## Tools and methods tried
+
+- transfer-matrix secular solver `[BLOCKED]`: 2x2 degeneracy at R=4; scripts/probe_tm.py (sha256 def456)
+- Feynman-Hellmann derivative `[PARTIAL]`: sign established for n=1 only; scripts/probe_fh.py (sha256 789abc)
 
 ## Open obligations
 

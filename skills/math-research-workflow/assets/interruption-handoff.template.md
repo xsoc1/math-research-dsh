@@ -15,11 +15,31 @@ records its path and hash in the project index.
 - **Task state:** `IN_PROGRESS | BLOCKED` (+ upstream status label verbatim if any)
 ```
 
+## Completed work progress
+
+Summarize the overall progress achieved so far, independent of the obligation
+list: partial results, structural theorems, reductions, counterexamples,
+falsified conjectures, and the exact current status label (verbatim). This is
+what the next agent should build on and must not redo.
+
 ## Completed obligations
 
 List every obligation closed so far, with the evidence path (and sha256) for
 each. Do not promote numerical evidence to a proof here; reuse the upstream
 status labels verbatim (`PARTIAL` / `CANDIDATE_PARTIAL_PROOF` / gaps).
+
+## Tools and methods tried
+
+One line per tool/script/method/formalization attempt actually used, with its
+outcome and where the evidence lives:
+
+```text
+- <tool-or-method> `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]`: what it was used for,
+  result or failure mechanism, command/script/Lean file path + sha256.
+```
+
+This prevents the next agent from re-inventing the same tooling or re-running
+the same commands without a new reason.
 
 ## Open obligations
 

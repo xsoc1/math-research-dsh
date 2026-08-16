@@ -44,6 +44,8 @@
   `lean-proof/STATUS.md` / `README.md` / `formalization_progress.md`, 并记录
   scaffold 路径 + sha256; scaffold 不得声称 FORMALLY_VERIFIED.
 - 证据规则新增第 14 条: 未登记或未 scaffold 的结果不算完整摄入.
+- 交接增强: 中断 run 的交接记录必须独立成文, 包含已完成工作进度与尝试过的
+  工具/方法 (配合 workflow handoff 模板与门禁).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

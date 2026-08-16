@@ -281,3 +281,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   validate_all 51 项 + BUNDLE OK + 11 smoke 全绿.
 - 备注: 该规则要求后续 run 即使只得到部分结果也要立即搭建 Lean scaffold, 并同步
   `lean-proof/STATUS.md` / `README.md` / `formalization_progress.md`.
+### 2026-08-16 会话: 继承“交接手续独立成文”增强
+- 上游 (5fcd33f, 双推): 交接记录独立成文并强制包含 `Completed work progress`
+  (已完成进度, 后续不得重做) 与 `Tools and methods tried` (尝试过的工具/方法/
+  命令 + 结果标记 + 证据路径 + sha256); `validate_pipeline.py` 新增两个必需
+  section; workflow/manage cachebuster `0.1.0+codex.20260816183000`.
+- 本仓库: sync 继承 (lock 82), package.json bump 0.1.4 -> 0.1.5; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

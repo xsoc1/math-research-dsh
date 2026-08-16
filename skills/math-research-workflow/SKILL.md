@@ -339,9 +339,11 @@ stop, tool/environment failure, or any cross-session cut), the interrupting
 agent writes an interruption handoff before returning control:
 
 1. **Write the record**: use `assets/interruption-handoff.template.md`, saved
-   as `runs/<skill>/<run_id>/handoff-interrupted-<UTC timestamp>.md`. Record
-   the run ID, packet ID, date, interrupt reason, task state, completed/open
-   obligations, **every route and method already tried with outcome markers**
+   as `runs/<skill>/<run_id>/handoff-interrupted-<UTC timestamp>.md`. This is
+   an independent, self-contained document. Record the run ID, packet ID,
+   date, interrupt reason, task state, **completed work progress** (what has
+   been achieved and must not be redone), completed/open obligations,
+   **tools and methods tried with outcome markers**
    (`[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` plus the failure mechanism or partial
    progress), the exact next actions, and path + sha256 for every key
    artifact. Do not promote numerical evidence here: reuse upstream status
@@ -356,7 +358,8 @@ agent writes an interruption handoff before returning control:
    in the handoff first.
 4. **Gate**: `validate_pipeline.py` hard-fails handoffs that miss required
    fields/sections (run ID, packet ID, date, interrupt reason, task state,
-   obligations, attempted routes, next actions), so a successor never resumes
+   completed work progress, completed/open obligations, tools and methods
+   tried, attempted routes, next actions), so a successor never resumes
    blind. Project-level recovery (`state/RESUME.md`, checkpoints) stays with
    the manage skill (stage A); this protocol covers run-level details from
    stages B and C.

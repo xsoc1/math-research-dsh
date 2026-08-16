@@ -83,7 +83,9 @@ REQUIRED_HANDOFF_FIELDS = (
     "Task state",
 )
 REQUIRED_HANDOFF_HEADINGS = {
+    "Completed work progress",
     "Completed obligations",
+    "Tools and methods tried",
     "Open obligations",
     "Attempted routes",
     "Next actions",
@@ -575,7 +577,7 @@ def check_interruption_handoffs(root: Path, report: Report) -> None:
                 report.bad(f"{rel}: missing required section {heading!r} (interruption handoff)")
                 continue
             body = extract_section(text, heading)
-            if heading in {"Attempted routes", "Next actions"} and not body.strip():
+            if heading in {"Completed work progress", "Tools and methods tried", "Attempted routes", "Next actions"} and not body.strip():
                 report.bad(f"{rel}: section {heading!r} is empty (interruption handoff)")
         routes = extract_section(text, "Attempted routes")
         unmarked = [ln.strip() for ln in routes.splitlines() if ln.strip().startswith("-") and not HANDOFF_ROUTE_RESULT_RE.search(ln)]

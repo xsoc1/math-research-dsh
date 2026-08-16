@@ -87,6 +87,11 @@
   FORMALLY_VERIFIED.
 - 门禁 (validate_pipeline.py): 2026-08-16 之后开始且有实质进展的 run 必须记录
   `formalization: scaffold | requested`, 否则 FAIL; 旧 run 不追溯.
+
+## Changelog (2026-08-16, handoff improvement)
+- 交接记录独立成文并增强: 必须包含 `Completed work progress` (已完成工作进度,
+  后续不得重做) 与 `Tools and methods tried` (尝试过的工具/方法/命令 + 结果标记
+  + 证据路径 + sha256); 门禁新增这两个必需 section, 缺失即 FAIL.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.
