@@ -23,11 +23,13 @@ Checks:
   - a run that claims a gate status (CANDIDATE_COMPLETE_PROOF / \u5df2\u8bc1)
     must carry candidate_proof.md or audit_report.md in the same run directory;
   - a run that claims a gate status must also record its formalization
-    decision (run-manifest formalization: requested | not_requested | skipped).
-    requested requires a formalization_manifest file and lean-proof/
-    verification.json; skipped requires a non-placeholder
-    formalization_reason. A silently skipped lean-verify step is therefore
-    rejected instead of passing unnoticed;
+    decision (run-manifest formalization: requested | not_requested | skipped
+    | scaffold). requested requires a formalization_manifest file and
+    lean-proof/verification.json; skipped requires a non-placeholder
+    formalization_reason; scaffold requires a formalization_manifest pointing
+    to a scaffold file. A silently skipped lean-verify step is therefore
+    rejected instead of passing unnoticed. Runs started on/after 2026-08-16
+    with material progress must record formalization: scaffold or requested;
   - numerical-evidence labels must never be mixed with a strong claim
     (\u5df2\u89e3\u51b3 / \u5b9a\u7406\u5df2\u8bc1 / CANDIDATE_COMPLETE_PROOF /
     FORMALLY_VERIFIED) unless a strict-evidence label is present in the same
@@ -65,6 +67,8 @@ LEAN_VERDICT = "lean-proof/verification.json"
 LEAN_STATUS = "lean-proof/STATUS.md"
 WHITEBOARD_GLOB = "runs/**/whiteboard.md"
 WHITEBOARD_CUTOVER = 20260814
+FORMALIZATION_SCAFFOLD_CUTOVER = 20260816
+FORMALIZATION_ALLOWED = ("requested", "not_requested", "skipped", "scaffold")
 
 PLACEHOLDER_VALUES = {"TASK-ID", "PROJECT-ID", "PROBLEM-ID", "RUN_ROOT"}
 ALLOWED_TASK_TYPES = {"solve", "disprove", "construct", "formalize", "rigorously audit"}
@@ -351,15 +355,18 @@ def check_manager_manifest(
 
     # Formalization decision (lean-verify step): a run that claims a
     # completion status must record whether Lean verification was requested,
-    # skipped (with a reason), or out of scope. Without this, a silently
-    # skipped lean-verify step is indistinguishable from a deliberate
-    # pipeline decision and passes every check.
+    # skipped (with a reason), scaffolded (partial-result skeleton), or out of
+    # scope. Without this, a silently skipped lean-verify step is
+    # indistinguishable from a deliberate pipeline decision and passes every
+    # check. Since 2026-08-16, any run with material progress must scaffold a
+    # Lean file (formalization: scaffold) even when the result is only
+    # RIGOROUS_PARTIAL_RESULT.
     formalization = data.get("formalization")
     if status and status in gate_statuses:
-        if formalization not in ("requested", "not_requested", "skipped"):
+        if formalization not in FORMALIZATION_ALLOWED:
             report.bad(
                 f"{rel}: gate status {status!r} without a formalization decision "
-                "(run-manifest formalization: requested | not_requested | skipped)"
+                "(run-manifest formalization: requested | not_requested | skipped | scaffold)"
             )
         elif formalization == "requested":
             fm = data.get("formalization_manifest")
@@ -380,6 +387,33 @@ def check_manager_manifest(
                     f"{rel}: formalization skipped but formalization_reason is "
                     "empty or a placeholder"
                 )
+        elif formalization == "scaffold":
+            fm = data.get("formalization_manifest")
+            fm_path = root.joinpath(fm) if isinstance(fm, str) and fm else None
+            if fm_path is None or not fm_path.is_file():
+                report.bad(
+                    f"{rel}: formalization scaffold but formalization_manifest "
+                    "does not point to an existing scaffold file"
+                )
+
+    # New runs with material progress must scaffold a Lean file even when the
+    # result is partial (RIGOROUS_PARTIAL_RESULT and similar). This turns the
+    # user requirement "every new result gets a formalization scaffold" into a
+    # mechanical gate for runs started after the cutover.
+    if (
+        status
+        and status not in gate_statuses
+        and "NO_MATERIAL_PROGRESS" not in status
+        and formalization not in ("scaffold", "requested")
+    ):
+        start = run_start_date(path.parent)
+        if start is not None and start >= FORMALIZATION_SCAFFOLD_CUTOVER:
+            report.bad(
+                f"{rel}: run started {start} has material progress but no Lean "
+                "formalization scaffold "
+                "(run-manifest formalization: scaffold | requested required since "
+                f"{FORMALIZATION_SCAFFOLD_CUTOVER})"
+            )
 
 
 def check_lean_manifest(path: Path, root: Path, report: Report) -> None:

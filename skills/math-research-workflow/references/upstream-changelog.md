@@ -77,6 +77,16 @@
   (无新机制重试失败路线即阻断并记录见证; 来自 dsh-trajectory-governance).
 - Stage C 新增 Lean 升级通道: 证明关键且可机器验证的断言先形式化验证再声称
   完成状态 (先 Lean 再落地, 非事后补验; 来自 dsh-rigorquant).
+
+## Changelog (2026-08-16, progress registration + formalization scaffolding)
+- Stage B/C: 每个新结果 (含 RIGOROUS_PARTIAL_RESULT / 结构定理 / 反例 /
+  约化) 都必须登记并创建 Lean scaffold; 只有完成标签 (已证 /
+  CANDIDATE_COMPLETE_PROOF) 才做完整 Lean 验证.
+- run-manifest 形式化决策新增 `scaffold`: 必须指向存在的 scaffold 文件
+  (.lean 或 formalization_progress.md), 不要求 verification.json, 不得声称
+  FORMALLY_VERIFIED.
+- 门禁 (validate_pipeline.py): 2026-08-16 之后开始且有实质进展的 run 必须记录
+  `formalization: scaffold | requested`, 否则 FAIL; 旧 run 不追溯.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

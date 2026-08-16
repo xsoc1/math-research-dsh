@@ -85,6 +85,7 @@ Treat the **entire research configuration** as the input: problem statement, att
 8. Do not require or expose private chain-of-thought. Require externally checkable artifacts: definitions, lemmas, equations, constructions, counterexamples, citations, code, certificates, and exact gap reports.
 9. A failed route is a research result when its failure mechanism is precise and reusable. Record it.
 10. At a resource boundary, report the strongest audited progress and exact remaining gaps. Only the **completion label** is withheld until the proof is complete; useful partial results must not be suppressed.
+11. Every material progress item is first-class: register it immediately in the ledger, route registry, and tool library, and when a formalization project exists create a Lean scaffold for the new result before moving on. Partial progress is progress; it must be auditable and formalization-tracked, not deferred until a complete proof exists.
 
 ## Default research artifacts
 
@@ -100,6 +101,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `candidate_proof.md` — current integrated proof or disproof draft.
 - `audit_report.md` — independent verification results and unresolved issues.
 - `reproducibility/` — code, exact commands, seeds, certificates, and formalization files.
+- `formalization_progress.md` — when a formalization project exists, track every new result's Lean scaffold/status here (or in the project's `lean-proof/STATUS.md`).
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded.
 

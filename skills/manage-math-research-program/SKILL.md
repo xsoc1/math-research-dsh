@@ -220,7 +220,7 @@ Maintain project-level records for:
 - management priority, expected leverage, novelty risk, and verification cost;
 - unresolved bibliographic questions and missing sources.
 
-Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs.
+Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs. Every material progress item is registered: partial results, structural theorems, failed routes with precise failure mechanisms, and new reusable tools all become first-class records (problem record, route/tool index, knowledge card, or formalization progress). Nothing that changes the problem state is left only in a chat transcript.
 
 Tool-library and portfolio evolution follows a marginal-benefit rule: a new tool entry or priority change is adopted when it resolves a known blocker, raises an evidence level, or reduces retrieval cost; record the marginal benefit in the maintenance log. Tool entries carry artifact provenance: the producing run/command, inputs, environment, source hash, and an append-only verification note (what was checked, at which precision, and by whom); a tool entry without provenance is a lead, not a reusable tool. (Distilled from dsh-science: https://github.com/biociao/dsh-science.) Promotion and retirement triggers: a technique enters the library only after repeated confirmed use (e.g. three successful applications) or one machine-verified proof; an anti-pattern is retired after two confirmed failures with recorded mechanisms. (Distilled from dsh-task-planner: https://github.com/ztl34245881-commits/dsh-task-planner.)
 
@@ -270,6 +270,7 @@ After `$rigorous-open-math-research` returns:
 
 5b. When an upstream audit reports gaps, record the first-error location and the error layer (statement / proof / dependency / boundary-convention) so follow-ups route to the smallest responsible owner.
 6. Update maps, indexes, budget accounting, `state/RESUME.md`, and the checkpoint.
+7. Register formalization progress: every new result (including partial/structural ones) must have a Lean scaffold in `lean-proof/` and an updated entry in `lean-proof/STATUS.md` / `lean-proof/README.md`; record the scaffold path and hash in the run record and `formalization_progress.md`.
 
 If an upstream artifact is missing or its status is unclear, record that fact. Do not infer success.
 
@@ -325,6 +326,28 @@ is a mandatory delivery for formally verified results, not an optional extra.
    the run record, the artifact index, and (when the accepted-knowledge
    pipeline is used) the receipt.
 
+## 8d. Formalization scaffolding on every new result
+
+Every new result - even a `RIGOROUS_PARTIAL_RESULT`, a structural theorem, a
+counterexample, or a useful reduction - must receive a Lean scaffold when the
+project has a `lean-proof/` directory. This is the project-level counterpart of
+the solver rule in `$rigorous-open-math-research` Phase 10.
+
+1. **Create the scaffold.** Write a `.lean` file under `lean-proof/SL/` that
+   states the new declaration(s) and open proof obligations. Unfinished proof
+   blocks are marked with `sorry` and a header comment:
+   `-- SCAFFOLD: <slug> <status> <open obligations>`.
+2. **Register it.** Add/update the row in `lean-proof/STATUS.md` and
+   `lean-proof/README.md` with status `SCAFFOLD` (not `FORMALLY_VERIFIED`),
+   and record the scaffold path + sha256 in the run record and
+   `formalization_progress.md`.
+3. **Do not claim verification.** A scaffold is a machine-readable statement of
+   intent, not a verified artifact. It must never be reported as
+   `FORMALLY_VERIFIED`; only a full `lean-verify` pass may upgrade it.
+4. **Keep it current.** After each subsequent result or repair, update the
+   scaffold and the formalization progress immediately, so the problem's
+   formalization state never lags behind the research state.
+
 ## 9. Checkpoint and close a stage
 
 After every substantial literature batch, paper analysis, delegation, or ingestion:
@@ -356,6 +379,7 @@ Before closing a stage, rebuild the program state from files only (indexes, `sta
 11. Bind task packets and research sub-agents to a knowledge snapshot hash. A snapshot mismatch invalidates all accumulated retrieval.
 12. Keep transaction status separate from research status. A merged partial lemma means the record was accepted, not that the goal is solved; report `research_status` such as `partial_progress` until the target belongs to the post-merge trusted closure.
 13. Every Lean-verified theorem must ship a human-readable LaTeX proof under `papers/` (English arXiv-style version + Chinese companion) bound to the machine verification as described in workflow 8c; no formally verified result is complete without it.
+14. Every new result (including partial/structural ones) must be registered in the problem/route/tool records and must have a Lean scaffold + formalization-progress update when a `lean-proof/` project exists; a result without registration or scaffold is not considered fully ingested.
 
 # Project-level completion
 

@@ -35,6 +35,15 @@
 - 已接受知识流水线新增第 8 条证据边界 (8b): Chat/stdout/交互终端输出本身不
   成为正式证据, 只有受控 run 产物 (hash 绑定输入 + 冻结环境) 经独立评审才可
   晋升; 正式计算须绑定不可变快照与固定环境. 方法来源: dsh-scholar.
+
+## Changelog (2026-08-16, progress registration + formalization scaffolding)
+- 问题进展全面登记 (第 5/8 节): 部分结果、结构定理、失败路线与精确失败机制、
+  新工具全部成为一等记录; 不允许只留在对话记录中.
+- 新增第 8d 节 (强制): 每个新结果 (含 RIGOROUS_PARTIAL_RESULT / 结构定理 /
+  反例 / 约化) 在存在 `lean-proof/` 时必须创建 Lean scaffold, 登记到
+  `lean-proof/STATUS.md` / `README.md` / `formalization_progress.md`, 并记录
+  scaffold 路径 + sha256; scaffold 不得声称 FORMALLY_VERIFIED.
+- 证据规则新增第 14 条: 未登记或未 scaffold 的结果不算完整摄入.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

@@ -17,6 +17,12 @@
   推导 + 精确缺口 (有反例则记录) 并降级裁决 (来自 dsh-rigorquant 三级停止).
 - 裁决新增证伪优先规则: 任一义务被已核验反例/矛盾否决即整体否决; 状态不确定的
   义务不得当作通过, 全不确定不得 FORMALLY_VERIFIED (来自 Vibe-Mathematics).
+
+## Changelog (2026-08-16, scaffold mode)
+- 新增 Scaffold mode: 部分/结构结果必须先创建 Lean scaffold (声明 + 开放义务 +
+  `-- SCAFFOLD` 头注释, 允许 `sorry`), 登记到 STATUS/README/formalization_progress,
+  状态 `SCAFFOLDED`, 不得声称 FORMALLY_VERIFIED.
+- 输出协议新增 `SCAFFOLDED` 状态.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

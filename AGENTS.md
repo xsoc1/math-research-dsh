@@ -270,3 +270,14 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   (skills/ 未改动, lock 仍 81 文件).
 - 备注: 父仓库 fork 自动化需在 xsoc1 仓库配置 FORK_PAT 后生效; 本地手动同步可用
   scripts/sync-fork.sh.
+### 2026-08-16 会话: 继承“进展全登记 + 每个新结果形式化 scaffold”规则
+- 上游 (094937c, 双推): 四插件新增强制规则 - 问题进展/失败路线/新工具全部登记;
+  每个新结果 (含 RIGOROUS_PARTIAL_RESULT) 在存在 `lean-proof/` 时必须创建 Lean
+  scaffold 并更新形式化进度; run-manifest 形式化决策新增 `scaffold`;
+  validate_pipeline.py 对 2026-08-16 后新 run 强制 scaffold/requested; lean-verify
+  新增 Scaffold mode + `SCAFFOLDED` 状态 + `assets/lean-scaffold.template.lean`;
+  cachebuster `0.1.0+codex.20260816180000`.
+- 本仓库: sync 继承 (lock 82 文件), package.json bump 0.1.3 -> 0.1.4;
+  validate_all 51 项 + BUNDLE OK + 11 smoke 全绿.
+- 备注: 该规则要求后续 run 即使只得到部分结果也要立即搭建 Lean scaffold, 并同步
+  `lean-proof/STATUS.md` / `README.md` / `formalization_progress.md`.
