@@ -408,6 +408,13 @@ Run the verification pipeline on the submitted proof:
    - a partial/structural result requires a Lean scaffold (workflow 8d).
 5. Record the machine verdict, fidelity results, critical errors, gaps, and
    repair hints in the submission audit record.
+6. Run the **dual-track audit**: the informal (Danus-style) audit and the Lean
+   formal track must both be recorded in the submission audit as a verification
+   matrix. Use `references/dual-track-audit.md` (rigorous skill) for the
+   four-layer protocol and conflict-resolution rules; adopt the Danus hard
+   prohibitions (no citing problem.md as a math source, no unproven conditional
+   premises, no vague "well-known" gestures, self-contained statements, citation
+   chain checks).
 
 ### Stage 3: Add by rules
 

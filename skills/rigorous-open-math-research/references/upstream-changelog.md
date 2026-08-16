@@ -69,6 +69,10 @@
 - 新增 `references/rethlas-distilled.md`: 蒸馏 Rethlas 方法精髓 - 持久结构化记忆,
   失败综合驱动下一代方案, 分解计划组合筛选与递归并行, 反例复用库, 搜索是支撑不是
   替代, 外部引用非黑盒, 严格零错误零缺口接受, 论文式蓝图输出.
+## Changelog (2026-08-16, dual-track audit)
+- 新增 `references/dual-track-audit.md`: Danus 式非正式审计与 Lean 形式化验证
+  共存的四层协议 (非正式审计 -> Lean scaffold -> Lean 完整验证 -> 论文级再验证),
+  冲突裁决规则, Danus 硬禁止项, 双轨验证矩阵.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

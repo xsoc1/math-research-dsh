@@ -315,3 +315,11 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `0.1.0+codex.20260816210000`.
 - 本仓库: sync 继承 (lock 86), package.json bump 0.1.8 -> 0.1.9; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“双轨审计协议”
+- 上游 (9435f0c, 双推): 新增 `references/dual-track-audit.md` - Danus 式非正式
+  审计与 Lean 形式化验证共存 (非正式审计 -> Lean scaffold -> Lean 完整验证 ->
+  论文级再验证), 冲突裁决规则, Danus 硬禁止项, 验证矩阵; manage 8e Stage 2 增加
+  双轨矩阵; workflow Stage C 增加双轨 gate; lean-verify 增加 coexistence 说明;
+  四插件 cachebuster `0.1.0+codex.20260816220000`.
+- 本仓库: sync 继承 (lock 87), package.json bump 0.1.9 -> 0.1.10; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

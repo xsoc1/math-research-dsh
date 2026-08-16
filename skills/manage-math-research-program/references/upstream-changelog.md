@@ -55,6 +55,8 @@
   `LEMMA_INDEX.md` 复用索引); 引入 Tier 0/1/2 分级验证.
 - Rethlas 蒸馏: 问题记录维护反例库与失败综合记录; 8e 提交审计 Stage 1 先查反例库,
   已被反例/失败阻塞的提交直接拒绝或转修订.
+- 双轨审计: 8e Stage 2 增加非正式审计 + Lean 形式化双轨验证矩阵, 冲突按
+  `references/dual-track-audit.md` 规则裁决; 采纳 Danus 硬禁止项.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

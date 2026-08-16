@@ -155,6 +155,20 @@ When this skill is used as part of the proof submission audit pipeline
 3. Record the audit trail in the submission audit record so the manager can
    apply the "add by rules" stage.
 
+## Coexistence with informal audit
+
+Lean verification is the machine track; it does not replace the informal
+(Danus-style) natural-language audit. For a complete delivery, both must pass:
+
+- The informal audit checks semantics, definitions, external citations, and
+  proof flow.
+- Lean checks the machine-checkable formal statement and proof.
+- Conflict rule: an informal gap trumps a passing Lean check; a Lean failure
+  trumps a passing informal check; a paper-level failure trumps both.
+
+Record both tracks in the verification matrix of the submission audit
+(see `references/dual-track-audit.md` in the rigorous skill).
+
 ## Workflow
 
 ### Phase 0 - Environment and input inventory
