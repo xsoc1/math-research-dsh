@@ -211,6 +211,13 @@ replace the theorem contract, B0 gate, or evidence discipline.
      namespace openings, definitions, proven sub-lemmas) to
      `runs/<run_id>/lean_scratch/context.lean`, which is prepended to later
      `lean_verify` calls in that run.
+5b. **Intermediate Lean checkpoints (mandatory).** When a Worker produces a
+   load-bearing lemma, a structural claim, or a reusable reduction, run
+   `lean_verify` on that snippet before letting the route depend on it. A
+   machine-checked intermediate result is a checkpoint: it catches errors
+   early, prevents a route from silently building on a false step, and gives
+   the next agent a verified stepping stone even if the final theorem is still
+   open.
 6. **Loop control.** The Planner iterates: spawn Workers -> collect outputs ->
    independent review -> update whiteboard and repository -> next plan step,
    until `CANDIDATE_COMPLETE_PROOF`, an exact gap report, or the compute
@@ -290,6 +297,16 @@ declarations and open obligations, marks unfinished blocks with `sorry` and a
 `-- SCAFFOLD` header, and updates `lean-proof/STATUS.md` /
 `lean-proof/README.md` / `formalization_progress.md`. This is not full
 verification and must never be labeled `FORMALLY_VERIFIED`.
+
+**Intermediate verification is encouraged throughout Stage B/C**: verify
+load-bearing lemmas as soon as they are stable, not only at the end. A
+machine-checked intermediate lemma is a valid checkpoint that reduces detours.
+
+**Supersession:** when a newer, more advanced result covers an older
+scaffold/partial/formalized result, mark the older entry `superseded` in
+`lean-proof/STATUS.md`, `README.md`, and `formalization_progress.md`, with a
+pointer to the superseding result. Keep the old files and history; never
+present a superseded result as the current state.
 
 **Lean escalation lane (proof-critical claims):** when a proof-critical
 claim is load-bearing (the final status depends on it) and machine

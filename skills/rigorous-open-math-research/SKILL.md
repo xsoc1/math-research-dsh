@@ -86,6 +86,7 @@ Treat the **entire research configuration** as the input: problem statement, att
 9. A failed route is a research result when its failure mechanism is precise and reusable. Record it.
 10. At a resource boundary, report the strongest audited progress and exact remaining gaps. Only the **completion label** is withheld until the proof is complete; useful partial results must not be suppressed.
 11. Every material progress item is first-class: register it immediately in the ledger, route registry, and tool library, and when a formalization project exists create a Lean scaffold for the new result before moving on. Partial progress is progress; it must be auditable and formalization-tracked, not deferred until a complete proof exists.
+12. Lean verification is not only for the final conclusion: machine-check key intermediate lemmas as soon as they become load-bearing, so errors are caught before a route is invested further. A later, more advanced result may supersede an earlier partial/scaffold result; keep the old record in history but mark it superseded in the formalization progress and knowledge base.
 
 ## Default research artifacts
 

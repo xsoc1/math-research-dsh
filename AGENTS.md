@@ -288,3 +288,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   section; workflow/manage cachebuster `0.1.0+codex.20260816183000`.
 - 本仓库: sync 继承 (lock 82), package.json bump 0.1.4 -> 0.1.5; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“Lean 中间验证 + 结果覆盖”微调
+- 上游 (0a28107, 双推): Lean 验证定位微调 - 中间承重引理尽早机器验证 (避免走
+  弯路); 更先进结果可把旧 scaffold/partial/verified 标记 `superseded` 并保留
+  历史; 四插件 cachebuster `0.1.0+codex.20260816190000`.
+- 本仓库: sync 继承 (lock 82), package.json bump 0.1.5 -> 0.1.6; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

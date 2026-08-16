@@ -23,6 +23,11 @@
   `-- SCAFFOLD` 头注释, 允许 `sorry`), 登记到 STATUS/README/formalization_progress,
   状态 `SCAFFOLDED`, 不得声称 FORMALLY_VERIFIED.
 - 输出协议新增 `SCAFFOLDED` 状态.
+
+## Changelog (2026-08-16, intermediate verification + supersession)
+- 明确 Lean 验证也是研究途中的校验工具: 承重中间引理尽早验证, 避免走弯路.
+- 更先进结果可覆盖旧结果: 旧 scaffold/partial/verified 记录标记 `superseded`
+  并指向新结果, 保留历史但不得作为当前状态.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

@@ -92,6 +92,9 @@
 - 交接记录独立成文并增强: 必须包含 `Completed work progress` (已完成工作进度,
   后续不得重做) 与 `Tools and methods tried` (尝试过的工具/方法/命令 + 结果标记
   + 证据路径 + sha256); 门禁新增这两个必需 section, 缺失即 FAIL.
+- Lean 中间验证与覆盖: Stage B 增加 Intermediate Lean checkpoints (承重引理
+  尽早 lean_verify); Stage C 明确更先进结果可把旧 scaffold/partial 标记
+  `superseded` 并保留历史.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

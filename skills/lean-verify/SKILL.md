@@ -113,6 +113,19 @@ a **scaffold** rather than run full verification:
 4. A scaffold must never be reported as `FORMALLY_VERIFIED`; only a later full
    verification pass may upgrade it.
 
+## Intermediate verification and supersession
+
+Lean verification is also a research-time instrument, not only a final
+certificate. Verify load-bearing intermediate lemmas as soon as they are
+stable; a machine-checked intermediate result is a valid checkpoint that helps
+the research avoid detours. It may be reported as `MACHINE_ACCEPTED_PENDING_AUDIT`
+or `SCAFFOLDED` when the final theorem is still open.
+
+When a later, more advanced result covers an earlier scaffold/partial/verified
+result, record the earlier entry as `superseded` with a pointer to the newer
+result. Keep the old files and verdicts in history; do not delete them, and do
+not present a superseded result as the current state.
+
 ## Workflow
 
 ### Phase 0 - Environment and input inventory
