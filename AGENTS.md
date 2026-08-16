@@ -240,3 +240,19 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 本仓库: sync 继承 (lock 81); validate_all 48 项 + BUNDLE OK 全绿; package.json
   bump 0.1.2; README 双语蒸馏表新增第二轮 17 行 (四方向), jacobian 从观察中移入
   Lean 蒸馏; 9 冒烟复跑待确认; CI 待确认.
+### 2026-08-16 会话: 优化方向落地 (包质量/CI 门禁/蒸馏测试)
+- 任务: 用户选定三组优化方向 (快速修复/同步自动化/插件能力增强) 后实施.
+- 快速修复: package.json bump 0.1.2 -> 0.1.3 (fbb3566 已改 manage SKILL 未 bump);
+  README 中英冒烟数 5 -> 10, 补全 smoke 清单 (含新 smoke_distilled_methods.py).
+- CI 门禁: validate_all.py 新增 README smoke parity 检查与本地 worktree version-bump
+  守卫; 新增 scripts/check_version_bump.py (PR/push diff 检查); validate.yml 新增
+  version-bump job; 父仓库新增 scripts/sync-fork.sh 与 .github/workflows/sync-fork.yml
+  (需 FORK_PAT secret).
+- 能力增强: 新增 tests/smoke_distilled_methods.py (静态标记覆盖蒸馏方法, 7 组检查);
+  关联项目 AGENTS.md 瘦身 (会话日志迁至 state/AGENTS_SESSION_LOG.md), 新增
+  docs/sl-project-template.md 与 docs/archive-policy.md + scripts/archive_old_runs.py.
+- 校验: validate_all 51 项全绿; BUNDLE OK; 11 个 smoke 全过 (新增
+  smoke_version_bump.py 覆盖版本 bump 门禁脚本); sync-check 无漂移
+  (skills/ 未改动, lock 仍 81 文件).
+- 备注: 父仓库 fork 自动化需在 xsoc1 仓库配置 FORK_PAT 后生效; 本地手动同步可用
+  scripts/sync-fork.sh.

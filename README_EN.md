@@ -19,7 +19,7 @@ as native DSH skills with their scripts and assets bundled.
 - Status as of 2026-08-16: all four skills adapted; installed on this machine
   via `install.ps1` as junctions under `$DSH_HOME/skills`; the skills appear in
   DSH session catalogs immediately (the watcher follows the junctions);
-  repository validation and the five smoke tests are green; GitHub Actions is
+  repository validation and the eleven smoke tests are green; GitHub Actions is
   wired up; the repo root now ships as an official bundle skill pack (one
   command install + a submitted listing request).
 
@@ -197,6 +197,7 @@ CC BY-SA 4.0, so any future verbatim reuse must be open-sourced alike.
 ```powershell
 python scripts\validate_all.py .      # structure, MANIFEST, lock, UTF-8/LF, py_compile, JSON/YAML
 python scripts\dsh-check-bundle.py    # official bundle gate (package.json / patch / index.mjs / skills)
+python scripts\check_version_bump.py --base HEAD^   # CI version-bump gate (local, as needed)
 cd tests
 python smoke_pipeline_gate.py         # pipeline gate fixtures
 python smoke_handoff.py               # interruption handoff fixtures
@@ -204,6 +205,11 @@ python smoke_lean_verify.py           # lean-verify scanner (no Lean toolchain n
 python smoke_sync_remotes.py          # multi-remote sync (local bare repos, no network)
 python smoke_doctor.py                # dsh-doctor via simulated environments
 python smoke_dsh_run.py               # prune-aware dsh_run wrapper
+python smoke_context_audit.py         # context injection audit
+python smoke_formalization.py         # formalization decision gate fixtures
+python smoke_whiteboard.py            # whiteboard gate fixtures
+python smoke_distilled_methods.py     # static marker coverage for distilled methods
+python smoke_version_bump.py          # version-bump gate smoke (throwaway git repo)
 ```
 
 GitHub Actions runs all of the above plus the `--check` drift comparison
@@ -229,6 +235,7 @@ scripts/
   dsh-check-bundle.py             official bundle packaging gate
   dsh-doctor.py                   DSH environment preflight
   dsh_run.py                      prune-aware script wrapper (verdict head+tail, full log on disk)
+  check_version_bump.py           CI version-bump gate (skills/ or bundle entry changes must bump package.json)
 tests/                            smoke tests + fixtures
 upstream.lock.json                parent commit + per-file hashes
 install.ps1                       junction install into $DSH_HOME/skills

@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 5 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 11 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -177,6 +177,7 @@ dsh-multiagent-modes 为 CC BY-SA 4.0, 若未来直接引用其文字需同样�
 ```powershell
 python scripts\validate_all.py .      # 结构 / MANIFEST / lock / UTF-8+LF / py_compile / JSON+YAML
 python scripts\dsh-check-bundle.py    # 官方 bundle 打包门禁 (package.json / patch / index.mjs / skills)
+python scripts\check_version_bump.py --base HEAD^   # CI 版本 bump 门禁 (本地按需)
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
 python smoke_handoff.py               # 中断交接 fixtures
@@ -184,6 +185,11 @@ python smoke_lean_verify.py           # lean-verify 扫描 (无需 Lean 工具�
 python smoke_sync_remotes.py          # 多远程同步 (本地 bare 仓库, 无网络)
 python smoke_doctor.py                # dsh-doctor 模拟环境
 python smoke_dsh_run.py               # dsh_run 截断感知包装器
+python smoke_context_audit.py         # 上下文注入审计
+python smoke_formalization.py         # 形式化决策门禁 fixtures
+python smoke_whiteboard.py            # whiteboard 门禁 fixtures
+python smoke_distilled_methods.py     # 蒸馏社区方法的静态标记覆盖
+python smoke_version_bump.py          # 版本 bump 门禁脚本冒烟 (临时 git 仓库)
 ```
 
 GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移比较.
@@ -208,6 +214,7 @@ scripts/
   dsh-check-bundle.py             官方 bundle 打包门禁
   dsh-doctor.py                   DSH 环境自检
   dsh_run.py                      截断感知脚本包装器 (verdict 头尾 + 完整日志落盘)
+  check_version_bump.py           CI 版本 bump 门禁 (skills/或 bundle 入口变更必须 bump package.json)
 tests/                            冒烟测试 + fixtures
 upstream.lock.json                父仓库 commit + 逐文件哈希
 install.ps1                       junction 安装到 $DSH_HOME/skills

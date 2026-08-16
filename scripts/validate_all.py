@@ -28,6 +28,7 @@ import json
 import pathlib
 import py_compile
 import re
+import subprocess
 import sys
 
 EXPECTED_SKILLS = (
@@ -268,6 +269,60 @@ class Validator:
         if yaml is not None and bad_yaml == 0:
             self.ok(f"all YAML files parse ({yaml_checked} files)")
 
+    def check_readme_smoke_parity(self) -> None:
+        tests_dir = self.root / "tests"
+        if not tests_dir.is_dir():
+            self.bad("tests/ directory missing; cannot check README smoke parity")
+            return
+        smoke_files = sorted(p.name for p in tests_dir.glob("smoke_*.py"))
+        for readme_name in ("README.md", "README_EN.md"):
+            readme = self.root / readme_name
+            if not readme.is_file():
+                self.bad(f"{readme_name} missing; cannot check smoke parity")
+                continue
+            text = norm(readme.read_bytes()).decode("utf-8")
+            missing = [name for name in smoke_files if name not in text]
+            self.check(
+                not missing,
+                f"{readme_name} lists every smoke test"
+                + (f" (missing: {', '.join(missing)})" if missing else ""),
+            )
+
+    def check_worktree_version_bump(self) -> None:
+        """Local guard: uncommitted content changes must also touch package.json.
+
+        CI enforces the same rule across PR/push diffs via scripts/check_version_bump.py;
+        this catches the common local workflow of editing skills/ and forgetting to bump.
+        """
+        git_dir = self.root / ".git"
+        if not git_dir.exists():
+            self.ok("not a git worktree; skipping local version-bump guard")
+            return
+        proc = subprocess.run(
+            ["git", "-C", str(self.root), "diff", "--name-only", "HEAD"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+        )
+        if proc.returncode != 0:
+            self.ok("git diff unavailable; skipping local version-bump guard")
+            return
+        changed = [line.strip() for line in proc.stdout.splitlines() if line.strip()]
+        content_changed = any(
+            p.startswith("skills/") or p in ("index.mjs", "cordis.patch.yml")
+            for p in changed
+        )
+        pkg_changed = "package.json" in changed
+        if content_changed and not pkg_changed:
+            self.bad(
+                "package.json version must be bumped when skills/ or bundle entry files change "
+                "(uncommitted worktree changes detected without a package.json change)"
+            )
+        elif content_changed and pkg_changed:
+            self.ok("package.json version bump present for worktree content changes")
+        else:
+            self.ok("no uncommitted skills/bundle content changes requiring a version bump")
+
     def run(self) -> int:
         print(f"Validating repository: {self.root}")
         self.check_bundles()
@@ -276,6 +331,8 @@ class Validator:
         self.check_text()
         self.check_python()
         self.check_structured()
+        self.check_readme_smoke_parity()
+        self.check_worktree_version_bump()
         if self.errors:
             print(f"\n{len(self.errors)} problem(s) found.")
             return 1
