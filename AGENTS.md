@@ -323,3 +323,13 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   四插件 cachebuster `0.1.0+codex.20260816220000`.
 - 本仓库: sync 继承 (lock 87), package.json bump 0.1.9 -> 0.1.10; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“OpenProver token-conscious 协议”
+- 上游 (97e4910, 双推): workflow 新增 `references/openprover-absorption.md`
+  (Planner action 协议/repo item/theorem.lean 前置骨架/planner history/token
+  budget pause+handoff+resume); manage 新增 `assets/budget-state.template.json`
+  与任务包 `theorem.lean`/`budget` 字段、摄入时登记 budget_state; rigorous
+  phase-12 增加预算耗尽=暂停不丢工作; 追踪记录
+  `docs/implementation-tracking-openprover.md`; rigorous/manage/workflow
+  cachebuster `0.1.0+codex.20260816230000`.
+- 本仓库: sync 继承 (lock 89), package.json bump 0.1.10 -> 0.1.11; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

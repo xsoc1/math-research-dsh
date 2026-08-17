@@ -103,6 +103,9 @@
   并明确搜索是支撑不是替代.
 - 双轨审计: Stage C 增加非正式审计 + Lean 形式化双轨验证矩阵, 冲突裁决规则
   (非正式 gap > Lean 通过; Lean 失败 > 非正式通过; 论文级失败 > 两者).
+- OpenProver token-conscious 吸收: 新增 `references/openprover-absorption.md`;
+  Stage B 增加 Planner action 协议、Repository item 系统、`theorem.lean`
+  前置骨架、Planner history、token budget pause+handoff+resume.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

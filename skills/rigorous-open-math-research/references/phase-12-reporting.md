@@ -33,6 +33,22 @@ It is legitimate to stop a run when:
 
 Stopping does not permit pretending success. Return the strongest rigorously supported result and the exact remaining gap.
 
+### Token budget exhaustion = pause, not loss
+
+When a token/resource budget is exhausted, do not drop the run. Follow the
+pause-and-handoff discipline (see `references/openprover-absorption.md` in the
+workflow skill and `assets/budget-state.template.json` in the manage skill):
+
+1. Persist whiteboard, repository items, planner history, verified facts, and
+   failed paths.
+2. Write an interruption handoff with completed work progress, tools/methods
+   tried, open obligations, and exact next actions.
+3. Update `budget_state.json` (`status: paused_budget`) and `state/RESUME.md`.
+4. Mark the run `PAUSED_BUDGET` / `RIGOROUS_PARTIAL_RESULT`; resumption reads
+   the handoff + budget state and continues with an added budget.
+5. If the target is almost complete, request an extension instead of stopping
+   at the finish line.
+
 # Result
 
 ## Exact theorem or result proved

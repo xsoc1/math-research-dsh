@@ -1,4 +1,4 @@
-16bae12baad80db5e18cd9d19e5aa73ee9d7c7d41cec301f4b1e2b68f8a3ea3a  ./SKILL.md
+894a7964856adeed7ef46a5a6a1f5e290a84d2704f15d62ec680dc8eebdc24e7  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -17,6 +17,7 @@ d78b9d40eab044bd31b056aee6fd21b5278c10a27e561380f2c4c7b841a37cd7  ./assets/bluep
 624f39ec99afdfc82310b318efbba2ee202c542f05f19473989bf7688030251b  ./assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.css
 b161b01080121752d134615e1019737f8c9869febdb8efcd0164783b41cba053  ./assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.js
 12479ab9acb62823c88384be649264786aa76549a949e12514a384982c514784  ./assets/blueprint-accepted-knowledge/viewer/index.html
+043cd99027fbf71f546ed064ef1aec8f667b26357924f89dd24c1dbee1adac08  ./assets/budget-state.template.json
 061550879a99328810ffe69b09ac220e1750359cb8eee58af27926c17bbf3e5b  ./assets/checkpoint.template.md
 f44bae2d84b2b1e4285cc8d52df0a626b73d877c85bfb6ec480acffbea40f52d  ./assets/current-state.template.json
 e19927c1197312b5934db790e8fc31692ad0b66016c5afb2485701666c65b48b  ./assets/open-problem-record.template.json
@@ -42,7 +43,7 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-940df8a2257ab3711b780047555a9dcd8af5edd8f1a0a106f8ed195f9dfebff1  ./references/upstream-changelog.md
+d2cccefec987d6b2868fa4fc909f5e19e5a09f2c9a7dca344465b52ca36d2588  ./references/upstream-changelog.md
 cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580  ./scripts/index_lean_lemmas.py
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7  ./scripts/scaffold_result.py

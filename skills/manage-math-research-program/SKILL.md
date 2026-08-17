@@ -237,6 +237,12 @@ Before delegating a concrete problem, create one task packet containing:
 - known ambiguities and bibliographic risks;
 - user constraints, available tools, and the research budget for this run;
 - the requested run root and expected upstream artifacts;
+- optional `theorem.lean` skeleton (with `sorry`) when the target statement is
+  already known - formalization starts from this skeleton (OpenProver-style);
+- optional `budget` block (see `assets/budget-state.template.json`) with
+  `total_tokens`, mode (`per_round` / `per_phase` / `hard_total` /
+  `soft_warning`), and resume policy: budget exhaustion pauses and hands off,
+  it never deletes work;
 - a `## Novelty preflight (B0)` section (openness verdict, audit path or
   explicit skip, snapshot hash) - the workflow stage B0 fills or audits it,
   and the deterministic gate (`validate_pipeline.py`) refuses to dispatch a
@@ -271,6 +277,7 @@ After `$rigorous-open-math-research` returns:
 5b. When an upstream audit reports gaps, record the first-error location and the error layer (statement / proof / dependency / boundary-convention) so follow-ups route to the smallest responsible owner.
 6. Update maps, indexes, budget accounting, `state/RESUME.md`, and the checkpoint.
 7. Register formalization progress: every new result (including partial/structural ones) must have a Lean scaffold in `lean-proof/` and an updated entry in `lean-proof/STATUS.md` / `lean-proof/README.md`; record the scaffold path and hash in the run record and `formalization_progress.md`.
+8. Record budget state: if `budget_state.json` exists, update `consumed_tokens`, mark `status` (`active` / `paused_budget` / `resumed`), and link it in the run record. A `paused_budget` run resumes from its handoff + budget state; it is never discarded.
 
 If an upstream artifact is missing or its status is unclear, record that fact. Do not infer success.
 

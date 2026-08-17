@@ -241,6 +241,23 @@ support tool, not a substitute for deep reasoning: when retrieval stops being
 useful, continue with non-search skills and record why the results were not
 useful.
 
+**Token-conscious Planner/repo/budget protocol (distilled from OpenProver):**
+follow `references/openprover-absorption.md`. In short:
+
+- Planner steps emit a compact CoT + machine-readable action list
+  (`spawn`, `read_items`, `write_items`, `read_theorem`, `write_whiteboard`,
+  `submit_proof`, `submit_lean_proof`, `literature_search`).
+- Long content lives in `runs/<run_id>/repo/`; the Planner sees only
+  `repo_index.md` slugs and one-line summaries and reads items on demand.
+- Each task packet may include a `theorem.lean` skeleton with `sorry`; formalize
+  from it after the informal proof is found.
+- Planner steps are appended to `runs/<run_id>/planner_history.jsonl`; only the
+  last 3–5 steps are fed to the model.
+- Token budget is checked at safe boundaries. On exhaustion: persist
+  whiteboard/repo/history/facts, write an interruption handoff, mark
+  `PAUSED_BUDGET`, and resume later with an added budget. Budget exhaustion
+  never deletes work.
+
 **Numerical evidence discipline (hard rule):**
 
 - Numerical computation is allowed for exploration, counterexample search, and
@@ -470,6 +487,9 @@ agent writes an interruption handoff before returning control:
 - `assets/dsh-solve-audit-workflow.js` -- DSH workflow-tool template: parallel
   solve + adversarial audit per packet, then a verify stage for qualified
   results.
+- `references/openprover-absorption.md` -- token-conscious OpenProver
+  absorption: Planner action protocol, Repository item system, `theorem.lean`
+  skeleton, Planner history, and token budget pause/handoff/resume discipline.
 
 ## Changelog
 

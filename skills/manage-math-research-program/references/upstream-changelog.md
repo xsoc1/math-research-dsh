@@ -57,6 +57,9 @@
   已被反例/失败阻塞的提交直接拒绝或转修订.
 - 双轨审计: 8e Stage 2 增加非正式审计 + Lean 形式化双轨验证矩阵, 冲突按
   `references/dual-track-audit.md` 规则裁决; 采纳 Danus 硬禁止项.
+- OpenProver token-conscious 吸收: 任务包支持可选 `theorem.lean` 骨架与
+  `budget` 块; 新增 `assets/budget-state.template.json`; run 摄入时登记
+  `budget_state.json`, `paused_budget` 从 handoff+状态恢复, 不丢弃工作.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

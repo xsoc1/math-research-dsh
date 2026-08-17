@@ -1,0 +1,11 @@
+{
+  "total_tokens": 0,
+  "consumed_tokens": 0,
+  "remaining_tokens": 0,
+  "mode": "per_round",
+  "phase": "stageB",
+  "last_checkpoint": null,
+  "status": "active",
+  "resume_policy": "pause_and_handoff",
+  "notes": "Template only. Replace values before dispatch. Budget exhaustion pauses and hands off; it never deletes work."
+}
