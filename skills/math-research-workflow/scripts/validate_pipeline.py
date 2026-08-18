@@ -75,6 +75,22 @@ ALLOWED_TASK_TYPES = {"solve", "disprove", "construct", "formalize", "rigorously
 SOLVER_TASK_TYPES = {"solve", "disprove", "construct"}
 NOVELTY_HEADING = "Novelty preflight (B0)"
 HANDOFF_GLOB = "**/handoff-interrupted-*.md"
+
+
+def is_in_nested_repo(root: Path, path: Path) -> bool:
+    """True if path sits under a nested git repository (e.g. a cloned plugin
+    repo inside the project). Such paths belong to another repo and must not be
+    validated as part of this project."""
+    try:
+        rel = path.resolve().relative_to(root.resolve())
+    except ValueError:
+        return True
+    cur = root
+    for part in rel.parts[:-1]:
+        cur = cur / part
+        if (cur / ".git").exists():
+            return True
+    return False
 REQUIRED_HANDOFF_FIELDS = (
     "Run ID",
     "Task packet ID",
@@ -530,10 +546,10 @@ def check_numerical_abuse(path: Path, root: Path, report: Report) -> None:
 
 def check_claim_evidence(root: Path, report: Report) -> None:
     """Warn when strong claims exist without any project-level evidence anchor."""
-    evidence_anchors = list(root.glob("runs/**/run-manifest.json"))
-    evidence_anchors.extend(root.glob("lean-proof/verification.json"))
-    evidence_anchors.extend(root.glob("**/candidate_proof.md"))
-    evidence_anchors.extend(root.glob("**/audit_report.md"))
+    evidence_anchors = [p for p in root.glob("runs/**/run-manifest.json") if not is_in_nested_repo(root, p)]
+    evidence_anchors.extend(p for p in root.glob("lean-proof/verification.json") if not is_in_nested_repo(root, p))
+    evidence_anchors.extend(p for p in root.glob("**/candidate_proof.md") if not is_in_nested_repo(root, p))
+    evidence_anchors.extend(p for p in root.glob("**/audit_report.md") if not is_in_nested_repo(root, p))
     if evidence_anchors:
         return
     for path in iter_claim_files(root):
@@ -555,7 +571,7 @@ def check_interruption_handoffs(root: Path, report: Report) -> None:
     tried with outcome markers plus the exact next actions. Missing sections
     are hard FAILs so a successor agent never resumes blind.
     """
-    files = sorted(root.glob(HANDOFF_GLOB))
+    files = sorted(p for p in root.glob(HANDOFF_GLOB) if not is_in_nested_repo(root, p))
     if files:
         report.ok(f"found {len(files)} interruption handoff record(s)")
     for path in files:
@@ -608,7 +624,7 @@ def check_whiteboards(root: Path, report: Report) -> None:
     required fields and sections so the solve-run lead and any successor can
     resume from it, and route lines should carry outcome markers.
     """
-    whiteboards = sorted(root.glob(WHITEBOARD_GLOB))
+    whiteboards = sorted(p for p in root.glob(WHITEBOARD_GLOB) if not is_in_nested_repo(root, p))
     if whiteboards:
         report.ok(f"found {len(whiteboards)} run whiteboard(s)")
     seen_dirs = {path.parent for path in whiteboards}
@@ -632,7 +648,7 @@ def check_whiteboards(root: Path, report: Report) -> None:
                 f"{rel}: {len(unmarked)} route line(s) without a "
                 "[FAILED|BLOCKED|PARTIAL|SUCCEEDED] outcome marker"
             )
-    for run_dir in sorted(root.glob("runs/**")):
+    for run_dir in sorted(p for p in root.glob("runs/**") if not is_in_nested_repo(root, p)):
         if not run_dir.is_dir() or run_dir in seen_dirs:
             continue
         if not (run_dir / "research_ledger.md").is_file():
@@ -682,11 +698,11 @@ def check_git(root: Path, report: Report, allow_dirty: bool) -> None:
 
 
 def iter_packet_files(root: Path) -> Iterable[Path]:
-    return sorted(root.glob(PACKET_GLOB))
+    return sorted(p for p in root.glob(PACKET_GLOB) if not is_in_nested_repo(root, p))
 
 
 def iter_manager_manifests(root: Path) -> Iterable[Path]:
-    return sorted(root.glob(MANAGER_MANIFEST_GLOB))
+    return sorted(p for p in root.glob(MANAGER_MANIFEST_GLOB) if not is_in_nested_repo(root, p))
 
 
 def main() -> int:

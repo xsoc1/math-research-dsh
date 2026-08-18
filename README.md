@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 11 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 12 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -198,6 +198,7 @@ python smoke_formalization.py         # 形式化决策门禁 fixtures
 python smoke_whiteboard.py            # whiteboard 门禁 fixtures
 python smoke_distilled_methods.py     # 蒸馏社区方法的静态标记覆盖
 python smoke_version_bump.py          # 版本 bump 门禁脚本冒烟 (临时 git 仓库)
+python smoke_nested_repo.py           # 门禁跳过嵌套 git 仓库回归测试
 ```
 
 GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移比较.

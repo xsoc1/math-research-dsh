@@ -70,7 +70,7 @@
     "math-research-workflow/references/openprover-absorption.md": "094600263cc81c39240f28ccd9dd1d72c6c5199788ead53797e94458c3c58849",
     "math-research-workflow/references/upstream-changelog.md": "9fdde467349da58afbd9b95219ac05429a756ff764f02482f045fb690e5d9c8a",
     "math-research-workflow/references/workflow-design.md": "7f81d3e55dc9e207b72b1ac95f00f734689f9d4034f7fd9622f767ff2020d265",
-    "math-research-workflow/scripts/validate_pipeline.py": "7ce539bcc3a5159cda3aaf581c538f6e646af7598b3495baf75dd88cc1430da2",
+    "math-research-workflow/scripts/validate_pipeline.py": "d64f7d415c918091093117842e008ce8e591ed234892a8fb35a994fc420d01e9",
     "rigorous-open-math-research/SKILL.md": "46e1479e7be4faf113970ca74e2de2af684bb826f5ba1799282b898dddfa66c5",
     "rigorous-open-math-research/assets/icon.svg": "e9301497fa98ef56aaca7ede0857b9a18dc06c34040f0679c609a6bf49b1d38b",
     "rigorous-open-math-research/assets/subtask-packet.template.md": "a410d441bac8790235fe1773df41e1ddd5b57ed15b9a9f4dc8a084c496634708",
@@ -92,5 +92,5 @@
     "rigorous-open-math-research/references/subagent-delegation.md": "c09bb12d99aa0f7e41d21664e6752f4ba23d8aba63b2f7e0c19be13fab0cc719",
     "rigorous-open-math-research/references/upstream-changelog.md": "100c153f939cf4efd9c49b937a7d48f4906780fe64101d69cbe0b30417a2f5cb"
   },
-  "upstream_commit": "d59f0ced12f83df5d87800fb3db2c4f35e441669"
+  "upstream_commit": "319a8e1275023cb441d5d438ee9df811dd441037"
 }

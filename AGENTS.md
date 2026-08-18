@@ -342,3 +342,12 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   cachebuster `0.1.0+codex.20260816240000`.
 - 本仓库: sync 继承 (lock 91), package.json bump 0.1.11 -> 0.1.12; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 修复门禁嵌套 git 仓库误扫 + 研究流水线运行
+- 上游 (319a8e1, 双推): validate_pipeline.py 跳过嵌套 git 仓库 (如 `_xsoc1_work`),
+  新增 smoke_nested_repo.py; workflow cachebuster `0.1.0+codex.20260816243000`.
+- 本仓库: sync 继承 (lock 91), 新增 smoke_nested_repo.py, README 冒烟 11 -> 12,
+  validate_all 51 项 + BUNDLE OK + 12 smoke 全绿; package.json bump 0.1.12 -> 0.1.13.
+- 关联: 用 math-research-workflow 运行 DensBC O1' (run
+  R-20260816T210000Z-densbc-o1p), 在 H_beta + 有限多项式约束子类上闭合 O1',
+  双轮独立审计 REPAIRABLE_GAP 均已修复; 报告在
+  `reports/pipeline-run-report-densbc-o1p.md`.
