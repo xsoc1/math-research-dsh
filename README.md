@@ -228,6 +228,21 @@ upstream.lock.json                父仓库 commit + 逐文件哈希
 install.ps1                       junction 安装到 $DSH_HOME/skills
 ```
 
+## 版本历史
+
+| 版本 | 日期 | 摘要 |
+| --- | --- | --- |
+| 0.1.12 | 2026-08-16 | 研究地图 (research_map.md): 实时记录路线/方法/失败/工具/人类补充 |
+| 0.1.11 | 2026-08-16 | OpenProver token-conscious: planner action/repo/theorem.lean/history + 预算 pause-resume |
+| 0.1.10 | 2026-08-16 | 双轨审计: Danus 式非正式审计 + Lean 形式化共存 |
+| 0.1.9 | 2026-08-16 | Rethlas 方法蒸馏 (失败综合/反例复用/搜索纪律) |
+| 0.1.8 | 2026-08-16 | 效率优化: scaffold/审计脚本 + Lean 分级验证 + lemma 索引 |
+| 0.1.7 | 2026-08-16 | 证明文件提交审计流程 8e |
+| 0.1.6 | 2026-08-16 | Lean 中间验证 + superseded 覆盖 |
+| 0.1.5 | 2026-08-16 | 交接手续独立成文 |
+| 0.1.4 | 2026-08-16 | 进展全登记 + 每个新结果 scaffold |
+| 0.1.3 | 2026-08-16 | README 同步 + CI 版本 bump 门禁 + 蒸馏方法冒烟 |
+
 ## 维护规则
 
 1. 每次变更后运行 `python scripts/validate_all.py .`.
