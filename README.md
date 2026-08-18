@@ -34,6 +34,14 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 - 本仓库不修改 DSH harness 本体, 也不绑定某个 agent preset; 安装到用户技能根
   (`$DSH_HOME/skills`) 后, 任何 standard/cordis preset 会话自动发现这 4 个 skill.
 
+## 工作流与完整流程
+
+- 一轮完整运行 (输入数学问题 → Stage A 管理 → Stage B 求解 → Stage C 验证 →
+  提交审计 8e → 结果入库) 的所有分支与终态, 见父仓库:
+  [`docs/pipeline-full-flow.md`](https://github.com/xsoc1/rigorous-open-math-research/blob/main/docs/pipeline-full-flow.md)
+- 每个项目还会持续维护人类可读的 `research_map.md` (路线/方法/中间结果/失败
+  原因/工具/开放方向/avoid list/人类补充), 部分进展也入图.
+
 ## Skill 一览
 
 | DSH skill | 角色 | 随包工具 |

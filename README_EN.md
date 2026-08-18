@@ -41,6 +41,17 @@ xsoc1/math-research-dsh                     this repo (DSH adaptation, public)
   agent preset; once installed under the user skill root (`$DSH_HOME/skills`),
   every standard/cordis session discovers the four skills automatically.
 
+## Workflow and full pipeline
+
+- All branches and terminal states of one full run (input problem → Stage A
+  manage → Stage B research → Stage C verification → submission audit 8e →
+  result ingestion), see the parent repository:
+  [`docs/pipeline-full-flow.md`](https://github.com/xsoc1/rigorous-open-math-research/blob/main/docs/pipeline-full-flow.md)
+- Each project also keeps a continuously updated, human-readable
+  `research_map.md` (routes/methods, intermediate results, failure reasons,
+  tools, open directions, avoid list, human/other-agent contributions);
+  partial progress is always included.
+
 ## Skill overview
 
 | DSH skill | Role | Bundled tooling |
