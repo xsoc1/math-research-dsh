@@ -60,6 +60,10 @@
 - OpenProver token-conscious 吸收: 任务包支持可选 `theorem.lean` 骨架与
   `budget` 块; 新增 `assets/budget-state.template.json`; run 摄入时登记
   `budget_state.json`, `paused_budget` 从 handoff+状态恢复, 不丢弃工作.
+- 研究地图: 新增 8f 节 (强制) - 每个项目维护人类可读的 `research_map.md`
+  (路线/方法/中间结果/失败原因/工具库/开放方向/avoid list/人类补充);
+  新增 `assets/research-map.template.md` 与 `scripts/update_research_map.py`;
+  阶段边界持续更新, 防钻牛角尖, 部分进展也入图.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

@@ -333,3 +333,12 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   cachebuster `0.1.0+codex.20260816230000`.
 - 本仓库: sync 继承 (lock 89), package.json bump 0.1.10 -> 0.1.11; validate_all
   51 项 + BUNDLE OK + 11 smoke 全绿.
+### 2026-08-16 会话: 继承“研究地图”
+- 上游 (d59f0ce, 双推): 每个项目维护人类可读、持续更新的 `research_map.md`;
+  manage 新增 8f 节 + `assets/research-map.template.md` + `scripts/update_research_map.py`
+  (init + append route/finding/failure/avoid/human); workflow Stage A/B/C 边界
+  强制更新 + 防钻牛角尖; rigorous 默认工件加入 research_map.md; 追踪记录
+  `docs/implementation-tracking-research-map.md`; rigorous/manage/workflow
+  cachebuster `0.1.0+codex.20260816240000`.
+- 本仓库: sync 继承 (lock 91), package.json bump 0.1.11 -> 0.1.12; validate_all
+  51 项 + BUNDLE OK + 11 smoke 全绿.

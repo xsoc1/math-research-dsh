@@ -1,4 +1,4 @@
-894a7964856adeed7ef46a5a6a1f5e290a84d2704f15d62ec680dc8eebdc24e7  ./SKILL.md
+1b6e22139d068568d00c2f22c2b220a7e5a25d9cfbc8b456b1caaee87c2e46b2  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -27,6 +27,7 @@ c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7  ./assets/proje
 5803efec74de8c2f974bed2b69dd920790cf2089830db9558f7be2d2bcec439f  ./assets/project.template.json
 3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d  ./assets/proof-paper.template.tex
 83e5c1163bdc831b127389a952eee5e8abc009b2e867d2add48df74ce8a98e87  ./assets/proof-submission-audit.template.md
+20d94794d2353740d19458ea85383508364b252b5dba15eed29a24a05edc4c3c  ./assets/research-map.template.md
 d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-manifest.template.json
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
@@ -43,9 +44,10 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-d2cccefec987d6b2868fa4fc909f5e19e5a09f2c9a7dca344465b52ca36d2588  ./references/upstream-changelog.md
+0d0e6931e46b6d206713c735a6b1cef76886fecc8b2b4b654f594021c2ce3f0d  ./references/upstream-changelog.md
 cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580  ./scripts/index_lean_lemmas.py
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7  ./scripts/scaffold_result.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
+5c53d3acdfc30634507ba214555075a38f96997ff4368954ce1762438191acc4  ./scripts/update_research_map.py
 545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940  ./scripts/validate_project.py

@@ -241,6 +241,16 @@ support tool, not a substitute for deep reasoning: when retrieval stops being
 useful, continue with non-search skills and record why the results were not
 useful.
 
+**Research map (mandatory):** every project keeps a human-readable
+`research_map.md` (see `$manage-math-research-program` workflow 8f and
+`assets/research-map.template.md`). It records every route/method tried,
+intermediate results, unexpected findings, failures and reasons, tools, open
+directions, an avoid list, and human/other-agent contributions. Update it at
+every stage boundary and after every material step (worker round, failed route,
+verified fact, discovery, budget pause). Before a long deep-dive into a small
+sub-branch, re-read the map's routes/avoid list to avoid rabbit-holing;
+human/AI-supplied routes are merged as leads to verify.
+
 **Token-conscious Planner/repo/budget protocol (distilled from OpenProver):**
 follow `references/openprover-absorption.md`. In short:
 
@@ -379,15 +389,17 @@ then repair at the correct layer:
 
 - A -> B: packet contains contract + source paths + obligation list; B0
   novelty preflight recorded (openness verdict + audit path or skip +
-  snapshot hash); no open questions left unresolved.
+  snapshot hash); no open questions left unresolved; research map (`research_map.md`)
+  initialized with problem/target.
 - B -> C: full Lean verification is reserved for results with an honest
   completion label (`已证` / `CANDIDATE_COMPLETE_PROOF`); partial/structural
   results still enter Stage C in **scaffold mode** (create/update Lean scaffold
   + formalization progress). Numerical/猜想 results are excluded from full
   verification but, when they represent new material progress, still require a
-  scaffold/registration per the 2026-08-16 rule.
+  scaffold/registration per the 2026-08-16 rule. The research map is updated with
+  all routes/findings/failures before leaving Stage B.
 - C -> done: verification.json verdict, audit report, STATUS matrix updated;
-  git synced; AGENTS.md session log appended.
+  research map status updated; git synced; AGENTS.md session log appended.
 - Every dispatch and every stage close re-runs
   `scripts/validate_pipeline.py`; a hard `FAIL` must not be left open at a
   stage boundary. Statuses outside the formalization gate are reported as

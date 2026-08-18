@@ -220,7 +220,7 @@ Maintain project-level records for:
 - management priority, expected leverage, novelty risk, and verification cost;
 - unresolved bibliographic questions and missing sources.
 
-Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs. Every material progress item is registered: partial results, structural theorems, failed routes with precise failure mechanisms, and new reusable tools all become first-class records (problem record, route/tool index, knowledge card, or formalization progress). Nothing that changes the problem state is left only in a chat transcript. Maintain a reusable counterexample library and a failure-synthesis record: common stuck points across failed plans are summarized and used to design the next generation of plans. When a newer, more advanced result covers an earlier partial/scaffold result, mark the earlier record as `superseded` with a pointer to the newer result; keep the history, but never present the superseded record as the current state.
+Portfolio problem records carry a one-line evidence status (`OPEN` / `PARTIAL` / `NUMERICAL_EVIDENCE` / `PROVED` / `FORMALIZED`) and the research state (contract frozen? obligations open?) without duplicating upstream obligation graphs. Every material progress item is registered: partial results, structural theorems, failed routes with precise failure mechanisms, and new reusable tools all become first-class records (problem record, route/tool index, knowledge card, or formalization progress). Nothing that changes the problem state is left only in a chat transcript. Maintain a reusable counterexample library and a failure-synthesis record: common stuck points across failed plans are summarized and used to design the next generation of plans. Maintain a **research map** (`research_map.md`) as the human-readable, continuously updated survey of the problem: every route/method tried, intermediate results, unexpected findings, failures and reasons, tools, open directions, an avoid list, and human/other-agent contributions. Partial progress always goes into the map. When a newer, more advanced result covers an earlier partial/scaffold result, mark the earlier record as `superseded` with a pointer to the newer result; keep the history, but never present the superseded record as the current state.
 
 Tool-library and portfolio evolution follows a marginal-benefit rule: a new tool entry or priority change is adopted when it resolves a known blocker, raises an evidence level, or reduces retrieval cost; record the marginal benefit in the maintenance log. Tool entries carry artifact provenance: the producing run/command, inputs, environment, source hash, and an append-only verification note (what was checked, at which precision, and by whom); a tool entry without provenance is a lead, not a reusable tool. (Distilled from dsh-science: https://github.com/biociao/dsh-science.) Promotion and retirement triggers: a technique enters the library only after repeated confirmed use (e.g. three successful applications) or one machine-verified proof; an anti-pattern is retired after two confirmed failures with recorded mechanisms. (Distilled from dsh-task-planner: https://github.com/ztl34245881-commits/dsh-task-planner.)
 
@@ -438,6 +438,30 @@ Only after Stage 1 and Stage 2 pass (or pass with explicit scaffold status):
 6. Record the audit decision (`ACCEPT` / `ACCEPT_AS_SCAFFOLD` / `REJECT` /
    `REVISE_AND_RESUBMIT`), commit, and sync remotes.
 
+## 8f. Maintain the research map (mandatory)
+
+Every project keeps a `research_map.md` - a living, human-readable survey of the
+problem, updated continuously at stage boundaries. It reads like a paper/problem
+overview, not a machine log. Use `assets/research-map.template.md` and
+`scripts/update_research_map.py`.
+
+1. **Cover the full picture.** The map must include: problem and target, status
+   summary, every route/method tried (with outcome), intermediate results and
+   unexpected findings, failed attempts and their reasons, the tool/method
+   library, open directions and next-generation plans, an **avoid list** (dead
+   ends not to re-walk), and human/other-agent contributions.
+2. **Update early and often.** After every material step - a worker round, a
+   failed route, a verified fact, an unexpected discovery, a stage boundary -
+   update the map. Partial progress always goes in.
+3. **Prevent rabbit-holing.** Before a long deep-dive into a small sub-branch,
+   re-read the map's routes/avoid list; do not over-optimize a branch that is
+   already mapped as a dead end without a materially new mechanism.
+4. **Human/other-agent supplements.** Routes, insights, or references supplied
+   by humans or other agents are merged into the map (as leads to verify, not
+   proven facts) so the agent does not rediscover or re-optimize them too early.
+5. **Keep it human-readable.** Prefer prose/bullets/tables over raw logs. The
+   map is the entry point for a human researcher reviewing the project.
+
 ## 9. Checkpoint and close a stage
 
 After every substantial literature batch, paper analysis, delegation, or ingestion:
@@ -471,6 +495,7 @@ Before closing a stage, rebuild the program state from files only (indexes, `sta
 13. Every Lean-verified theorem must ship a human-readable LaTeX proof under `papers/` (English arXiv-style version + Chinese companion) bound to the machine verification as described in workflow 8c; no formally verified result is complete without it.
 14. Every new result (including partial/structural ones) must be registered in the problem/route/tool records and must have a Lean scaffold + formalization-progress update when a `lean-proof/` project exists; a result without registration or scaffold is not considered fully ingested.
 15. No proof document is added to the repository without passing the proof submission audit pipeline (workflow 8e): repository comparison, Lean verification/audit, then rule-based integration. The audit record must be kept with the submission.
+16. The research map (`research_map.md`) is a maintained living document: every route/method, intermediate result, unexpected finding, failure and reason, open direction, and human/other-agent contribution must be reflected there continuously (workflow 8f). A project whose map is stale is not considered fully current.
 
 # Project-level completion
 

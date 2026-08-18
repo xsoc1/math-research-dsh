@@ -106,6 +106,9 @@
 - OpenProver token-conscious 吸收: 新增 `references/openprover-absorption.md`;
   Stage B 增加 Planner action 协议、Repository item 系统、`theorem.lean`
   前置骨架、Planner history、token budget pause+handoff+resume.
+- 研究地图: Stage A/B/C 阶段边界强制更新 `research_map.md` (路线/方法/中间
+  结果/失败原因/工具/开放方向/avoid list/人类补充); 深挖子分支前先读地图避免
+  钻牛角尖.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

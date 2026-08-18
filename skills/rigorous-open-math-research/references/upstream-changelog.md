@@ -73,6 +73,9 @@
 - 新增 `references/dual-track-audit.md`: Danus 式非正式审计与 Lean 形式化验证
   共存的四层协议 (非正式审计 -> Lean scaffold -> Lean 完整验证 -> 论文级再验证),
   冲突裁决规则, Danus 硬禁止项, 双轨验证矩阵.
+## Changelog (2026-08-16, research map)
+- 默认工件新增 `research_map.md` (人类可读、持续更新的研究综述); 中间结果、
+  意外发现、失败原因必须发布进地图 (或确保其来源被聚合), 部分进展不丢失.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this
