@@ -351,3 +351,14 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   R-20260816T210000Z-densbc-o1p), 在 H_beta + 有限多项式约束子类上闭合 O1',
   双轮独立审计 REPAIRABLE_GAP 均已修复; 报告在
   `reports/pipeline-run-report-densbc-o1p.md`.
+### 2026-08-16 会话: lake build 循环防护 + O1' 第二轮
+- 上游 (b41c852, 双推): lean-verify 新增 `scripts/lake_build_guard.py` 并集成到
+  `verify_lean_project.py --build`: 防止会话反复 `lake build` / 反复 clone
+  mathlib4 占满网络/CPU (fresh lock + 近期尝试次数限制 + mathlib 缓存提示);
+  新增 smoke_lake_build_guard.py; lean-verify cachebuster `0.1.0+codex.20260816250000`.
+- 本仓库: sync 继承 (lock 92), 新增 smoke_lake_build_guard.py, README 冒烟
+  12 -> 13, validate_all 51 项 + BUNDLE OK + 13 smoke 全绿; package.json bump
+  0.1.13 -> 0.1.14.
+- 关联: DensBC O1' 第二轮 run R-20260816T220000Z-densbc-o1p2 闭合 H_lambda
+  带状非对角子类 (density <=> ker(T|B_fin)={0}; v_1=x^4 非稠密, 显式障碍);
+  性能测试报告 reports/plugin-performance-test-round2.md.

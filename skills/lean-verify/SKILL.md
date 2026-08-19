@@ -169,6 +169,23 @@ Lean verification is the machine track; it does not replace the informal
 Record both tracks in the verification matrix of the submission audit
 (see `references/dual-track-audit.md` in the rigorous skill).
 
+## Build loop guard
+
+Long-running sessions can get stuck repeatedly running `lake build` and
+re-cloning mathlib4, saturating network and CPU. The plugin now guards builds:
+
+- `verify_lean_project.py --build` calls `scripts/lake_build_guard.py --check`
+  before starting `lake build` and `--release` afterwards.
+- The guard refuses to start a build when:
+  - a fresh `.lake/build_guard.lock` exists (a build may already be running),
+  - too many build attempts occurred recently
+    (default max 5 in 10 minutes).
+- If mathlib4 is declared but not present under `.lake/packages/mathlib4`, the
+  guard warns to prefer `lake exe cache get` / a single `lake update` over
+  repeated cloning.
+- If the guard refuses, do NOT bypass it blindly. Stop the runaway session,
+  inspect `.lake/build_attempts.log`, use the mathlib cache, and then retry.
+
 ## Workflow
 
 ### Phase 0 - Environment and input inventory

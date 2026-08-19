@@ -42,6 +42,11 @@
 - 新增 Coexistence with informal audit: Lean 是机器轨, 不替代非正式审计; 完整交付
   要求双轨都过, 冲突按 非正式 gap > Lean 通过, Lean 失败 > 非正式通过, 论文级失败
   > 两者 裁决.
+
+## Changelog (2026-08-16, build loop guard)
+- 新增 `scripts/lake_build_guard.py` + `verify_lean_project.py` 集成: 防止会话
+  反复 `lake build` / 反复 clone mathlib4 占满网络/CPU; 检查 fresh lock 与近期
+  构建次数, 并提示优先 `lake exe cache get` 而非重复克隆.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

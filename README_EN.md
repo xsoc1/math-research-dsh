@@ -19,7 +19,7 @@ as native DSH skills with their scripts and assets bundled.
 - Status as of 2026-08-16: all four skills adapted; installed on this machine
   via `install.ps1` as junctions under `$DSH_HOME/skills`; the skills appear in
   DSH session catalogs immediately (the watcher follows the junctions);
-  repository validation and the twelve smoke tests are green; GitHub Actions is
+  repository validation and the thirteen smoke tests are green; GitHub Actions is
   wired up; the repo root now ships as an official bundle skill pack (one
   command install + a submitted listing request).
 
@@ -222,6 +222,7 @@ python smoke_whiteboard.py            # whiteboard gate fixtures
 python smoke_distilled_methods.py     # static marker coverage for distilled methods
 python smoke_version_bump.py          # version-bump gate smoke (throwaway git repo)
 python smoke_nested_repo.py           # nested git repo skip regression test
+python smoke_lake_build_guard.py      # lake build loop guard smoke
 ```
 
 GitHub Actions runs all of the above plus the `--check` drift comparison

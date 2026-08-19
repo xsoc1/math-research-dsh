@@ -29,6 +29,7 @@ SORRY_PAT = re.compile(r"\b(sorry|admit)\b")
 AXIOM_PAT = re.compile(r"^\s*(noncomputable\s+)?axiom\s+\w+", re.MULTILINE)
 COMMENT_PAT = re.compile(r"--[^\n]*|/\*(?:[^*]|\*(?!/))*\*/")
 STRING_PAT = re.compile(r'"(?:[^"\\]|\\.)*"')
+LAKE_BUILD_GUARD = Path(__file__).resolve().parent / "lake_build_guard.py"
 
 
 def scan_file(path: Path, whitelist: set) -> list:
@@ -137,11 +138,36 @@ def main() -> int:
 
     build = None
     if args.build:
-        lake = shutil.which("lake")
-        if lake:
-            build = run([lake, "build"], root)
+        guard = subprocess.run(
+            [sys.executable, str(LAKE_BUILD_GUARD), "--project", str(root), "--check"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=60,
+        )
+        if guard.returncode != 0:
+            build = {
+                "command": ["lake_build_guard.py", "--check"],
+                "exit_code": guard.returncode,
+                "stdout": guard.stdout[-4000:],
+                "stderr": guard.stderr[-4000:],
+                "guard_message": "build loop guard refused to start lake build",
+            }
         else:
-            build = {"command": ["lake", "build"], "exit_code": None, "stdout": "", "stderr": "lake not found"}
+            lake = shutil.which("lake")
+            try:
+                if lake:
+                    build = run([lake, "build"], root)
+                else:
+                    build = {"command": ["lake", "build"], "exit_code": None, "stdout": "", "stderr": "lake not found"}
+            finally:
+                subprocess.run(
+                    [sys.executable, str(LAKE_BUILD_GUARD), "--project", str(root), "--release"],
+                    capture_output=True,
+                    text=True,
+                    errors="replace",
+                    timeout=60,
+                )
 
     inputs = {}
     for f in files:
