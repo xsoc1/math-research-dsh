@@ -186,6 +186,21 @@ re-cloning mathlib4, saturating network and CPU. The plugin now guards builds:
 - If the guard refuses, do NOT bypass it blindly. Stop the runaway session,
   inspect `.lake/build_attempts.log`, use the mathlib cache, and then retry.
 
+## Build robustness
+
+Full `lake build` is heavy and can time out or fail for environmental reasons.
+Prefer the cheapest sufficient build:
+
+- Tier 0/1 checks: use `lake env lean <file>` on the specific file instead of
+  full `lake build`. `verify_lean_project.py --build --build-targets FILE.lean`
+  does exactly that.
+- Before building, fetch the mathlib cache once:
+  `verify_lean_project.py --build --use-cache` runs `lake exe cache get`.
+- Set a realistic timeout with `--build-timeout SECONDS` (default 3600); a
+  timeout is recorded as a build failure, never as a success.
+- The build guard wraps all of these: it refuses runaway repeated attempts and
+  releases its lock after the build (even on failure).
+
 ## Workflow
 
 ### Phase 0 - Environment and input inventory

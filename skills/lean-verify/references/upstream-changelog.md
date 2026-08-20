@@ -47,6 +47,9 @@
 - 新增 `scripts/lake_build_guard.py` + `verify_lean_project.py` 集成: 防止会话
   反复 `lake build` / 反复 clone mathlib4 占满网络/CPU; 检查 fresh lock 与近期
   构建次数, 并提示优先 `lake exe cache get` 而非重复克隆.
+- 构建鲁棒性增强: `verify_lean_project.py --build` 支持
+  `--build-targets` (单文件 `lake env lean`, 不做全量 build)、`--use-cache`
+  (先 `lake exe cache get`) 与 `--build-timeout`; 超时记录为失败而非成功.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

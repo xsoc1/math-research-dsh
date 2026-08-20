@@ -73,10 +73,10 @@ def sha256_file(path: Path) -> str:
     return h.hexdigest().upper()
 
 
-def run(cmd: list, cwd: Path) -> dict:
+def run(cmd: list, cwd: Path, timeout: int = 3600) -> dict:
     try:
         proc = subprocess.run(
-            cmd, cwd=str(cwd), capture_output=True, text=True, errors="replace", timeout=3600
+            cmd, cwd=str(cwd), capture_output=True, text=True, errors="replace", timeout=timeout
         )
         return {
             "command": cmd,
@@ -87,7 +87,7 @@ def run(cmd: list, cwd: Path) -> dict:
     except FileNotFoundError:
         return {"command": cmd, "exit_code": None, "stdout": "", "stderr": "executable not found"}
     except subprocess.TimeoutExpired:
-        return {"command": cmd, "exit_code": None, "stdout": "", "stderr": "timeout after 3600s"}
+        return {"command": cmd, "exit_code": None, "stdout": "", "stderr": f"timeout after {timeout}s"}
 
 
 def main() -> int:
@@ -95,6 +95,12 @@ def main() -> int:
     ap.add_argument("--project", required=True, help="Lean project root directory")
     ap.add_argument("--lean-files", nargs="*", default=None, help="limit scanning to these files")
     ap.add_argument("--build", action="store_true", help="run lake build")
+    ap.add_argument("--build-targets", nargs="*", default=None,
+                    help="when --build is set, check only these .lean files with `lake env lean` instead of full `lake build`")
+    ap.add_argument("--use-cache", action="store_true",
+                    help="run `lake exe cache get` before building (avoid long mathlib rebuilds)")
+    ap.add_argument("--build-timeout", type=int, default=3600,
+                    help="timeout in seconds for each build/cache command (default 3600)")
     ap.add_argument("--whitelist", default="", help="comma-separated allowed names (sorry/admit/axiom names)")
     ap.add_argument("--output", default=None, help="directory for run-manifest.json")
     args = ap.parse_args()
@@ -156,8 +162,44 @@ def main() -> int:
         else:
             lake = shutil.which("lake")
             try:
+                steps: list[dict] = []
+                if args.use_cache and lake:
+                    cache = run([lake, "exe", "cache", "get"], root, timeout=args.build_timeout)
+                    steps.append({"kind": "cache", **cache})
                 if lake:
-                    build = run([lake, "build"], root)
+                    if args.build_targets:
+                        # Targeted single-file checks: `lake env lean FILE` is much
+                        # cheaper and more robust than a full `lake build`.
+                        commands = []
+                        for rel in args.build_targets:
+                            target = (root / rel).resolve()
+                            if not target.is_file():
+                                commands.append({
+                                    "kind": "target",
+                                    "command": ["lake", "env", "lean", rel],
+                                    "exit_code": None,
+                                    "stdout": "",
+                                    "stderr": f"target file not found: {rel}",
+                                })
+                                continue
+                            commands.append({
+                                "kind": "target",
+                                **run([lake, "env", "lean", str(target)], root, timeout=args.build_timeout),
+                            })
+                        steps.extend(commands)
+                        nonzero = [c for c in commands if c.get("exit_code") is not None and c["exit_code"] != 0]
+                        build = {
+                            "mode": "targets",
+                            "commands": commands,
+                            "exit_code": nonzero[0]["exit_code"] if nonzero else 0,
+                        }
+                    else:
+                        steps.append({"kind": "full", **run([lake, "build"], root, timeout=args.build_timeout)})
+                        build = {
+                            "mode": "full",
+                            "commands": steps,
+                            "exit_code": steps[-1]["exit_code"],
+                        }
                 else:
                     build = {"command": ["lake", "build"], "exit_code": None, "stdout": "", "stderr": "lake not found"}
             finally:

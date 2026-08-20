@@ -1,13 +1,13 @@
 {
   "files": {
-    "lean-verify/SKILL.md": "fcf28a08ee87e47ba5bc9380ca5e67c9847888014c6a9b69f7b2b578330d258c",
+    "lean-verify/SKILL.md": "04670a72a9c8a123c4e855cf7c5c96f31a22efd35421d03101f40a51c0e5b05b",
     "lean-verify/assets/lean-audit-report.template.md": "8a8363bc6d8b38d476831120fe825c645a6c5a3d90085586010e1bbbfef92370",
     "lean-verify/assets/lean-obligation.template.md": "1c3830cc543e09e699803ddc8a3d61763bc1ac5be02ff9ce0417b994c0749df5",
     "lean-verify/assets/lean-scaffold.template.lean": "04cce22417b10ea4084ff01ca31de7a5001f06b89f6e03bce210e6a9db45e824",
     "lean-verify/assets/verification_output.schema.json": "cf2f2532843b8b03fe7f3d42ccbf5bc8565a3871afe44a14bc7bb1e8fd4f7b26",
-    "lean-verify/references/upstream-changelog.md": "e1aadcf18c41e826401575875046d04507a0be6d586a58af9028ef5c037e317b",
+    "lean-verify/references/upstream-changelog.md": "3ebb5887e29488726890364f24dae8ac8f75df7946196c8e3ec349db29df97dd",
     "lean-verify/scripts/lake_build_guard.py": "785a601d3c2cd6922acc5a3b58b1e07373026ead66897710e43734c813d02ccd",
-    "lean-verify/scripts/verify_lean_project.py": "64e509b59d329ac4c057d7b82e92e02ffc2c01ed0414b38095d1a8b2142d8a12",
+    "lean-verify/scripts/verify_lean_project.py": "99b0d6b9cf4ae90b2e95a0dddee1202abfb9b4acdee80d94db02de24ab8f144c",
     "manage-math-research-program/MANIFEST.sha256": "df2266d5d08af7b2eef5d7870ee36bdce26eb11dc32103cb17e5071ad3c6ff2d",
     "manage-math-research-program/SKILL.md": "1b6e22139d068568d00c2f22c2b220a7e5a25d9cfbc8b456b1caaee87c2e46b2",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/.blueprint/config.json": "43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163",
@@ -93,5 +93,5 @@
     "rigorous-open-math-research/references/subagent-delegation.md": "c09bb12d99aa0f7e41d21664e6752f4ba23d8aba63b2f7e0c19be13fab0cc719",
     "rigorous-open-math-research/references/upstream-changelog.md": "100c153f939cf4efd9c49b937a7d48f4906780fe64101d69cbe0b30417a2f5cb"
   },
-  "upstream_commit": "b41c8524ccc39088833b307c197522c7096b0a6f"
+  "upstream_commit": "ce717e6ce00c6d10a7f73bd94433dddc940efe4c"
 }

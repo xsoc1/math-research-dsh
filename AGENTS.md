@@ -362,3 +362,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 关联: DensBC O1' 第二轮 run R-20260816T220000Z-densbc-o1p2 闭合 H_lambda
   带状非对角子类 (density <=> ker(T|B_fin)={0}; v_1=x^4 非稠密, 显式障碍);
   性能测试报告 reports/plugin-performance-test-round2.md.
+### 2026-08-16 会话: lake build 鲁棒性增强
+- 上游 (ce717e6, 双推): lean-verify `verify_lean_project.py --build` 新增
+  `--build-targets` (单文件 `lake env lean`, 避免全量 build)、`--use-cache`
+  (先 `lake exe cache get`)、`--build-timeout` (超时记为失败); SKILL 新增
+  Build robustness; lean-verify cachebuster `0.1.0+codex.20260816260000`.
+- 本仓库: sync 继承 (lock 92), validate_all 51 项 + BUNDLE OK + 13 smoke 全绿;
+  package.json bump 0.1.14 -> 0.1.15.
