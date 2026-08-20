@@ -258,16 +258,11 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
-| 0.1.12 | 2026-08-16 | Research map (`research_map.md`): real-time recording of routes/methods/failures/tools/human input |
-| 0.1.11 | 2026-08-16 | OpenProver token-conscious: planner action/repo/theorem.lean/history + budget pause-resume |
-| 0.1.10 | 2026-08-16 | Dual-track audit: Danus-style informal + Lean formal verification |
-| 0.1.9 | 2026-08-16 | Rethlas distillation (failure synthesis/counterexample reuse/search discipline) |
-| 0.1.8 | 2026-08-16 | Efficiency: scaffold/audit scripts + Lean tiered verification + lemma index |
-| 0.1.7 | 2026-08-16 | Proof submission audit 8e |
-| 0.1.6 | 2026-08-16 | Lean intermediate verification + superseded |
-| 0.1.5 | 2026-08-16 | Self-contained handoff procedure |
-| 0.1.4 | 2026-08-16 | Register all progress + scaffold every new result |
-| 0.1.3 | 2026-08-16 | README sync + CI version-bump gate + distilled-method smoke |
+| `1.1.0` | 2026-08-16 | Research map / dual-track audit / OpenProver-Rethlas-Danus distillation / lake build guard + robustness / performance |
+| `1.0.0` | 2026-08-16 | Initial stable release: four-plugin workflow + submission audit + progress/scaffold + handoff |
+
+Versioning rule: major = architecture/capability generation; minor = feature batch; patch = pure fixes.
+The former 0.1.x history is consolidated here; date/0.1.x numbers are no longer used.
 
 ## Maintenance rules
 

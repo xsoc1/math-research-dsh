@@ -369,3 +369,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   Build robustness; lean-verify cachebuster `0.1.0+codex.20260816260000`.
 - 本仓库: sync 继承 (lock 92), validate_all 51 项 + BUNDLE OK + 13 smoke 全绿;
   package.json bump 0.1.14 -> 0.1.15.
+### 2026-08-16 会话: 版本号改为语义化 (大版本/小版本)
+- 父仓库: 四个插件 version 统一改为 `1.1.0` (不再使用 0.1.0+codex.日期);
+  版本规则 = 大版本(架构/能力代际)/小版本(功能批次)/补丁(纯修复);
+  README 版本历史压缩为 1.1.0/1.0.0 两行, AGENTS 维护规则同步.
+- 本仓库: package.json 从 0.1.15 改为 `1.1.0`, README 版本历史同步压缩,
+  维护规则仍按语义化版本升级.
