@@ -105,6 +105,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `reproducibility/` — code, exact commands, seeds, certificates, and formalization files.
 - `formalization_progress.md` — when a formalization project exists, track every new result's Lean scaffold/status here (or in the project's `lean-proof/STATUS.md`).
 - `research_map.md` — the human-readable, continuously updated survey of the problem: routes/methods tried, intermediate results, unexpected findings, failures and reasons, tools, open directions, an avoid list, and human/other-agent contributions (maintained per manage workflow 8f).
+- `escalation_ladder.md` — when cost-tiered escalation is used, the run-level log of cheap probes attempted, tier changes, triggers, failure mechanisms, and the current cost tier (see `references/escalation-ladder.md`).
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded. Publish every material finding, surprise, and failure reason to the research map (or ensure its source is aggregated there) so partial progress is never lost and later humans/agents can build on it.
 
@@ -120,6 +121,7 @@ executing a phase; every phase file repeats this contract at its top.
 | 0-1 provenance, scope, theorem contract | `references/phase-01-contract.md` |
 | 2-3 literature map + proof-obligation graph | `references/phase-23-search.md` |
 | 4-5 route portfolio + research loop | `references/phase-45-routes-loop.md` |
+| cost-aware escalation ladder (light first) | `references/escalation-ladder.md` |
 | 6 computational and evolutionary search | `references/phase-6-computation.md` |
 | 7-8 synthesis + adversarial proof audit | `references/phase-78-synthesis-audit.md` |
 | 9-11 revision, formalization, novelty | `references/phase-91011.md` |

@@ -16,6 +16,8 @@ plus recovery context; keep them consistent.
 - **Run ID:** `R-...`
 - **Task packet ID:** `Q-...`
 - **Last updated:** `YYYY-MM-DDTHH:MM:SSZ`
+- **Current cost tier:** `0 | 1 | 2 | 3` (recommended)
+- **Last escalation reason:** `<zero-gain | counterexample | load-bearing gap | user request; one line>` (recommended)
 ```
 
 ## Current plan

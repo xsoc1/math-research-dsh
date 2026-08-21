@@ -243,6 +243,9 @@ Before delegating a concrete problem, create one task packet containing:
   `total_tokens`, mode (`per_round` / `per_phase` / `hard_total` /
   `soft_warning`), and resume policy: budget exhaustion pauses and hands off,
   it never deletes work;
+- optional `max_cost_tier` (`0`-`3`) and `escalation_policy`
+  (`light-first`, the default) to cap how heavy the delegated run may become
+  before it must hand off or report a resource boundary;
 - a `## Novelty preflight (B0)` section (openness verdict, audit path or
   explicit skip, snapshot hash) - the workflow stage B0 fills or audits it,
   and the deterministic gate (`validate_pipeline.py`) refuses to dispatch a

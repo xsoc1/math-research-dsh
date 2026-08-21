@@ -76,6 +76,13 @@
 ## Changelog (2026-08-16, research map)
 - 默认工件新增 `research_map.md` (人类可读、持续更新的研究综述); 中间结果、
   意外发现、失败原因必须发布进地图 (或确保其来源被聚合), 部分进展不丢失.
+## Changelog (2026-08-16, escalation ladder)
+- 新增 `references/escalation-ladder.md` (cost-tiered escalation, light first):
+  研究动作按成本分层 (Tier 0 查与测 / Tier 1 小改动 / Tier 2 中等系统化 /
+  Tier 3 重型并行), 行动按信息增益/成本排序, 升级必须由零收益/反例/load-bearing
+  gap/用户授权触发, 重型失败后回退寻找更小变体; Phase 4 route card 增加
+  `cost_tier` / `minimal_first_step` / `escalation_criteria`, Phase 5 增加第 0 步
+  cheapest admissible probe, 默认工件新增 `escalation_ladder.md`.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

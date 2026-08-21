@@ -9,6 +9,9 @@
 - **Verify:** `yes | no | not-requested` (optional; `yes` marks the run for
   Stage C Lean verification -- the run manifest must then record
   `formalization: requested` and the machine verification evidence)
+- **Max cost tier:** `0 | 1 | 2 | 3` (optional; `3` is the default when
+  absent; see the escalation-ladder reference in `$rigorous-open-math-research`)
+- **Escalation policy:** `light-first` (optional; default `light-first`)
 
 ## Project reason for this task
 

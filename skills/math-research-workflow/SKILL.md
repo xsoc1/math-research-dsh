@@ -232,6 +232,17 @@ replace the theorem contract, B0 gate, or evidence discipline.
    interrupt unpromising routes, and accept or reject the next actions with
    feedback. In autonomous mode skip the prompts but keep everything else.
 
+**Cost-tiered escalation (light first):** before opening parallel Workers or
+any Tier 3 machinery, the Planner runs the cheapest admissible probes (Tier 0:
+existing artifacts/tool library/small cases; Tier 1: specialization, weakening,
+instantiation, local patch). Rank candidate actions by expected information
+gain per unit cost, and record the current tier plus the last escalation
+reason in the whiteboard. Escalate to Tier 2/3 only on a recorded zero-gain
+witness, a counterexample or obstruction that requires a heavier mechanism, a
+load-bearing gap that machine checking can close faster, or an explicit user
+request. See
+`$rigorous-open-math-research` `references/escalation-ladder.md`.
+
 **Failure synthesis and counterexample reuse (distilled from Rethlas):**
 when a batch of plans/routes fails, synthesize the common stuck points into a
 `key_failures_summary`, store it in the whiteboard/ledger, and use it to propose

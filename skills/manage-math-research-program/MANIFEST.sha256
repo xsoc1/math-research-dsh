@@ -1,4 +1,4 @@
-1b6e22139d068568d00c2f22c2b220a7e5a25d9cfbc8b456b1caaee87c2e46b2  ./SKILL.md
+c32844bc407965bfe58190e6918c8f63279bb0ee005888593c18002b9d8e5d90  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -31,7 +31,7 @@ c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7  ./assets/proje
 d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-manifest.template.json
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
-276d1708862bf1a72376abfc13024debd5dfa05f3451a26bb429ee9b25cdf94c  ./assets/task-packet.template.md
+b16e7e7ff23ace165de9d2584ee1255616df9bdc7a177575686c3b42189ad63f  ./assets/task-packet.template.md
 aa7ce7fc764455ed757fe04bf56add8c23a8169331ca9eefab37501f08c3b882  ./assets/tool-entry.template.md
 f18e9c21941d5cdada041ef1dc7acf6e7b82d869ddbf842e465ca7896eedd5ab  ./examples/01-literature-only.md
 44fa0e7823155c3279ea04712630eee7e4bc4073d6e9e98940b4d00e166dfc7a  ./examples/02-delegated-open-problem.md
@@ -44,7 +44,7 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-0d0e6931e46b6d206713c735a6b1cef76886fecc8b2b4b654f594021c2ce3f0d  ./references/upstream-changelog.md
+6918c82a430d295ed1e6f7d52a45f5105635cfea6d52cdcfb947f65b43bcc75f  ./references/upstream-changelog.md
 cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580  ./scripts/index_lean_lemmas.py
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7  ./scripts/scaffold_result.py

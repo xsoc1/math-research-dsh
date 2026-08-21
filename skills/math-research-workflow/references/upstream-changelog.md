@@ -109,6 +109,14 @@
 - 研究地图: Stage A/B/C 阶段边界强制更新 `research_map.md` (路线/方法/中间
   结果/失败原因/工具/开放方向/avoid list/人类补充); 深挖子分支前先读地图避免
   钻牛角尖.
+
+## Changelog (2026-08-16, cost-tiered escalation)
+- Stage B 新增 cost-tiered escalation (light first): Planner 先跑 Tier 0/1
+  cheap probes (已有工件/工具库/特化/弱化/实例化/局部修补), 按信息增益/成本
+  排序行动, 只有 zero-gain / 反例障碍 / load-bearing gap / 用户授权才升到
+  Tier 2/3; 并行 fan-out 视为 Tier 3, 禁止无记录直接并行; 白板模板新增
+  `current_cost_tier` 与 `last_escalation_reason`; 详细协议见 rigorous
+  `references/escalation-ladder.md`.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

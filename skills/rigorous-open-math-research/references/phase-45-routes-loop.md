@@ -28,14 +28,18 @@ Required known results:
 First concrete deliverable:
 Fast falsification tests:
 Expected bottleneck:
+Cost tier (0 | 1 | 2 | 3):
+Minimal first step (cheapest concrete action that tests this route):
+Escalation criteria (what cheap result would justify moving to a heavier tier):
 Status:
 Exact gap:
 Next action:
 ```
 
 
-Give every route a mechanism-distinct `route_key` and record a concrete `deliverable_contract`, fast `falsification_tests`, expected bottleneck, and provenance in the route card.
+Give every route a mechanism-distinct `route_key` and record a concrete `deliverable_contract`, fast `falsification_tests`, expected bottleneck, provenance, `cost_tier`, `minimal_first_step`, and `escalation_criteria` in the route card.
 Early in the search, preserve independence. Do not broadcast the currently fashionable route to every explorer. Merge routes only after each has produced enough concrete mathematics to reveal its strengths and real gaps.
+Every route is opened with a Tier 0/1 probe before a full heavy attack; see `references/escalation-ladder.md` for the full cost-tiered escalation protocol.
 
 Do not use fixed agent counts as a principle. Allocate resources dynamically according to marginal information gain.
 
@@ -43,6 +47,11 @@ Do not use fixed agent counts as a principle. Allocate resources dynamically acc
 
 For each active route, repeat:
 
+0. **Run the cheapest admissible probe.** Execute the route card's
+   `minimal_first_step` (or the next-cheapest action already available) and
+   record the result in `escalation_ladder.md`. If the probe settles the
+   question, stop; if it is inconclusive, continue to the next step at the
+   current tier before escalating.
 1. **Produce a concrete artifact.** A lemma, formula, construction, algorithm, counterexample, invariant, or precise reduction—not a status report.
 2. **Stress-test immediately.** Check smallest cases, degenerate cases, symmetry-breaking examples, known extremizers, dimensional limits, and random/adversarial instances.
 3. **Attempt a local proof.** State every hypothesis and the exact claim.
@@ -120,3 +129,18 @@ Before calling a reduction progress, ask:
 4. Would proving the missing lemma essentially settle the original conjecture with no additional insight?
 
 If only the fourth is true, mark the route `BLOCKED`. Reopen it only when a materially new invariant, construction, or proof mechanism appears.
+
+### Cost-tiered escalation (light first)
+
+See `references/escalation-ladder.md` for the full protocol. In this phase:
+
+- Every route card carries a `cost_tier`, a `minimal_first_step`, and
+  `escalation_criteria`.
+- Every loop iteration starts with step 0: the cheapest admissible probe.
+- Escalate only when the current tier shows a recorded zero-gain witness, a
+  counterexample/obstruction that requires a heavier mechanism, a load-bearing
+  gap that machine checking can close faster, or an explicit user request.
+- Heavy parallel fan-out is a Tier 3 action; it starts only after cheap
+  single-route probes have been exhausted for the live hypotheses.
+- A heavy failure returns to Tier 0/1 with a smaller variant that avoids the
+  recorded failure mechanism.

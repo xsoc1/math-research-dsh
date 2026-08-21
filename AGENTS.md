@@ -375,3 +375,13 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   README 版本历史压缩为 1.1.0/1.0.0 两行, AGENTS 维护规则同步.
 - 本仓库: package.json 从 0.1.15 改为 `1.1.0`, README 版本历史同步压缩,
   维护规则仍按语义化版本升级.
+### 2026-08-16 会话: 轻量优先成本分级升级协议
+- 父仓库 (0480584, 双推): 新增 rigorous `references/escalation-ladder.md`
+  (Tier 0 查与测 / Tier 1 小改动 / Tier 2 中等系统化 / Tier 3 重型并行,
+  升级触发器 + 回退 + 记录模板); Phase 4 route card 增加 `cost_tier` /
+  `minimal_first_step` / `escalation_criteria`; Phase 5 增加 cheapest
+  admissible probe; workflow Stage B 增加 cost-tiered escalation, 白板增加
+  `current_cost_tier` / `last_escalation_reason`; manage 任务包增加
+  `Max cost tier` / `Escalation policy`; 四插件版本统一 `1.2.0`.
+- 本仓库: sync 继承 (lock 93), package.json bump `1.1.0` -> `1.2.0`,
+  README 中英版本历史新增 1.2.0 条目; validate_all 待跑.
