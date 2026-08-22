@@ -5,6 +5,7 @@ aliases: []
 kind: theorem|lemma|construction|estimate|representation|invariant|proof_technique|reduction_pattern|counterexample_strategy|obstruction|exact_computational_tool
 canonical_key: ""
 provenance_maturity: LEAD|SOURCE_LOCATED|ANALYSIS_EXTRACTED|UPSTREAM_AUDITED|DEPRECATED
+applicability: []
 created_at: null
 updated_at: null
 last_reviewed: null
@@ -30,9 +31,29 @@ State exactly what the tool produces or proves.
 
 Describe where the tool is known to apply and what kinds of problems it is useful for.
 
+## Class-scoped applicability
+
+Record per problem class whether the tool is active, conditional, or retired,
+with evidence runs and failure mechanisms. Example:
+
+```text
+applicability:
+  - class: spectral-gap-ratio
+    status: active
+    last_verified: 2026-08-23
+  - class: nonlinear-p-laplacian
+    status: retired
+    last_verified: 2026-08-23
+    failure_records:
+      - mechanism: <exact failure mechanism>
+        evidence_run: <run id>
+```
+
+A class-specific retirement does not remove the tool for other classes.
+
 ## Limitations and failure modes
 
-Record excluded cases, nonuniformity, counterexamples, common misapplications, and boundaries not covered by the source.
+Record excluded cases, nonuniformity, counterexamples, common misapplications, and boundaries not covered by the source. When a failure is class-specific, note the class and mechanism separately.
 
 ## Typical uses
 

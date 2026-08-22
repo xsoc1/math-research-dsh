@@ -1,4 +1,4 @@
-764f0d8daa76ac6a54430dfd5ceef4cbf7c5deec6d0b9b8b53e3c9b2f8e09626  ./SKILL.md
+f0d2f5b23f98d9c087904db6b01ff61c8346353e6164aa77f5260f278115b9a2  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -32,7 +32,7 @@ d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20  ./assets/run-m
 3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47  ./assets/search-log.template.md
 c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca  ./assets/stage-summary.template.md
 b16e7e7ff23ace165de9d2584ee1255616df9bdc7a177575686c3b42189ad63f  ./assets/task-packet.template.md
-aa7ce7fc764455ed757fe04bf56add8c23a8169331ca9eefab37501f08c3b882  ./assets/tool-entry.template.md
+7303882f8b9aa160c23efd32939fa9661e2127adfe9393412bec3ce96ea3fcca  ./assets/tool-entry.template.md
 f18e9c21941d5cdada041ef1dc7acf6e7b82d869ddbf842e465ca7896eedd5ab  ./examples/01-literature-only.md
 44fa0e7823155c3279ea04712630eee7e4bc4073d6e9e98940b4d00e166dfc7a  ./examples/02-delegated-open-problem.md
 d0824e428c4eb4ba48a18ae2bf539f3a73e22cb1cc0fcb2943a51c913fa55888  ./references/accepted-knowledge-pipeline.md
@@ -43,10 +43,11 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 5fe2b617034ec64d754afe7f31ed778e8bfa51ff8e31680ad1a966af8dc59713  ./references/literature-and-paper-analysis.md
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
-d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
+30525532783765c9cbe2b280509fea818ab8fa243e405dc1654d7e571badeb48  ./references/tool-library-spec.md
 c4ff4bcdbbcb93ebd9897727292a2da99b383d46d8fd276be67438adc20876d4  ./references/upstream-changelog.md
 cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580  ./scripts/index_lean_lemmas.py
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
+172149cff5a378b3b4c1059a039ba9992a3fd0f1ba08ff8585154464cc2aa2e3  ./scripts/manage_tool_lifecycle.py
 2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7  ./scripts/scaffold_result.py
 5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324  ./scripts/sync_remotes.py
 5c53d3acdfc30634507ba214555075a38f96997ff4368954ce1762438191acc4  ./scripts/update_research_map.py

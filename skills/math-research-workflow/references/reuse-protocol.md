@@ -25,6 +25,13 @@ Read compact summaries first, not full proofs:
 
 Read full candidate proofs only when a specific detail is needed.
 
+When selecting tools, regard their `applicability` entries: a tool marked
+`active` or `conditional` for the current problem class may be suggested; a
+tool marked `retired` for that class must not be suggested for it; a tool that
+is `archived` (all known classes retired) is not suggested by default but
+remains in the archive and is available on explicit search. Class-scoped
+retirement never deletes a tool.
+
 ## Minimum artifact set for every material run
 
 Each Stage B run with material progress must write at least:

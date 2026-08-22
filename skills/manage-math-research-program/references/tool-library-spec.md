@@ -74,6 +74,43 @@ Use project-level provenance maturity, not a new proof-result label:
 
 These labels describe provenance handling. They do not replace the upstream result labels and do not certify a concrete application.
 
+## Class-scoped applicability status
+
+A tool entry carries an `applicability` list. Each row records a problem class and
+that class's current usability status:
+
+```text
+applicability:
+  - class: spectral-gap-ratio
+    status: active | conditional | retired
+    last_verified: 2026-08-23
+    failure_records:
+      - mechanism: <exact failure mechanism>
+        evidence_run: <run id>
+        date: 2026-08-23
+```
+
+Tool-level status is derived, not stored as a single global flag:
+
+- `active` if at least one class is `active`;
+- `conditional` if no class is active but at least one class is `conditional`;
+- `archived` if every known class is `retired` or no classes are registered.
+
+### Class-scoped retirement (not deletion)
+
+Retirement is always per class:
+
+1. A tool may be marked `retired` for class C after repeated confirmed failures in C, with an exact failure mechanism and evidence run.
+2. The same tool remains `active` or `conditional` in other classes and is still suggested when those classes match.
+3. A class may be reactivated later with a new evidence run and recorded rationale.
+4. If all classes become retired, the entry moves to `archived`: it is not deleted, not suggested by default, but remains visible in the archive index and searchable on explicit request.
+
+### Archived tools must remain retrievable
+
+Archived tools must not disappear from the repository. They are moved to or marked in an archive section, with the full card retained and a pointer from the main index. Explicit queries may recover them for another class.
+
+Class status updates are managed with `scripts/manage_tool_lifecycle.py` (`list`, `status`, `set-class`).
+
 ## Promotion rules
 
 ### From literature
@@ -96,7 +133,8 @@ If any condition is missing, keep the item as a lead or pending extraction.
 
 ### Failed mechanisms
 
-A failure can become a reusable obstruction or counterexample-strategy entry when the failure mechanism is exact and supported by a source or upstream artifact. Do not store “this approach did not work” without the smallest failing claim, witness, or structural reason.
+A failure can become a reusable obstruction or counterexample-strategy entry when the failure mechanism is exact and supported by a source or upstream artifact. Do not store “this approach did not work” without the smallest failing claim, witness, or structural reason. Failed mechanisms must be recorded per problem class; a failure in class C does not retire the tool for class D.
+
 
 ## Deduplication
 

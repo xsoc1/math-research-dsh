@@ -391,3 +391,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   rigorous 默认工件新增 reuse_summary.md; 四插件版本统一 1.3.0.
 - 本仓库: sync 继承 (lock 94 文件), package.json bump 1.2.0 -> 1.3.0,
   README 中英版本历史新增 1.3.0 条目; 待 validate/commit/push.
+### 2026-08-23 会话: 继承工具类作用域生命周期 (v1.4.0)
+- 上游 (18105b2): 工具按问题类 retirement/archive, 不删除; 新增
+  scripts/manage_tool_lifecycle.py; tool-library-spec/tool-entry.template 增加
+  applicability/failure_records; reuse-protocol 按类选择工具.
+- 本仓库: sync 继承 (lock 95 文件), package.json bump 1.3.0 -> 1.4.0,
+  README 中英版本历史新增 1.4.0 条目.
