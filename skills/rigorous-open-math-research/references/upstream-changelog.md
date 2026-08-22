@@ -83,6 +83,10 @@
   gap/用户授权触发, 重型失败后回退寻找更小变体; Phase 4 route card 增加
   `cost_tier` / `minimal_first_step` / `escalation_criteria`, Phase 5 增加第 0 步
   cheapest admissible probe, 默认工件新增 `escalation_ladder.md`.
+
+## Changelog (2026-08-23, lightweight reuse protocol)
+- 默认工件新增 `reuse_summary.md` (配合 workflow 轻量 reuse 协议): 记录实际
+  复用、避免/仍未避免的重复工作、新方法、成本评价.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

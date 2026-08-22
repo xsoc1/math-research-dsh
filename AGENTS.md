@@ -385,3 +385,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `Max cost tier` / `Escalation policy`; 四插件版本统一 `1.2.0`.
 - 本仓库: sync 继承 (lock 93), package.json bump `1.1.0` -> `1.2.0`,
   README 中英版本历史新增 1.2.0 条目; validate_all 待跑.
+### 2026-08-23 会话: 继承轻量 reuse 协议 (v1.3.0)
+- 上游 (父仓库, 未提交? 待推送): 新增 workflow references/reuse-protocol.md,
+  workflow SKILL 轻量 reuse 协议, manage §5 reuse_summary 维护证据,
+  rigorous 默认工件新增 reuse_summary.md; 四插件版本统一 1.3.0.
+- 本仓库: sync 继承 (lock 94 文件), package.json bump 1.2.0 -> 1.3.0,
+  README 中英版本历史新增 1.3.0 条目; 待 validate/commit/push.

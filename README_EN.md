@@ -258,6 +258,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.3.0` | 2026-08-23 | Lightweight reuse protocol (compact pre-scan + minimum artifact set + reuse_summary + mandatory Lean scaffold) |
 | `1.2.0` | 2026-08-16 | Light-first cost-tiered escalation protocol (Tier 0-3, minimal-change priority, upgrade triggers/fallback, whiteboard and task-packet integration) |
 | `1.1.0` | 2026-08-16 | Research map / dual-track audit / OpenProver-Rethlas-Danus distillation / lake build guard + robustness / performance |
 | `1.0.0` | 2026-08-16 | Initial stable release: four-plugin workflow + submission audit + progress/scaffold + handoff |

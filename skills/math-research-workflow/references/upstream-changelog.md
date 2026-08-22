@@ -117,6 +117,14 @@
   Tier 2/3; 并行 fan-out 视为 Tier 3, 禁止无记录直接并行; 白板模板新增
   `current_cost_tier` 与 `last_escalation_reason`; 详细协议见 rigorous
   `references/escalation-ladder.md`.
+
+## Changelog (2026-08-23, lightweight reuse protocol)
+- Stage B 新增轻量 reuse 协议 (mandatory default): compact pre-scan (research_map +
+  tools/README + LEMMA_INDEX + latest final/handoff), 不再要求 per-route REUSE
+  标记; 每个实质 run 必须写 `reuse_summary.md` 并满足最低产物清单; 新 STRICT/
+  partial 结果必须补 Lean scaffold. 详细协议见 `references/reuse-protocol.md`.
+- 来源: 三轮受控 plugin 性能实验 (A6 / B3 / DensBC O1'), 轻量协议在硬问题上
+  显著减少步骤/工具调用/cache, 同时保留可审计产物.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

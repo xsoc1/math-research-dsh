@@ -1,4 +1,4 @@
-c32844bc407965bfe58190e6918c8f63279bb0ee005888593c18002b9d8e5d90  ./SKILL.md
+764f0d8daa76ac6a54430dfd5ceef4cbf7c5deec6d0b9b8b53e3c9b2f8e09626  ./SKILL.md
 43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163  ./assets/blueprint-accepted-knowledge/.blueprint/config.json
 76b762377f699e78570839abbac3ffe478f59088791c4f4374390474e8c47807  ./assets/blueprint-accepted-knowledge/README.md
 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b  ./assets/blueprint-accepted-knowledge/backups/.gitkeep
@@ -44,7 +44,7 @@ f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95  ./references/d
 731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f  ./references/project-repository-spec.md
 9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051  ./references/state-checkpoints-and-reports.md
 d43fc8b2d8b58abc067a385dc229a402c86a6af5a9d3ca6d23cb69ceff970bf2  ./references/tool-library-spec.md
-6918c82a430d295ed1e6f7d52a45f5105635cfea6d52cdcfb947f65b43bcc75f  ./references/upstream-changelog.md
+c4ff4bcdbbcb93ebd9897727292a2da99b383d46d8fd276be67438adc20876d4  ./references/upstream-changelog.md
 cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580  ./scripts/index_lean_lemmas.py
 30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0  ./scripts/init_project.py
 2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7  ./scripts/scaffold_result.py

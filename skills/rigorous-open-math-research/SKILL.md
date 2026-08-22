@@ -106,6 +106,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `formalization_progress.md` — when a formalization project exists, track every new result's Lean scaffold/status here (or in the project's `lean-proof/STATUS.md`).
 - `research_map.md` — the human-readable, continuously updated survey of the problem: routes/methods tried, intermediate results, unexpected findings, failures and reasons, tools, open directions, an avoid list, and human/other-agent contributions (maintained per manage workflow 8f).
 - `escalation_ladder.md` — when cost-tiered escalation is used, the run-level log of cheap probes attempted, tier changes, triggers, failure mechanisms, and the current cost tier (see `references/escalation-ladder.md`).
+- `reuse_summary.md` — when the workflow lightweight reuse protocol is active, the post-run record of actual reused items, duplicate work avoided/remaining, new methods, and a one-line cost assessment (see workflow `references/reuse-protocol.md`).
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded. Publish every material finding, surprise, and failure reason to the research map (or ensure its source is aggregated there) so partial progress is never lost and later humans/agents can build on it.
 

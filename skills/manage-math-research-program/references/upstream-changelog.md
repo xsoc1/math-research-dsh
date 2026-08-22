@@ -69,6 +69,11 @@
 - 任务包模板新增可选 `Max cost tier` (`0`-`3`) 与 `Escalation policy`
   (`light-first`, 默认); 第 6 节任务包要素同步增加这两个字段, 委托 run 可显式
   设定成本上限, 防止未记录理由直接跳级到重型并行或完整形式化.
+
+## Changelog (2026-08-23, lightweight reuse protocol)
+- 工具库维护新增 `reuse_summary.md` 作为运行级复用证据: 记录实际复用、避免的
+  重复工作、仍未避免的重复、新工具、成本评估; 用于工具晋升/退休, 不重造历史.
+- 与 workflow 轻量 reuse 协议配套 (见 workflow `references/reuse-protocol.md`).
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

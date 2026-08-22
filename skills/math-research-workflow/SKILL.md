@@ -243,6 +243,15 @@ load-bearing gap that machine checking can close faster, or an explicit user
 request. See
 `$rigorous-open-math-research` `references/escalation-ladder.md`.
 
+**Lightweight reuse protocol (mandatory default):** before major derivation,
+run a compact pre-scan over `research_map.md`, `tools/README.md` plus relevant
+tool summaries, `lean-proof/LEMMA_INDEX.md`, and the latest relevant
+`final_report.md` / handoff. Do not require per-route REUSE tags. At run close,
+write `reuse_summary.md` with actual reused items, duplicate work avoided,
+remaining duplicate work, new methods, and a one-line cost assessment. Every
+material run must also meet the minimum artifact checklist. Full details:
+`references/reuse-protocol.md`.
+
 **Failure synthesis and counterexample reuse (distilled from Rethlas):**
 when a batch of plans/routes fails, synthesize the common stuck points into a
 `key_failures_summary`, store it in the whiteboard/ledger, and use it to propose
@@ -513,6 +522,9 @@ agent writes an interruption handoff before returning control:
 - `references/openprover-absorption.md` -- token-conscious OpenProver
   absorption: Planner action protocol, Repository item system, `theorem.lean`
   skeleton, Planner history, and token budget pause/handoff/resume discipline.
+- `references/reuse-protocol.md` -- lightweight reuse protocol: compact
+  pre-scan, minimum artifact set, post-run `reuse_summary.md`, no per-route
+  tags, mandatory Lean scaffold.
 
 ## Changelog
 
