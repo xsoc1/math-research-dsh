@@ -125,6 +125,15 @@
   partial 结果必须补 Lean scaffold. 详细协议见 `references/reuse-protocol.md`.
 - 来源: 三轮受控 plugin 性能实验 (A6 / B3 / DensBC O1'), 轻量协议在硬问题上
   显著减少步骤/工具调用/cache, 同时保留可审计产物.
+
+## Changelog (2026-08-23, performance observability)
+- Stage B 新增性能可观测与示警: 运行后若有 performance.json, 用
+  `scripts/performance_alert.py` 与可比 baseline 比较; 成本指标大幅上升且
+  产物/复用未改善时, 写 `performance_alert.md` 并在 final_report 中向用户
+  示警. 告警是候选, 不是定论: 单次实验可能误导 (e.g. reuse-gate 在简单/困难
+  问题上呈现不同权衡), 需同问题类重跑或换问题类验证后才下结论.
+- 新增 `references/performance-observability.md` 与
+  `assets/performance-alert.template.md`.
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

@@ -252,6 +252,17 @@ remaining duplicate work, new methods, and a one-line cost assessment. Every
 material run must also meet the minimum artifact checklist. Full details:
 `references/reuse-protocol.md`.
 
+**Performance observability and user alerts:** when performance metrics are
+available, compare the run against a comparable baseline with
+`scripts/performance_alert.py`. If a cost metric increases materially without
+a compensating improvement in output/artifacts/reuse, write
+`performance_alert.md` (template `assets/performance-alert.template.md`), add a
+short "Performance alert" section to `final_report.md`, and surface it to the
+user as a candidate regression. Alerts are candidates, not verdicts: a single
+run can be misleading, so require a repeat run or a different-class baseline
+before drawing a conclusion. Full protocol:
+`references/performance-observability.md`.
+
 **Failure synthesis and counterexample reuse (distilled from Rethlas):**
 when a batch of plans/routes fails, synthesize the common stuck points into a
 `key_failures_summary`, store it in the whiteboard/ledger, and use it to propose
@@ -525,6 +536,11 @@ agent writes an interruption handoff before returning control:
 - `references/reuse-protocol.md` -- lightweight reuse protocol: compact
   pre-scan, minimum artifact set, post-run `reuse_summary.md`, no per-route
   tags, mandatory Lean scaffold.
+- `references/performance-observability.md` -- performance metrics, baselines,
+  alert levels, and the rule that single-run alerts are candidates requiring
+  confirmation.
+- `scripts/performance_alert.py` -- compare a run metrics file against a
+  baseline and write `performance_alert.md`.
 
 ## Changelog
 

@@ -63,16 +63,19 @@
     "manage-math-research-program/scripts/sync_remotes.py": "5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324",
     "manage-math-research-program/scripts/update_research_map.py": "5c53d3acdfc30634507ba214555075a38f96997ff4368954ce1762438191acc4",
     "manage-math-research-program/scripts/validate_project.py": "545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940",
-    "math-research-workflow/SKILL.md": "ed82121902bbe0f8fd74e96e5042081116d3b465791a7975a98a8a50176f8753",
+    "math-research-workflow/SKILL.md": "3e77d1cee2ae1a1047e43e773469964927d24ba9088eade4ce235192190ffb9b",
     "math-research-workflow/assets/dsh-solve-audit-workflow.js": "cffb365e08c12a16ec30ed5d2d73366daf2b80c9382a2264048533163e3d6591",
     "math-research-workflow/assets/interruption-handoff.template.md": "f36e7eafbc90b9ece3eae664eac1848439c12a691ff20b042967fc2fedd6ae09",
+    "math-research-workflow/assets/performance-alert.template.md": "ec0a39980730845dcca4d331e5ed5a905a60ef9b1ed08d001b011e066188bb4f",
     "math-research-workflow/assets/pipeline-handoff.template.md": "a1758a508f0f53a160758a7ea2b806eaad9a6881aab99609811a1fb604edc0e3",
     "math-research-workflow/assets/whiteboard.template.md": "a9230a4bf5dd98f422ab4a1b77d07f490c86856b107722dfd4433222c4a72ab7",
     "math-research-workflow/references/dsh-execution.md": "fee891f3f8132139c37912e40d10d4381183ad31676f1263dec12fcb68ab8f1a",
     "math-research-workflow/references/openprover-absorption.md": "094600263cc81c39240f28ccd9dd1d72c6c5199788ead53797e94458c3c58849",
+    "math-research-workflow/references/performance-observability.md": "a173562aa777a170efc88424d02caad9b42bbf226f28419712d43fabbd327036",
     "math-research-workflow/references/reuse-protocol.md": "caa292cbfca1450fa127b71caf67db4bfc8939bcc20777334493a9bf40468515",
-    "math-research-workflow/references/upstream-changelog.md": "5386b2a78b2cb37695a5e588ef1f4436a46b0bf87619b824273404b9a0a0dce2",
+    "math-research-workflow/references/upstream-changelog.md": "1801eb8dcc83f5f1a63d62b6f94d18e8bf795223a8d0aad629a87955d2839c39",
     "math-research-workflow/references/workflow-design.md": "7f81d3e55dc9e207b72b1ac95f00f734689f9d4034f7fd9622f767ff2020d265",
+    "math-research-workflow/scripts/performance_alert.py": "5ee204312384fd0170541bdcf006ee8d3bec2ee7b033b2b4a8d34468a87ab5a2",
     "math-research-workflow/scripts/validate_pipeline.py": "d64f7d415c918091093117842e008ce8e591ed234892a8fb35a994fc420d01e9",
     "rigorous-open-math-research/SKILL.md": "d1ba22ad90a074654165b3878437c1e8c30105fafd6324ec90d50fcefb81f55a",
     "rigorous-open-math-research/assets/icon.svg": "e9301497fa98ef56aaca7ede0857b9a18dc06c34040f0679c609a6bf49b1d38b",
@@ -96,5 +99,5 @@
     "rigorous-open-math-research/references/subagent-delegation.md": "c09bb12d99aa0f7e41d21664e6752f4ba23d8aba63b2f7e0c19be13fab0cc719",
     "rigorous-open-math-research/references/upstream-changelog.md": "0195a9fd55d8ee40926772c61c83954ed3f6f711ab66153645fee24f0d3419c7"
   },
-  "upstream_commit": "18105b23741bd8bab9a512a6657bbb7e12db0cba"
+  "upstream_commit": "587cffecc215c456bfe5f2e2290acf9aabc70bd1"
 }

@@ -234,6 +234,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.5.0` | 2026-08-23 | 性能可观测与示警: performance.json + baseline 对比, 成本异常上升时写 performance_alert 并向用户示警, 单次告警需复验 |
 | `1.4.0` | 2026-08-23 | 工具按问题类作用域生命周期: 类级退休/归档, 工具不删除仍可显式检索, manage_tool_lifecycle.py |
 | `1.3.0` | 2026-08-23 | 轻量 reuse 协议 (紧凑预扫描 + 最低产物集 + reuse_summary + 强制 Lean scaffold) |
 | `1.2.0` | 2026-08-16 | 轻量优先成本分级升级协议 (Tier 0-3, 小改动优先, 升级触发/回退, 白板与任务包集成) |

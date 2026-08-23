@@ -397,3 +397,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   applicability/failure_records; reuse-protocol 按类选择工具.
 - 本仓库: sync 继承 (lock 95 文件), package.json bump 1.3.0 -> 1.4.0,
   README 中英版本历史新增 1.4.0 条目.
+### 2026-08-23 会话: 继承性能可观测与示警 (v1.5.0)
+- 上游 (587cffe): workflow 新增 performance-observability.md,
+  performance-alert.template.md, scripts/performance_alert.py; Stage B 运行后
+  成本异常且产物/复用未改善时向用户示警; 单次告警需复验.
+- 本仓库: sync 继承 (lock 98 文件), package.json bump 1.4.0 -> 1.5.0,
+  README 中英版本历史新增 1.5.0 条目.
