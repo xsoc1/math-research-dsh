@@ -103,8 +103,8 @@ python "$env:DSH_HOME\math-research-dsh\scripts\dsh-doctor.py"
 1. 每个 `SKILL.md` frontmatter 之后注入 `## DSH runtime notes (DSH adaptation)`
    (说明 `$name` -> skill 工具的映射, `resourceBase` 访问方式, 包内 Python 脚本
    运行方式, 以及 DSH 执行模式);
-2. 每个 `SKILL.md` 的 changelog 段落迁出到 `references/upstream-changelog.md`
-   (保持 skill 加载轻量), 正文替换为一行指针;
+2. 上游已将 changelog 渐进式披露到 `references/changelog.md`; DSH 层仅把
+   DSH 适配历史追加到同一引用文件, 不再生成第二份历史指针;
 3. workflow `SKILL.md` 的 doctor 段落改写为仓库级 `scripts/dsh-doctor.py`
    (Codex 版 `scripts/doctor.py` 移除);
 4. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow),
@@ -131,7 +131,7 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 
 | DSH 机制 | 适配 |
 |---|---|
-| skill 工具加载全文进上下文 | **渐进式披露**: rigorous 正文已拆分为驱动层 (168 行 / ~2.7K tokens, 原 ~11K) + 8 个 phase 引用文件, 按 Phase 经 resourceBase 按需读取; changelog 历史也迁出正文 |
+| skill 工具加载全文进上下文 | **渐进式披露**: rigorous 正文为 195 行 / 13.6KB 驱动层 (约 3.4K tokens, 原 45KB) + 8 个 phase 引用文件, 按 Phase 经 resourceBase 按需读取; changelog 历史位于 references/changelog.md |
 | 工具结果截断 (约 8K, 保留头 4096 + 尾 1024) | 仓库级 `scripts/dsh_run.py` 包装器: verdict 与 FAIL 行放头部, verdict 尾部重复, 完整输出落盘; 脚本惯例 = verdict 在末尾打印 |
 | 后台任务 (无超时) | 长计算 (数值扫描, lake build) 一律 `run_in_background: true` + job_output 收集, 不占轮次 |
 | spawn 子代理无会话种子 | 对抗性审计/验证用全新 `subagent` (天然零思维链共享); `subagent_fork` 留给上下文续接; **子代理回传契约**: 完整报告落盘, 回复只含 verdict + 路径 + hash |
@@ -215,7 +215,7 @@ skills/                         DSH skill bundles (父仓库同步 + DSH 层)
   manage-math-research-program/   (含 MANIFEST.sha256)
   math-research-workflow/
   lean-verify/
-  每个 bundle 内: references/upstream-changelog.md (changelog 迁出)
+  每个 bundle 内: references/changelog.md (上游 + DSH 适配历史)
                   references/dsh-execution.md (rigorous/workflow, 执行手册)
                   assets/dsh-solve-audit-workflow.js (workflow, fan-out 模板)
 scripts/
@@ -234,6 +234,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.6.0` | 2026-08-24 | 继承 Codex 入口上下文优化和 rigorous fence 修复; DSH changelog 层改为复用上游 references/changelog.md, 避免重复指针 |
 | `1.5.0` | 2026-08-23 | 性能可观测与示警: performance.json + baseline 对比, 成本异常上升时写 performance_alert 并向用户示警, 单次告警需复验 |
 | `1.4.0` | 2026-08-23 | 工具按问题类作用域生命周期: 类级退休/归档, 工具不删除仍可显式检索, manage_tool_lifecycle.py |
 | `1.3.0` | 2026-08-23 | 轻量 reuse 协议 (紧凑预扫描 + 最低产物集 + reuse_summary + 强制 Lean scaffold) |

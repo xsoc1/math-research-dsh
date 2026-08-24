@@ -21,7 +21,7 @@ beside this bundle under the same skill roots.
   the shell: `python <script> ...`, with `PYTHONUTF8=1` on Windows. Prefer writing
   a temporary .py file over PowerShell one-line `-c` calls.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -148,9 +148,12 @@ Begin with a one-line status chosen from:
 - `BLOCKED_REDUCTION`
 - `NO_MATERIAL_PROGRESS`
 
-Then provide:
+Then use the result template in `references/phase-12-reporting.md`. Do not
+present an unverified candidate as a theorem or bury a fatal gap in a
+footnote. When a canonical knowledge base exists, also report the trusted
+closure, exact frontier, blocked obligations, and separate transaction status
+from research status.
 
-```markdown
 # Anti-patterns
 
 Do not rely on:
@@ -185,9 +188,8 @@ Available attachments/tools/constraints:
 {{context}}
 ```
 
-## Changelog
+## History
 
-Changelog history (upstream entries and DSH adaptation entries) lives in
-`references/upstream-changelog.md`, kept out of the skill body to keep DSH
-skill loads light.
-
+Release history, method provenance, and source links live in
+`references/changelog.md`. Read it only when auditing provenance or preparing
+a release.

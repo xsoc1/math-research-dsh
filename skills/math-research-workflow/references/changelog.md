@@ -1,4 +1,12 @@
-# Upstream changelog history
+# Release history
+
+## Changelog (2026-08-24, v1.6.0)
+
+- Moved release history behind this pointer, reducing the always-loaded
+  `SKILL.md` from 37,819 to 29,426 bytes. Added the Codex execution fast path:
+  indexed discovery, targeted reads, bounded programmable batching for
+  independent deterministic work, explicit semantic decision boundaries, and
+  artifact-based reconstruction before compaction.
 
 ## Changelog (2026-08-14)
 
@@ -134,6 +142,7 @@
   问题上呈现不同权衡), 需同问题类重跑或换问题类验证后才下结论.
 - 新增 `references/performance-observability.md` 与
   `assets/performance-alert.template.md`.
+
 ## Changelog (2026-08-14, DSH adaptation)
 
 - DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.

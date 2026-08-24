@@ -90,9 +90,8 @@ middle of long output disappears. Consequences:
 - Load each skill once per session; read `references/` and `assets/` on demand
   through `resourceBase`, never bulk-load.
 - Read project artifacts tail-first: latest handoff, then research_ledger.md /
-  approach_registry.md from the end, then key artifacts. Long changelogs were
-  moved out of the SKILL bodies into references/upstream-changelog.md for the
-  same reason.
+  approach_registry.md from the end, then key artifacts. Long changelogs live
+  outside the SKILL bodies in references/changelog.md for the same reason.
 - Keep numerical tables in files, not in the conversation; cite paths and
   hashes instead of pasting rows.
 

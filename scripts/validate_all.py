@@ -48,7 +48,7 @@ def is_transient(path: pathlib.Path) -> bool:
     )
 
 RUNTIME_NOTES_MARKER = "## DSH runtime notes (DSH adaptation)"
-CHANGELOG_POINTER_MARKER = "Changelog history (upstream entries and DSH adaptation entries) lives in"
+CHANGELOG_POINTER_MARKER = "Release history, method provenance, and source links live in"
 
 TEXT_SUFFIXES = frozenset(
     {".md", ".json", ".yaml", ".yml", ".txt", ".tex", ".lean", ".py", ".csv", ".svg", ".mmd"}
@@ -135,10 +135,10 @@ class Validator:
                 not any(line.startswith("## Changelog (") for line in lines),
                 f"skill '{name}' has no un-relocated changelog headings in the body",
             )
-            changelog_ref = skill_dir / "references" / "upstream-changelog.md"
+            changelog_ref = skill_dir / "references" / "changelog.md"
             self.check(
                 changelog_ref.is_file(),
-                f"skill '{name}' has references/upstream-changelog.md",
+                f"skill '{name}' has references/changelog.md",
             )
 
     def check_manifest(self) -> None:

@@ -30,7 +30,7 @@ beside this bundle under the same skill roots.
   calls.
 - `MANIFEST.sha256` is re-verified by the repository `scripts/validate_all.py`.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -517,9 +517,8 @@ A program-management stage is complete when:
 
 This completion criterion says nothing about whether any underlying open problem is solved.
 
-## Changelog
+## History
 
-Changelog history (upstream entries and DSH adaptation entries) lives in
-`references/upstream-changelog.md`, kept out of the skill body to keep DSH
-skill loads light.
-
+Release history, method provenance, and source links live in
+`references/changelog.md`. Read it only when auditing provenance or preparing
+a release.

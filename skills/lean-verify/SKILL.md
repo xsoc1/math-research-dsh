@@ -25,7 +25,7 @@ first line is `/skill-name` also loads it). The sibling skills
   `PYTHONUTF8=1` on Windows. The Lean toolchain (`lake` from Lean 4) must be
   available when a build is requested.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -381,9 +381,8 @@ non-complete verdict must include non-empty `repair_hints`. Aggregate without dr
 - Reporting a repair as independently verified by the same pass that made it.
 - Deleting failed checks or build errors from the record.
 
-## Changelog
+## History
 
-Changelog history (upstream entries and DSH adaptation entries) lives in
-`references/upstream-changelog.md`, kept out of the skill body to keep DSH
-skill loads light.
-
+Release history, method provenance, and source links live in
+`references/changelog.md`. Read it only when auditing provenance or preparing
+a release.

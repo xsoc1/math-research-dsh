@@ -1,4 +1,11 @@
-# Upstream changelog history
+# Release history
+
+## Changelog (2026-08-24, v1.6.0)
+
+- Moved release history behind this pointer, reducing the always-loaded
+  `SKILL.md` from 19,618 to 11,184 bytes. Repaired the 2026-08-14 progressive
+  disclosure split so the output template and Markdown fences are structurally
+  valid, and added repository validation to prevent recurrence.
 
 ## Changelog (2026-08-11)
 ## Changelog (2026-08-12)
@@ -87,6 +94,7 @@
 ## Changelog (2026-08-23, lightweight reuse protocol)
 - 默认工件新增 `reuse_summary.md` (配合 workflow 轻量 reuse 协议): 记录实际
   复用、避免/仍未避免的重复工作、新方法、成本评价.
+
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

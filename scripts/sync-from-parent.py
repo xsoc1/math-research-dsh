@@ -22,10 +22,9 @@ Options:
 The DSH layer is the only allowed divergence from upstream content:
    1. a DSH runtime notes block (with DSH execution patterns) inserted after
       each SKILL.md frontmatter;
-   2. the changelog sections moved out of each SKILL.md into
-      references/upstream-changelog.md (keeps DSH skill loads light) and
-      replaced by a pointer, with the DSH changelog entries appended to that
-      reference file;
+   2. DSH adaptation entries appended to the upstream-disclosed
+      references/changelog.md, with an inline-changelog fallback for older
+      upstream revisions;
    3. the workflow SKILL.md doctor passages rewritten for
       scripts/dsh-doctor.py; the Codex scripts/doctor.py dropped;
    4. layer-owned additions: references/dsh-execution.md (rigorous + workflow)
@@ -76,13 +75,13 @@ TEXT_SUFFIXES = frozenset(
 )
 
 RUNTIME_NOTES_MARKER = "## DSH runtime notes (DSH adaptation)"
-CHANGELOG_POINTER_MARKER = "Changelog history (upstream entries and DSH adaptation entries) lives in"
+CHANGELOG_POINTER_MARKER = "Release history, method provenance, and source links live in"
 
-CHANGELOG_POINTER = """## Changelog
+CHANGELOG_POINTER = """## History
 
-Changelog history (upstream entries and DSH adaptation entries) lives in
-`references/upstream-changelog.md`, kept out of the skill body to keep DSH
-skill loads light.
+Release history, method provenance, and source links live in
+`references/changelog.md`. Read it only when auditing provenance or preparing
+a release.
 """
 
 RUNTIME_NOTES = {
@@ -101,7 +100,7 @@ beside this bundle under the same skill roots.
   the shell: `python <script> ...`, with `PYTHONUTF8=1` on Windows. Prefer writing
   a temporary .py file over PowerShell one-line `-c` calls.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -143,7 +142,7 @@ beside this bundle under the same skill roots.
   calls.
 - `MANIFEST.sha256` is re-verified by the repository `scripts/validate_all.py`.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -178,7 +177,7 @@ this bundle under the same skill roots.
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
 - The DSH adaptation keeps every upstream file byte-identical except this block,
-  the changelog relocation, and the doctor-related passages rewritten for DSH;
+  the DSH changelog append, and the doctor-related passages rewritten for DSH;
   the synced upstream commit is recorded in the repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -210,7 +209,7 @@ first line is `/skill-name` also loads it). The sibling skills
   `PYTHONUTF8=1` on Windows. The Lean toolchain (`lake` from Lean 4) must be
   available when a build is requested.
 - The DSH adaptation keeps every upstream file byte-identical except this block
-  and the changelog relocation; the synced upstream commit is recorded in the
+  and the DSH changelog append; the synced upstream commit is recorded in the
   repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -397,9 +396,8 @@ middle of long output disappears. Consequences:
 - Load each skill once per session; read `references/` and `assets/` on demand
   through `resourceBase`, never bulk-load.
 - Read project artifacts tail-first: latest handoff, then research_ledger.md /
-  approach_registry.md from the end, then key artifacts. Long changelogs were
-  moved out of the SKILL bodies into references/upstream-changelog.md for the
-  same reason.
+  approach_registry.md from the end, then key artifacts. Long changelogs live
+  outside the SKILL bodies in references/changelog.md for the same reason.
 - Keep numerical tables in files, not in the conversation; cite paths and
   hashes instead of pasting rows.
 
@@ -794,16 +792,19 @@ def apply_dsh_layer(bundle: Path, name: str) -> None:
         text = replace_once(text, WORKFLOW_DOCTOR_STEP_OLD, WORKFLOW_DOCTOR_STEP_NEW)
         text = replace_once(text, WORKFLOW_REFERENCE_OLD, WORKFLOW_REFERENCE_NEW)
     body, changelog = split_changelog(text)
-    if changelog and DSH_CHANGELOGS.get(name):
-        changelog += DSH_CHANGELOGS[name]
-    elif DSH_CHANGELOGS.get(name):
-        changelog = DSH_CHANGELOGS[name]
-    if changelog:
-        write_norm(
-            bundle / "references" / "upstream-changelog.md",
-            "# Upstream changelog history\n\n" + changelog,
-        )
+    history_path = bundle / "references" / "changelog.md"
+    if history_path.is_file():
+        history = read_norm(history_path).rstrip() + "\n"
+    elif changelog:
+        history = "# Release history\n\n" + changelog.rstrip() + "\n"
+    else:
+        history = ""
+    if changelog and CHANGELOG_POINTER_MARKER not in body:
         body = body.rstrip("\n") + "\n\n" + CHANGELOG_POINTER + "\n"
+    if DSH_CHANGELOGS.get(name):
+        history = history.rstrip() + "\n\n" + DSH_CHANGELOGS[name].rstrip() + "\n"
+    if history:
+        write_norm(history_path, history)
     write_norm(skill_md, body)
     for rel, content in LAYER_FILES.get(name, {}).items():
         write_norm(bundle / rel, content)

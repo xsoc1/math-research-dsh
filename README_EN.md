@@ -123,9 +123,9 @@ machine-applied **DSH layer**:
 1. a `## DSH runtime notes (DSH adaptation)` block after each `SKILL.md`
    frontmatter (the `$name` -> skill-tool mapping, `resourceBase` file access,
    how to run the bundled Python scripts, and the DSH execution patterns);
-2. each `SKILL.md`'s changelog sections moved to
-   `references/upstream-changelog.md` (keeps DSH skill loads light), replaced
-   by a one-line pointer in the body;
+2. upstream already progressively discloses history in
+   `references/changelog.md`; the DSH layer appends its adaptation entries to
+   that reference instead of creating a second history pointer;
 3. the workflow `SKILL.md` doctor passages rewritten for the repository-level
    `scripts/dsh-doctor.py` (the Codex `scripts/doctor.py` is dropped);
 4. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow),
@@ -153,7 +153,7 @@ bundle's `references/dsh-execution.md` and runtime notes):
 
 | DSH mechanism | Adaptation |
 |---|---|
-| skill load puts the whole body in context | **progressive disclosure**: the rigorous body is now a 168-line driver (~2.7K tokens, was ~11K) + 8 phase reference files read on demand through `resourceBase`; changelog history also moved out of the body |
+| skill load puts the whole body in context | **progressive disclosure**: rigorous is a 195-line / 13.6KB driver (~3.4K tokens, originally 45KB) + 8 phase references read on demand through `resourceBase`; history lives in references/changelog.md |
 | tool results truncated (~8K, head 4096 + tail 1024) | repository-level `scripts/dsh_run.py` wrapper: verdict + FAIL lines at the head, verdict repeated at the tail, full output on disk; scripts print verdicts last |
 | background jobs (no timeout) | long computations (numerical scans, lake build) run with `run_in_background: true`, collected via job_output |
 | spawn subagents start without the conversation | adversarial audit / verify roles use fresh `subagent` (zero chain-of-thought sharing by construction); `subagent_fork` is for context-heavy continuation; **sub-agent return contract**: full reports to files, replies carry only verdict + paths + hashes |
@@ -239,7 +239,7 @@ skills/                         DSH skill bundles (synced from the parent + DSH 
   manage-math-research-program/   (incl. MANIFEST.sha256)
   math-research-workflow/
   lean-verify/
-  inside each bundle: references/upstream-changelog.md (relocated changelogs)
+  inside each bundle: references/changelog.md (upstream + DSH adaptation history)
                       references/dsh-execution.md (rigorous/workflow, execution playbook)
                       assets/dsh-solve-audit-workflow.js (workflow, fan-out template)
 scripts/
@@ -258,6 +258,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.6.0` | 2026-08-24 | Inherits the Codex entrypoint optimization and rigorous fence repair; the DSH changelog layer now reuses upstream references/changelog.md and avoids a duplicate pointer |
 | `1.5.0` | 2026-08-23 | Performance observability and alerts: metrics/baseline comparison, writes performance_alert and warns user on cost regressions; single-run alerts require confirmation |
 | `1.4.0` | 2026-08-23 | Class-scoped tool lifecycle: per-class retirement/archive, tools never deleted, explicit retrieval, manage_tool_lifecycle.py |
 | `1.3.0` | 2026-08-23 | Lightweight reuse protocol (compact pre-scan + minimum artifact set + reuse_summary + mandatory Lean scaffold) |

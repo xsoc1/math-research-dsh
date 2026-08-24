@@ -1,4 +1,10 @@
-# Upstream changelog history
+# Release history
+
+## Changelog (2026-08-24, v1.6.0)
+
+- Moved release history behind this pointer, reducing the always-loaded
+  `SKILL.md` from 44,062 to 37,974 bytes without changing the management
+  contract.
 
 ## Changelog (2026-08-12)
 
@@ -74,6 +80,7 @@
 - 工具库维护新增 `reuse_summary.md` 作为运行级复用证据: 记录实际复用、避免的
   重复工作、仍未避免的重复、新工具、成本评估; 用于工具晋升/退休, 不重造历史.
 - 与 workflow 轻量 reuse 协议配套 (见 workflow `references/reuse-protocol.md`).
+
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

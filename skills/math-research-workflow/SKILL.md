@@ -29,7 +29,7 @@ this bundle under the same skill roots.
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
 - The DSH adaptation keeps every upstream file byte-identical except this block,
-  the changelog relocation, and the doctor-related passages rewritten for DSH;
+  the DSH changelog append, and the doctor-related passages rewritten for DSH;
   the synced upstream commit is recorded in the repository `upstream.lock.json`.
 
 ### DSH execution patterns (performance)
@@ -285,15 +285,23 @@ human/AI-supplied routes are merged as leads to verify.
 **Token-conscious Planner/repo/budget protocol (distilled from OpenProver):**
 follow `references/openprover-absorption.md`. In short:
 
-- Planner steps emit a compact CoT + machine-readable action list
+- Planner steps emit a compact decision summary + machine-readable action list
   (`spawn`, `read_items`, `write_items`, `read_theorem`, `write_whiteboard`,
   `submit_proof`, `submit_lean_proof`, `literature_search`).
 - Long content lives in `runs/<run_id>/repo/`; the Planner sees only
   `repo_index.md` slugs and one-line summaries and reads items on demand.
+- In Codex, locate relevant paths once with indexed search, read only the
+  needed slices, and batch independent read-only lookups or deterministic
+  checks in one programmable tool call when the runtime supports it. Keep
+  theorem-contract changes, route selection, synthesis, and audit as explicit
+  model-decision boundaries.
 - Each task packet may include a `theorem.lean` skeleton with `sorry`; formalize
   from it after the informal proof is found.
 - Planner steps are appended to `runs/<run_id>/planner_history.jsonl`; only the
   last 3–5 steps are fed to the model.
+- At route boundaries or before context compaction, reconstruct from the
+  whiteboard, repository index, and exact artifact paths instead of replaying
+  the transcript. Record the current open obligations and next action first.
 - Token budget is checked at safe boundaries. On exhaustion: persist
   whiteboard/repo/history/facts, write an interruption handoff, mark
   `PAUSED_BUDGET`, and resume later with an added budget. Budget exhaustion
@@ -542,9 +550,8 @@ agent writes an interruption handoff before returning control:
 - `scripts/performance_alert.py` -- compare a run metrics file against a
   baseline and write `performance_alert.md`.
 
-## Changelog
+## History
 
-Changelog history (upstream entries and DSH adaptation entries) lives in
-`references/upstream-changelog.md`, kept out of the skill body to keep DSH
-skill loads light.
-
+Release history, method provenance, and source links live in
+`references/changelog.md`. Read it only when auditing provenance or preparing
+a release.

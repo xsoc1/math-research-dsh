@@ -1,4 +1,9 @@
-# Upstream changelog history
+# Release history
+
+## Changelog (2026-08-24, v1.6.0)
+
+- Moved release history behind this pointer, reducing the always-loaded
+  `SKILL.md` from 22,944 to 19,218 bytes without changing verification gates.
 
 ## Changelog (2026-08-12)
 
@@ -50,6 +55,7 @@
 - 构建鲁棒性增强: `verify_lean_project.py --build` 支持
   `--build-targets` (单文件 `lake env lean`, 不做全量 build)、`--use-cache`
   (先 `lake exe cache get`) 与 `--build-timeout`; 超时记录为失败而非成功.
+
 ## Changelog (2026-08-14, DSH adaptation)
 
 - Added the DSH runtime notes block and moved the changelog sections into this

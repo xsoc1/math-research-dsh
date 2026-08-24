@@ -49,6 +49,9 @@ workflow skill and `assets/budget-state.template.json` in the manage skill):
 5. If the target is almost complete, request an extension instead of stopping
    at the finish line.
 
+## Result template
+
+```markdown
 # Result
 
 ## Exact theorem or result proved

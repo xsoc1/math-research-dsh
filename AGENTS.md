@@ -44,7 +44,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `install.ps1` (junction) 只能二选一, 同时安装会导致同一批 skill 双份注册.
 - **README 中英同步**: README.md 与 README_EN.md 必须同步更新; `validate_all.py` 会
   检查所有 `tests/smoke_*.py` 是否都出现在两份 README 中.
-- **测试数量**: 当前 11 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
+- **测试数量**: 当前 13 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
 - **GitHub 网络**: 直连 github.com 失败时, 用本地代理 push:
   `git -c http.proxy=http://127.0.0.1:7897 push origin main` (本机实测可用).
 
@@ -403,3 +403,11 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   成本异常且产物/复用未改善时向用户示警; 单次告警需复验.
 - 本仓库: sync 继承 (lock 98 文件), package.json bump 1.4.0 -> 1.5.0,
   README 中英版本历史新增 1.5.0 条目.
+### 2026-08-24 会话: 继承 Codex 入口上下文优化 (v1.6.0)
+- 上游 88e1c97: 四个 SKILL changelog 移入 `references/changelog.md`, 修复
+  rigorous Output protocol 断裂 fence, 增加 Codex 索引发现/目标读取/有界工具
+  批处理与上下文重建规则, 四插件统一 1.6.0.
+- DSH 层改为把适配历史追加到上游 `references/changelog.md`, 不再生成
+  `upstream-changelog.md` 或第二个指针; package.json bump 1.5.0 -> 1.6.0.
+- 校验: validate_all 51 项全绿, BUNDLE OK, 13 个 smoke 全过,
+  sync --check 对上游 88e1c97 干净.
