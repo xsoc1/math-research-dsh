@@ -55,6 +55,7 @@ beside this bundle under the same skill roots.
 - 触发场景: 定理证明, 猜想攻关, 反例搜索, 结构分类, 等价刻画, 复杂推导, 严格审计.
 - 图谱集成: 若项目提供已接受知识库 (Blueprint v2.2 数学超图), 检索将绑定快照 (math-closure / math-frontier), 可依赖前提与前沿由确定性程序给出, 合同见 references\blueprint-math-graph-integration.md.
 - 启动后按 Phase 0-12 工作, 并维护 "Default research artifacts" 中的台账文件.
+- 单一目标默认先执行 closure-first 门禁: 定位首个承重义务, 直接求解并做廉价证伪, 只有出现明确升级理由后才扩展多路线或子 agent.
 - 结果必须按 "Output protocol" 的状态标签开头, 未闭合义务不得标为完成.
 - 本 Skill 是求解执行层; 长期项目管理由 `$manage-math-research-program` 负责, 二者只允许 管理到求解 的单向调用.
 - 中文设计依据与完整分析: `references/ai-open-math-prompting-design-analysis.zh-CN.md`; 旧版中文 v1 全文: `references/rigorous-mathematical-research.v1-zh-CN.md`.
@@ -88,10 +89,11 @@ Treat the **entire research configuration** as the input: problem statement, att
 11. Every material progress item is first-class: register it immediately in the ledger, route registry, and tool library, and when a formalization project exists create a Lean scaffold for the new result before moving on. Partial progress is progress; it must be auditable and formalization-tracked, not deferred until a complete proof exists.
 12. Lean verification is not only for the final conclusion: machine-check key intermediate lemmas as soon as they become load-bearing, so errors are caught before a route is invested further. A later, more advanced result may supersede an earlier partial/scaffold result; keep the old record in history but mark it superseded in the formalization progress and knowledge base.
 13. A candidate proof submitted for repository acceptance must pass the proof submission audit pipeline (manage workflow 8e): repository comparison, Lean verification/audit, then rule-based integration. The submission audit record must accompany the proof.
+14. Before broad route generation or research sub-agent fan-out, run the closure-first preflight: identify the first open load-bearing claim, attempt it directly, run a cheap falsification probe, and record the decision that escalation can change. Difficulty alone is not an escalation reason.
 
 ## Default research artifacts
 
-When persistent files are available, maintain the following. If files are unavailable, use equivalent clearly labeled sections in the response.
+When persistent files are available, maintain the following. If files are unavailable, use equivalent clearly labeled sections in the response. Materialize lazily: start with `problem_contract.md`, `obligation_graph.md`, `research_ledger.md`, and `closure_gate.md` when closure-first is active; create the remaining artifacts when they acquire content or a stopping/handoff boundary requires them. Do not spend research calls on empty duplicate scaffolding.
 
 - `problem_contract.md` — exact normalized statement and completion criteria.
 - `repro_manifest.md` — all inputs, versions, tools, restrictions, hashes or identifiers, and unknown fields.
@@ -106,6 +108,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `formalization_progress.md` — when a formalization project exists, track every new result's Lean scaffold/status here (or in the project's `lean-proof/STATUS.md`).
 - `research_map.md` — the human-readable, continuously updated survey of the problem: routes/methods tried, intermediate results, unexpected findings, failures and reasons, tools, open directions, an avoid list, and human/other-agent contributions (maintained per manage workflow 8f).
 - `escalation_ladder.md` — when cost-tiered escalation is used, the run-level log of cheap probes attempted, tier changes, triggers, failure mechanisms, and the current cost tier (see `references/escalation-ladder.md`).
+- `closure_gate.md` — the first open load-bearing claim, direct attempt, cheapest falsification probe, gate decision, and next decision-changing action (see `references/closure-first-protocol.md`).
 - `reuse_summary.md` — when the workflow lightweight reuse protocol is active, the post-run record of actual reused items, duplicate work avoided/remaining, new methods, and a one-line cost assessment (see workflow `references/reuse-protocol.md`).
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded. Publish every material finding, surprise, and failure reason to the research map (or ensure its source is aggregated there) so partial progress is never lost and later humans/agents can build on it.
@@ -122,6 +125,7 @@ executing a phase; every phase file repeats this contract at its top.
 | 0-1 provenance, scope, theorem contract | `references/phase-01-contract.md` |
 | 2-3 literature map + proof-obligation graph | `references/phase-23-search.md` |
 | 4-5 route portfolio + research loop | `references/phase-45-routes-loop.md` |
+| closure-first preflight and spawn gate | `references/closure-first-protocol.md` |
 | cost-aware escalation ladder (light first) | `references/escalation-ladder.md` |
 | 6 computational and evolutionary search | `references/phase-6-computation.md` |
 | 7-8 synthesis + adversarial proof audit | `references/phase-78-synthesis-audit.md` |

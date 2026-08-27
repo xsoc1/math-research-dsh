@@ -11,6 +11,8 @@ Delegate only subtasks that are all of:
 - parallelizable: no circular dependency on another in-flight subtask;
 - well-bounded: a single claim, route, obligation, or retrieval topic with a clear deliverable;
 - minimally coupled: the sub-agent needs a small, hashable context slice, not the whole project.
+- closure-relevant: the coordinator has recorded the direct attempt and cheapest falsification
+  probe, and the return can change a named decision in `closure_gate.md`.
 
 Do not delegate:
 
@@ -36,6 +38,10 @@ Every spawned sub-agent receives a packet with these fields (template in
 
 - `subtask_id`: stable ID bound to the obligation/route (e.g. `SUB-O2-routeC`).
 - `claim`: the exact statement attacked, verbatim from the contract or route card.
+- `direct_attempt` and `falsification_probe`: the coordinator-owned preflight artifacts and
+  outcomes, or an explicit reason why a direct attempt is inadmissible.
+- `decision_to_change`: the named closure-gate decision plus explicit success, failure, and
+  budget-stop conditions.
 - `inputs`: exact file paths plus sha256 hashes; never the whole repository.
 - `context_slice`: only the definitions, lemmas, and sources the sub-agent may rely on.
 - `deliverable`: the artifact to return and where to write it (own paths only).
@@ -43,17 +49,23 @@ Every spawned sub-agent receives a packet with these fields (template in
 - `constraints`: no global completion claims; no mutation of shared artifacts; no repeating a
   recorded failure without new evidence; no fabrication of run data.
 - `budget`: effort cap and deadline; what to return if the budget is exhausted.
+- `decision_delta`: the durable state change required in the return; exposition alone is not a
+  delta.
 
 ## Scheduling
 
-1. Run the coordinator pass first: contract audit, obligation graph, route portfolio.
-2. Launch parallel sub-agents only for currently independent targets; keep early explorers
+1. Run the coordinator pass first: contract audit, shortest obligation chain, closure-first
+   direct attempt, and cheapest falsification probe.
+2. Launch sub-agents only after a recorded spawn trigger. Use the smallest batch that can change
+   the gate decision; launch parallel work only for currently independent targets. Keep explorers
    uncorrelated (do not broadcast the fashionable route).
 3. Cap concurrency and total budget; do not exceed the configured limits.
 4. Collect results as they arrive; do not wait on correlated duplicates.
 5. Re-delegate only after a sub-agent returns a precise mechanism-level failure and a materially
    new idea exists; otherwise record and move on.
 6. Keep an adversarial verifier active throughout, not only at the end.
+7. Require a `decision_delta` from every worker. A return that only restates context or reproduces
+   an existing partial bound does not justify another round.
 
 ## Isolation and decorrelation
 

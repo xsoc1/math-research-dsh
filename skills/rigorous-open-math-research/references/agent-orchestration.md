@@ -17,13 +17,13 @@ Recommended roles:
 
 Dynamic policy:
 
-1. Start with several genuinely different route families.
-2. Keep early explorers independent.
-3. Redirect duplicate routes toward underexplored mechanisms.
+1. Run the closure-first preflight before delegation: one coordinator-owned direct attempt and the cheapest falsification probe on the first open load-bearing claim.
+2. Open several genuinely different route families only after the gate records `ESCALATE` or the task supplies independent hash-bound obligations.
+3. Keep early explorers independent and redirect duplicate routes toward underexplored mechanisms.
 4. Give more resources to routes producing verified lemmas, counterexamples, or high-information experiments.
 5. Block routes whose only progress is an equivalent conjecture.
 6. Cross-pollinate after routes expose their real bottlenecks.
-7. Keep an adversarial verifier active throughout, not only at the end.
+7. Keep adversarial checking active at the claim level; reserve repeated global package review for completion or stopping boundaries.
 
 ### Model tiering
 
@@ -35,6 +35,8 @@ Use spawned sub-agents when the runtime provides them (for example Codex multi-a
 parallelizable, well-bounded subtasks. Role separation and uncorrelated approaches are the
 value; agent count is not. Do not delegate global synthesis or resource decisions. Detailed
 scheduling, isolation, merge, and failure rules: `references/subagent-delegation.md`.
+Every research spawn must pass `references/closure-first-protocol.md`: it names the exact
+load-bearing claim, prior direct/falsification outcomes, and the decision its return can change.
 
 Appropriate parallel targets:
 
@@ -52,8 +54,11 @@ Appropriate parallel targets:
 Subtask packet contract (template in `assets/subtask-packet.template.md`):
 
 - `subgoal_id` binding to the obligation or route, and the exact claim attacked.
+- Prior coordinator direct attempt, cheapest falsification probe, and the closure decision the
+  return can change.
 - Input artifacts by exact path and hash, plus the minimal context slice, not the whole project.
-- Output contract: structured return (artifact path, artifact sha256, status label, exact gap, failure mechanism), raw JSON without a markdown code fence.
+- Output contract: structured return (artifact path, artifact sha256, status label, exact gap,
+  failure mechanism, decision delta), raw JSON without a markdown code fence.
 - Constraints: do not claim global completion; do not mutate shared artifacts; do not repeat a
   recorded failure without new evidence.
 - Budget: explicit effort and deadline.
@@ -77,6 +82,9 @@ Merge protocol:
 Resource policy:
 
 - Allocate dynamically by marginal information gain; no fixed agent counts.
+- Use the smallest first batch that can discriminate between the live hypotheses; normally one
+  prover and, when useful, one independent falsifier. A larger wave needs independent targets
+  and a recorded budget reason.
 - Cap concurrency and total budget; stop correlated duplicates early.
 - If a sub-agent stalls or returns noise, record it and redirect resources.
 

@@ -1,5 +1,13 @@
 # Release history
 
+## Changelog (2026-08-27, v1.7.0)
+
+- Stage B now inherits the rigorous closure-first spawn gate: the Planner
+  directly attacks and cheaply falsifies the first load-bearing claim before
+  Worker dispatch, then requires a durable `decision_delta` for continuation.
+- Empty, duplicate, and no-delta Worker returns are rejected without a second
+  global review; reusable or load-bearing outputs retain independent audit.
+
 ## Changelog (2026-08-24, v1.6.0)
 
 - Moved release history behind this pointer, reducing the always-loaded

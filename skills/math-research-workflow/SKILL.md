@@ -146,11 +146,13 @@ For every concrete problem in the packet, invoke `$rigorous-open-math-research`
 with the exact contract. Its run artifacts (`problem_contract.md`,
 `candidate_proof.md`, `audit_report.md`, `reproducibility/`, ...) are produced
 in a per-run directory and ingested by reference (never rewritten by the
-manager).
+manager). For a single scoped target, Stage B follows the rigorous skill's
+closure-first protocol before route expansion or Worker dispatch.
 
 **Sub-agent division (efficiency):**
 
-- **Solver agent**: builds routes, derives, records ledger entries.
+- **Solver agent**: runs the closure-first direct attempt, then builds routes only after a
+  recorded escalation decision; derives and records ledger entries.
 - **Adversarial audit agent**: independently re-derives each obligation and
   attacks the candidate proof; reports F-xxx findings.
 - The two alternate in bounded loops until either `CANDIDATE_COMPLETE_PROOF`
@@ -171,6 +173,13 @@ independent Workers whose outputs are reviewed by an independent Verifier.
 This is a refined form of the solver/audit alternation above; it does not
 replace the theorem contract, B0 gate, or evidence discipline.
 
+0. **Closure-first gate.** Before `spawn`, the Planner writes the shortest
+   target dependency chain, directly attacks the first open load-bearing
+   claim, and runs the cheapest decisive falsification probe. Worker dispatch
+   starts only when the gate records the exact decision it can change. Use
+   `$rigorous-open-math-research`
+   `references/closure-first-protocol.md` and its closure-gate template.
+
 1. **Whiteboard memory (mandatory).** Every stage B run keeps
    `runs/<skill>/<run_id>/whiteboard.md` (template
    `assets/whiteboard.template.md`). It holds the current plan, the route
@@ -181,19 +190,21 @@ replace the theorem contract, B0 gate, or evidence discipline.
    interruption handoff is a frozen snapshot of this record plus recovery
    context. The stage gate hard-requires the whiteboard for runs started on or
    after 2026-08-14 and validates its fields and sections.
-2. **Independent parallel Workers.** A Worker explores exactly one
+2. **Independent Workers after the spawn gate.** A Worker explores exactly one
    deliverable: a proof direction, a lemma, a counterexample search, a
    simplified variant, or a formalization task. A Worker does not observe the
    reasoning traces of other Workers or the Planner's chain of thought; only
    the whiteboard plan and the repository slugs are shared. This keeps
    distinct attempts genuinely independent and prevents one fashionable but
    flawed line of thought from contaminating the portfolio.
-3. **Independent Verifier feedback.** Each finished Worker output is reviewed
-   by the adversarial audit agent without access to the Worker's reasoning
-   trace. The Verifier returns structured feedback (verdict + critical errors
-   + gaps + repair hints); the Planner decides continue / repair / branch /
-   block / refute / archive. Feedback is an artifact, never an approval chain
-   of thought.
+3. **Independent Verifier feedback.** Every Worker output proposed as a
+   load-bearing dependency or reusable result is reviewed by the adversarial
+   audit agent without access to the Worker's reasoning trace. Empty,
+   duplicate, or no-`decision_delta` returns are rejected by the Planner
+   without buying a separate global review. The Verifier returns structured
+   feedback (verdict + critical errors + gaps + repair hints); the Planner
+   decides continue / repair / branch / block / refute / archive. Feedback is
+   an artifact, never an approval chain of thought.
 4. **Repository with verified-items-only rule.** Every intermediate item
    lives in the run directory and is addressed by slug (relative path); the
    whiteboard keeps only slugs plus one-line summaries. A **Lean item is
@@ -218,7 +229,7 @@ replace the theorem contract, B0 gate, or evidence discipline.
    early, prevents a route from silently building on a false step, and gives
    the next agent a verified stepping stone even if the final theorem is still
    open.
-6. **Loop control.** The Planner iterates: spawn Workers -> collect outputs ->
+6. **Loop control.** The Planner iterates: direct attempt -> optional Worker dispatch -> collect outputs ->
    independent review -> update whiteboard and repository -> next plan step,
    until `CANDIDATE_COMPLETE_PROOF`, an exact gap report, or the compute
    budget runs out. Do not use fixed worker counts as a principle; allocate
@@ -240,7 +251,9 @@ gain per unit cost, and record the current tier plus the last escalation
 reason in the whiteboard. Escalate to Tier 2/3 only on a recorded zero-gain
 witness, a counterexample or obstruction that requires a heavier mechanism, a
 load-bearing gap that machine checking can close faster, or an explicit user
-request. See
+request. Difficulty alone is not a spawn trigger. The first Worker wave is the
+smallest set that can change the closure decision, and every further wave
+requires a durable `decision_delta`. See
 `$rigorous-open-math-research` `references/escalation-ladder.md`.
 
 **Lightweight reuse protocol (mandatory default):** before major derivation,
@@ -496,7 +509,7 @@ agent writes an interruption handoff before returning control:
 
 ## Efficiency rules
 
-- Parallelize where dependencies allow: stage B's audit agent may review
+- Parallelize only after the closure-first spawn gate and where dependencies allow: stage B's audit agent may review
   obligations while the solver opens the next route; stage C's verifier may
   scan files as the formalizer writes them. When several members run in
   parallel, aggregate every member's failures into the report (first-fail

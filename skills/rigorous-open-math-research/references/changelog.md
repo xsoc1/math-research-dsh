@@ -1,5 +1,16 @@
 # Release history
 
+## Changelog (2026-08-27, v1.7.0)
+
+- Added a closure-first execution path for bounded single-goal research. The
+  coordinator now isolates, directly attacks, and cheaply falsifies the first
+  open load-bearing claim before route expansion or sub-agent fan-out.
+- Added explicit spawn and decision-delta gates, lazy live artifacts, and
+  claim-local audit placement. This resolves the conflict between light-first
+  escalation and the former instruction to start with several routes.
+- Added `assets/closure-gate.template.md` and
+  `references/closure-first-protocol.md`.
+
 ## Changelog (2026-08-24, v1.6.0)
 
 - Moved release history behind this pointer, reducing the always-loaded

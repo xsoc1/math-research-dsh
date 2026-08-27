@@ -672,6 +672,11 @@ def rewrite_smoke_paths(text: str) -> str:
         text,
     )
     text = re.sub(
+        r'"plugins"\s*/\s*"rigorous-open-math-research"',
+        '"skills" / "rigorous-open-math-research"',
+        text,
+    )
+    text = re.sub(
         r'"plugins"\s*/\s*"math-research-workflow"',
         '"skills" / "math-research-workflow"',
         text,
@@ -681,6 +686,27 @@ def rewrite_smoke_paths(text: str) -> str:
         '"skills" / "lean-verify"',
         text,
     )
+    if "closure-first smoke passed" in text:
+        text = text.replace(
+            '\trigorous_skill = RIGOROUS / "skills" / "rigorous-open-math-research"',
+            "\trigorous_skill = RIGOROUS",
+        )
+        text = text.replace(
+            '\tworkflow_skill = WORKFLOW / "skills" / "math-research-workflow"',
+            "\tworkflow_skill = WORKFLOW",
+        )
+        text = re.sub(
+            r'\tfor plugin in \(RIGOROUS, WORKFLOW\):\n'
+            r'\t\tmanifest = json\.loads\(\(plugin / "\.codex-plugin" / "plugin\.json"\)\.read_text\(encoding="utf-8"\)\)\n'
+            r'\t\tif manifest\["version"\] != "(?P<version>\d+\.\d+\.\d+)":\n'
+            r'\t\t\traise AssertionError\(f"\{manifest\[\'name\'\]\} version is not (?P=version)"\)',
+            lambda match: (
+                '\tpackage = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))\n'
+                f'\tif package["version"] != "{match.group("version")}":\n'
+                f'\t\traise AssertionError("DSH package version is not {match.group("version")}")'
+            ),
+            text,
+        )
     return text
 
 

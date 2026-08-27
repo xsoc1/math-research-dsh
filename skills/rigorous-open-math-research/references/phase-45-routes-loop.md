@@ -1,6 +1,11 @@
 > Phase file for the rigorous-open-math-research skill. Read this file before executing the phases it covers; the global contracts live in the parent SKILL.md. Relative paths in this file (assets/, references/, scripts/) resolve against the skill root (the directory containing SKILL.md).
 ## Phase 4 — Create a genuinely diverse route portfolio
 
+Run `references/closure-first-protocol.md` before opening the portfolio. The
+coordinator first attacks and falsifies the earliest load-bearing claim. Build
+a multi-route portfolio only when the closure gate records `ESCALATE`, or when
+the task already contains several independent hash-bound obligations.
+
 Generate route families by mathematical mechanism, not by paraphrasing the same idea.
 
 Candidate families, selected only when relevant, include:
@@ -28,6 +33,7 @@ Required known results:
 First concrete deliverable:
 Fast falsification tests:
 Expected bottleneck:
+First open load-bearing claim:
 Cost tier (0 | 1 | 2 | 3):
 Minimal first step (cheapest concrete action that tests this route):
 Escalation criteria (what cheap result would justify moving to a heavier tier):
@@ -56,6 +62,8 @@ For each active route, repeat:
 2. **Stress-test immediately.** Check smallest cases, degenerate cases, symmetry-breaking examples, known extremizers, dimensional limits, and random/adversarial instances.
 3. **Attempt a local proof.** State every hypothesis and the exact claim.
 4. **Run an adversarial review.** Seek the first non-repairable gap rather than polishing exposition.
+   If the artifact introduces a new load-bearing claim, update `closure_gate.md`
+   and attack that claim before downstream expansion.
 5. **Update the obligation graph and ledger.** Record what changed.
 6. **Decide:** continue, repair, branch, merge, block, refute, or archive.
 

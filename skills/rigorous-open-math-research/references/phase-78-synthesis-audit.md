@@ -19,6 +19,12 @@ Write the candidate proof with obligation IDs in comments or margins until the a
 
 Use an independent verifier, a different model or prompt when possible, and formal/computational checks where appropriate.
 
+Place audits where they can change the research decision. Verify a newly
+load-bearing claim before downstream work depends on it. While the target is
+still open, prefer claim-local audits to repeated whole-package reviews. Run a
+global package audit for a proposed completion, at a stopping/handoff boundary,
+or before canonical integration; see `references/closure-first-protocol.md`.
+
 Two discipline rules for the adversarial role (distilled from dsh-rigorquant:
 https://github.com/linxichen/dsh-rigorquant):
 

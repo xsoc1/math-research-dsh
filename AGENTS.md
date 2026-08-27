@@ -14,7 +14,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `scripts/sync-from-parent.py` -- 父仓库同步 + DSH 层重放 + upstream.lock.json
 - `scripts/validate_all.py` -- 仓库校验 (结构/MANIFEST/lock/UTF-8+LF/py_compile/JSON+YAML)
 - `scripts/dsh-doctor.py` -- DSH 环境自检 (skill 挂载/python/lake)
-- `tests/` -- fixtures + 11 个 smoke
+- `tests/` -- fixtures + 14 个 smoke
 - `package.json` / `index.mjs` / `cordis.patch.yml` -- 官方 bundle 技能包 (社区一键安装)
 - `scripts/dsh-check-bundle.py` -- bundle 打包门禁 (package.json/patch/index.mjs/skills)
 - `upstream.lock.json` -- 父仓库 commit + 逐文件哈希
@@ -44,7 +44,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `install.ps1` (junction) 只能二选一, 同时安装会导致同一批 skill 双份注册.
 - **README 中英同步**: README.md 与 README_EN.md 必须同步更新; `validate_all.py` 会
   检查所有 `tests/smoke_*.py` 是否都出现在两份 README 中.
-- **测试数量**: 当前 13 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
+- **测试数量**: 当前 14 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
 - **GitHub 网络**: 直连 github.com 失败时, 用本地代理 push:
   `git -c http.proxy=http://127.0.0.1:7897 push origin main` (本机实测可用).
 
@@ -411,3 +411,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `upstream-changelog.md` 或第二个指针; package.json bump 1.5.0 -> 1.6.0.
 - 校验: validate_all 51 项全绿, BUNDLE OK, 13 个 smoke 全过,
   sync --check 对上游 88e1c97 干净.
+### 2026-08-27 会话: 继承 closure-first 调度优化 (v1.7.0)
+- 上游 957d80b: rigorous/workflow 先直接求解并廉价证伪首个承重义务, spawn 和
+  后续轮次必须声明决策增量, 非必要工件延迟生成, 全局审计集中到完成/交接边界.
+- `sync-from-parent.py` 继承 100 个锁定文件和新增 closure-gate 模板/协议;
+  package.json bump 1.6.0 -> 1.7.0, README 中英版本历史与 14 个 smoke 清单同步.
+- 修复新 smoke 的 DSH 布局适配: 同步层把 rigorous/workflow 路径扁平化到
+  `skills/<name>` 并把两个 Codex plugin manifest 版本断言改为 DSH package 版本断言.

@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 13 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 14 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -131,7 +131,7 @@ python scripts\sync-from-parent.py --upstream <父仓库克隆> --check
 
 | DSH 机制 | 适配 |
 |---|---|
-| skill 工具加载全文进上下文 | **渐进式披露**: rigorous 正文为 195 行 / 13.6KB 驱动层 (约 3.4K tokens, 原 45KB) + 8 个 phase 引用文件, 按 Phase 经 resourceBase 按需读取; changelog 历史位于 references/changelog.md |
+| skill 工具加载全文进上下文 | **渐进式披露**: rigorous 正文为 199 行 / 14.3KB 驱动层 (约 3.6K tokens, 原 45KB) + 按需引用文件, 按 Phase 经 resourceBase 读取; changelog 历史位于 references/changelog.md |
 | 工具结果截断 (约 8K, 保留头 4096 + 尾 1024) | 仓库级 `scripts/dsh_run.py` 包装器: verdict 与 FAIL 行放头部, verdict 尾部重复, 完整输出落盘; 脚本惯例 = verdict 在末尾打印 |
 | 后台任务 (无超时) | 长计算 (数值扫描, lake build) 一律 `run_in_background: true` + job_output 收集, 不占轮次 |
 | spawn 子代理无会话种子 | 对抗性审计/验证用全新 `subagent` (天然零思维链共享); `subagent_fork` 留给上下文续接; **子代理回传契约**: 完整报告落盘, 回复只含 verdict + 路径 + hash |
@@ -200,6 +200,7 @@ python smoke_distilled_methods.py     # 蒸馏社区方法的静态标记覆盖
 python smoke_version_bump.py          # 版本 bump 门禁脚本冒烟 (临时 git 仓库)
 python smoke_nested_repo.py           # 门禁跳过嵌套 git 仓库回归测试
 python smoke_lake_build_guard.py      # lake build 循环防护冒烟
+python smoke_closure_first.py         # closure-first 调度与版本绑定回归
 ```
 
 GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移比较.
@@ -234,6 +235,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.7.0` | 2026-08-27 | 继承 closure-first 调度: 先直接求解并证伪首个承重义务, spawn 与续跑要求 `decision_delta`, 非必要工件延迟生成, load-bearing 结果仍独立审计 |
 | `1.6.0` | 2026-08-24 | 继承 Codex 入口上下文优化和 rigorous fence 修复; DSH changelog 层改为复用上游 references/changelog.md, 避免重复指针 |
 | `1.5.0` | 2026-08-23 | 性能可观测与示警: performance.json + baseline 对比, 成本异常上升时写 performance_alert 并向用户示警, 单次告警需复验 |
 | `1.4.0` | 2026-08-23 | 工具按问题类作用域生命周期: 类级退休/归档, 工具不删除仍可显式检索, manage_tool_lifecycle.py |

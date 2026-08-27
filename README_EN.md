@@ -153,7 +153,7 @@ bundle's `references/dsh-execution.md` and runtime notes):
 
 | DSH mechanism | Adaptation |
 |---|---|
-| skill load puts the whole body in context | **progressive disclosure**: rigorous is a 195-line / 13.6KB driver (~3.4K tokens, originally 45KB) + 8 phase references read on demand through `resourceBase`; history lives in references/changelog.md |
+| skill load puts the whole body in context | **progressive disclosure**: rigorous is a 199-line / 14.3KB driver (~3.6K tokens, originally 45KB) plus on-demand references read by phase through `resourceBase`; history lives in references/changelog.md |
 | tool results truncated (~8K, head 4096 + tail 1024) | repository-level `scripts/dsh_run.py` wrapper: verdict + FAIL lines at the head, verdict repeated at the tail, full output on disk; scripts print verdicts last |
 | background jobs (no timeout) | long computations (numerical scans, lake build) run with `run_in_background: true`, collected via job_output |
 | spawn subagents start without the conversation | adversarial audit / verify roles use fresh `subagent` (zero chain-of-thought sharing by construction); `subagent_fork` is for context-heavy continuation; **sub-agent return contract**: full reports to files, replies carry only verdict + paths + hashes |
@@ -223,6 +223,7 @@ python smoke_distilled_methods.py     # static marker coverage for distilled met
 python smoke_version_bump.py          # version-bump gate smoke (throwaway git repo)
 python smoke_nested_repo.py           # nested git repo skip regression test
 python smoke_lake_build_guard.py      # lake build loop guard smoke
+python smoke_closure_first.py         # closure-first scheduling and version-binding regression
 ```
 
 GitHub Actions runs all of the above plus the `--check` drift comparison
@@ -258,6 +259,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.7.0` | 2026-08-27 | Inherits closure-first scheduling: directly attack and falsify the first load-bearing obligation, require `decision_delta` for spawn and continuation, materialize nonessential artifacts lazily, and retain independent audits for load-bearing results |
 | `1.6.0` | 2026-08-24 | Inherits the Codex entrypoint optimization and rigorous fence repair; the DSH changelog layer now reuses upstream references/changelog.md and avoids a duplicate pointer |
 | `1.5.0` | 2026-08-23 | Performance observability and alerts: metrics/baseline comparison, writes performance_alert and warns user on cost regressions; single-run alerts require confirmation |
 | `1.4.0` | 2026-08-23 | Class-scoped tool lifecycle: per-class retirement/archive, tools never deleted, explicit retrieval, manage_tool_lifecycle.py |

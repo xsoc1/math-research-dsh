@@ -4,6 +4,10 @@
 - Parent obligation / route: <obligation ID or route ID>
 - Spawned at: <timestamp>
 - Budget: <effort cap, deadline>
+- Coordinator direct attempt: <artifact path + outcome, or why inadmissible>
+- Cheapest falsification probe: <test + exact domain + outcome>
+- Decision to change: <named closure-gate decision>
+- Success / failure / budget-stop conditions: <explicit conditions>
 
 ## Claim
 
@@ -45,6 +49,10 @@ Return the JSON raw (no markdown code fence).
   "claim_tested": "...",
   "exact_gap": "...",
   "failure_mechanism": "...",
-  "evidence": "..."
+  "evidence": "...",
+  "decision_delta": "<closed/falsified obligation, smaller exact gap, eliminated route, reusable lemma, or justified escalation>"
 }
 ```
+
+The fenced object above illustrates the schema. The actual sub-agent return is raw JSON without
+a Markdown fence.

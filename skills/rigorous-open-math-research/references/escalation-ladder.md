@@ -44,11 +44,17 @@ score = expected_information_gain / estimated_cost
 
 - Prefer the lowest tier that can still distinguish between the live
   hypotheses.
+- For a single target, apply `references/closure-first-protocol.md` first. The
+  coordinator owns the direct attempt and cheapest falsification probe before
+  paying for a route portfolio.
 - Do not skip Tier 0/1 to reach Tier 3 unless the Tier 0/1 attempts produced a
   recorded jump-level obstruction (for example a small case that proves a new
   structural theorem is necessary).
 - Parallel fan-out is a Tier 3 action. Do not open many parallel workers until
   a few single-line cheap probes have been tried and recorded.
+- The first delegated wave uses the smallest set that can change the closure
+  decision. Difficulty, breadth of exposition, and a desire for independent
+  prose are not upgrade triggers.
 - Every action must produce a concrete artifact: a formula, a small case
   result, a counterexample, an exact gap, or a reused lemma identifier. A
   status report is not an artifact.
@@ -68,6 +74,10 @@ Escalate one tier only when at least one of these is satisfied:
 
 Record the trigger in the escalation ladder and in the route card before
 starting the heavier action.
+
+For sub-agent escalation, also record the exact load-bearing claim, the prior
+direct/falsification outcomes, and the `decision_delta` expected from the
+worker return.
 
 ## 5. De-escalation and retry rules
 
