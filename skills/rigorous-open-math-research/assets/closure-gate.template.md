@@ -11,4 +11,10 @@
 - Gate decision: <CLOSED | FALSIFIED | OPEN_EXACT_GAP | ESCALATE | REPAIR_CONTRACT>
 - Spawn trigger: <decision that delegated work can change, or none>
 - Next decision-changing action: <one bounded action>
+- Root obligations: <OPEN | CLOSED>
+- Completion manifest: <path=completion_manifest.json; sha256=64-hex, or none>
+- Fresh package audit: <path=completion_audit.json; sha256=64-hex, or pending>
+- Load-bearing gaps: <nonnegative integer or unknown>
+- Fast-close decision: <NOT_READY | CONTINUE_REQUIRED | REPAIR | STOP>
+- Frontier upgrade: <path=frontier_upgrade.json; sha256=64-hex, or none>
 - Last updated: <timestamp>

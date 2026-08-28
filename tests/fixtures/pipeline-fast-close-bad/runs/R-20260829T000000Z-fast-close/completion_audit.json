@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "review_type": "fresh_independent_package",
+  "candidate_author_id": "solver-fixture",
+  "reviewer_id": "auditor-fixture",
+  "reviewed_at": "2026-08-29T00:10:00Z",
+  "audited_manifest_sha256": "A197AFA03892779FF243336E0C0D7F80176E146D28AECEC02AC2170552137B53",
+  "verdict": "FAIL",
+  "load_bearing_gaps": [
+    {
+      "id": "G1",
+      "description": "The root proof is incomplete."
+    }
+  ]
+}

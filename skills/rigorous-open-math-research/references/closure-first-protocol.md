@@ -94,7 +94,50 @@ round. Reopen only with a new mechanism or new evidence. Report the round's
 - Audit the strongest partial package once at the boundary; do not repeatedly
   re-audit unchanged context.
 
-## 6. Integration
+## 6. Completion certificate and fast close
+
+When one candidate proof appears to close every root obligation, stop route
+generation and enter the completion-certificate gate:
+
+1. Write `completion_manifest.json` from
+   `assets/completion-manifest.template.json`. It freezes the exact contract,
+   canonical structured `obligation_graph.json`, candidate proof, cited
+   dependencies or exact checks, every root ID/status/proof anchor, the candidate
+   author, timestamp, and hashes. The root array must exactly equal the canonical
+   graph's root array, and every proof anchor must exist in the frozen proof.
+2. Run exactly one fresh independent package audit per frozen manifest. The
+   reviewer writes `completion_audit.json` from
+   `assets/completion-audit.template.json`;
+   its reviewer must differ from the candidate author, and it binds the frozen
+   manifest hash, verdict, gap array, and post-freeze review timestamp. A
+   non-`PASS` audit ends that frozen manifest; after repair, freeze a new manifest
+   and obtain its one audit. Higher-assurance or formal verification belongs to
+   the pre-contracted Stage C, not another Stage B package audit.
+3. Hash-bind the completion manifest and completion audit in `closure_gate.md`.
+   The gate's root status and gap count are summaries of those structured files,
+   not self-attested substitutes for them.
+4. If the audit is `PASS`, every root obligation is closed, and load-bearing gaps
+   equal zero, set `Fast-close decision: STOP`. End solver, Worker, route, and bonus
+   calls. Produce the required boundary records without purchasing new research
+   calls solely to expand prose or duplicate the proof.
+5. If the audit is non-`PASS`, route only its exact gaps. Reopen a broad portfolio
+   only when the failure is structural and the closure gate records the decision
+   that new mechanisms can change.
+
+After a certified `STOP`, keep `Fast-close decision: STOP`. A single post-close
+frontier call is allowed only through a separate hash-bound `frontier_upgrade.json`
+created from `assets/frontier-upgrade.template.json`. It must bind the certified
+manifest and audit, use `sequence: 1`, cite a durable user request or named
+pre-existing project frontier by path, hash, and locator, and set a positive
+integer budget plus an exact stop condition. A base manifest/audit pair may appear
+in only one such record. Never replace STOP with a looser decision. The certified
+root result remains frozen and reportable even if the upgrade fails.
+
+The workflow's deterministic pipeline gate validates every fast-close certificate
+created after the protocol cutover. A `CLOSED` research claim is not a certified
+fast close until the independent audit and hash bindings pass.
+
+## 7. Integration
 
 - Phase 4 opens a diverse portfolio only after the closure gate says
   `ESCALATE`.

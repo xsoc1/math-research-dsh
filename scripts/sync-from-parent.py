@@ -5,7 +5,8 @@ Copies the four plugin skill directories (plus the workflow and lean-verify
 plugin-level scripts and assets) from the parent repository, re-applies the
 DSH adaptation layer, regenerates the manage-skill MANIFEST.sha256, syncs the
 upstream tests tree (smokes path-rewritten to the skills/ layout, full
-fixtures), and writes upstream.lock.json.
+fixtures), the canonical pipeline full-flow document, and writes
+upstream.lock.json.
 
 Usage:
     python scripts/sync-from-parent.py [--upstream PATH] [--check]
@@ -732,6 +733,16 @@ def sync_tests(upstream: Path) -> None:
         write_norm(REPO / rel, content)
 
 
+def expected_docs(upstream: Path) -> dict[str, str]:
+    source = upstream / "docs" / "pipeline-full-flow.md"
+    return {"docs/pipeline-full-flow.md": read_norm(source)}
+
+
+def sync_docs(upstream: Path) -> None:
+    for rel, content in expected_docs(upstream).items():
+        write_norm(REPO / rel, content)
+
+
 def default_upstream() -> Path:
     dsh_home = Path(os.environ.get("DSH_HOME") or Path.home() / ".dsh")
     return dsh_home / "_math-research-upstream" / "rigorous-open-math-research"
@@ -939,6 +950,7 @@ def main() -> int:
     copy_bundles(upstream, REPO / "skills")
     regen_manifest(REPO / "skills" / "manage-math-research-program")
     sync_tests(upstream)
+    sync_docs(upstream)
     lock = build_lock(REPO / "skills", commit)
     write_norm(
         REPO / "upstream.lock.json",
@@ -988,6 +1000,11 @@ def run_check(upstream: Path) -> int:
         # match the repository copy exactly, so upstream test additions can
         # never be forgotten again
         for rel, expected_text in sorted(expected_tests(upstream).items()):
+            cur_path = REPO / rel
+            cur_text = read_norm(cur_path) if cur_path.is_file() else None
+            if cur_text != expected_text:
+                problems.append(f"drift in {rel}")
+        for rel, expected_text in sorted(expected_docs(upstream).items()):
             cur_path = REPO / rel
             cur_text = read_norm(cur_path) if cur_path.is_file() else None
             if cur_text != expected_text:

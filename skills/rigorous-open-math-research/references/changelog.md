@@ -1,5 +1,15 @@
 # Release history
 
+## Changelog (2026-08-28, v1.8.0)
+
+- Added a structured hash-bound completion certificate: the manifest freezes
+  contract, obligation graph, proof, dependencies, root anchors, author, and
+  timestamp; a distinct reviewer audit binds that manifest and must report
+  `PASS` with an empty gap array before deterministic fast close.
+- Permitted only one separately recorded post-close frontier upgrade when it is
+  explicitly requested or attacks a named pre-existing frontier. It binds the
+  certificate and carries sequence 1, a positive budget, and stop condition.
+
 ## Changelog (2026-08-27, v1.7.0)
 
 - Added a closure-first execution path for bounded single-goal research. The

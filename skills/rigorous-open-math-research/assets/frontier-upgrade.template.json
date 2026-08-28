@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "sequence": 1,
+  "base_completion_manifest_sha256": "{{completion manifest sha256}}",
+  "base_audit_sha256": "{{completion audit sha256}}",
+  "authorization": {
+    "type": "{{user_request or pre_existing_frontier}}",
+    "path": "{{durable request or project-frontier record path}}",
+    "sha256": "{{sha256}}",
+    "locator": "{{existing Markdown heading slug or explicit HTML ID}}"
+  },
+  "obligation_id": "{{frontier obligation ID}}",
+  "budget": {
+    "unit": "{{model_responses, tool_calls, wall_minutes, or tokens}}",
+    "limit": 1
+  },
+  "stop_condition": "{{exact bounded stop condition}}"
+}

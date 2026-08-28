@@ -418,3 +418,14 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   package.json bump 1.6.0 -> 1.7.0, README 中英版本历史与 14 个 smoke 清单同步.
 - 修复新 smoke 的 DSH 布局适配: 同步层把 rigorous/workflow 路径扁平化到
   `skills/<name>` 并把两个 Codex plugin manifest 版本断言改为 DSH package 版本断言.
+### 2026-08-28 会话: 继承 fast-close 结构化证书 (v1.8.0)
+- 上游 37e8ada: rigorous/workflow 新增 canonical `obligation_graph.json`,
+  `completion_manifest.json`, `completion_audit.json` 与单次
+  `frontier_upgrade.json`; validator 核验 root 集合, proof anchor, reviewer,
+  timestamp, path/hash, audit 唯一性, 授权 locator 与预算边界.
+- `sync-from-parent.py` 继续机械同步 skills/tests, 并新增同步
+  `docs/pipeline-full-flow.md`, 使 DSH 的 closure smoke 保留父仓库 full-flow markers.
+- package.json bump 1.7.0 -> 1.8.0; README 中英版本历史, 目录树与 smoke 说明同步.
+- 校验: validate_all 51/51, BUNDLE OK, sync-check clean, 14 个 smoke 全过.
+  首轮用 `py -X utf8` 只作用于父进程, 子进程仍按 GBK 输出而触发解码错误;
+  按仓库既有统一解释器模式重跑后全绿, 属测试启动方式而非插件缺陷.

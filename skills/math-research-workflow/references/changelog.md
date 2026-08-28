@@ -1,5 +1,13 @@
 # Release history
 
+## Changelog (2026-08-28, v1.8.0)
+
+- Stage B now consumes the rigorous hash-bound completion certificate. A
+  zero-gap fresh package audit triggers a hard fast-close scheduling boundary:
+  no further Worker, route, bonus-claim, or repeated global-audit model calls.
+- Added deterministic validation plus positive and adversarial smoke cases for
+  STOP and bounded-frontier records, including all artifact hashes.
+
 ## Changelog (2026-08-27, v1.7.0)
 
 - Stage B now inherits the rigorous closure-first spawn gate: the Planner

@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "candidate_author_id": "solver-fixture",
+  "frozen_at": "2026-08-29T00:00:00Z",
+  "contract": {
+    "path": "problem_contract.md",
+    "sha256": "2ED5EA25FE946222BF11332BCD8ED1D072B13982439C6C0417108AF565745D48"
+  },
+  "obligation_graph": {
+    "path": "obligation_graph.json",
+    "sha256": "78A343E1C5121E24F05A9F0B716E79FEA82D35561195E38CD7EEB572F30509CC"
+  },
+  "candidate_proof": {
+    "path": "candidate_proof.md",
+    "sha256": "3028FDAF4A40D715B2102158FD89DAFF89E88CB6736AADAB4DDB94B38B080773"
+  },
+  "dependencies": [],
+  "root_obligations": [
+    {
+      "id": "O1",
+      "status": "CLOSED",
+      "proof_anchor": "candidate_proof.md#root-o1"
+    }
+  ]
+}

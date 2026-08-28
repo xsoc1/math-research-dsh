@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "candidate_author_id": "{{candidate_author_id}}",
+  "frozen_at": "{{ISO-8601 timestamp with timezone}}",
+  "contract": {
+    "path": "problem_contract.md",
+    "sha256": "{{sha256}}"
+  },
+  "obligation_graph": {
+    "path": "obligation_graph.json",
+    "sha256": "{{sha256}}"
+  },
+  "candidate_proof": {
+    "path": "candidate_proof.md",
+    "sha256": "{{sha256}}"
+  },
+  "dependencies": [
+    {
+      "path": "{{relative dependency path}}",
+      "sha256": "{{sha256}}"
+    }
+  ],
+  "root_obligations": [
+    {
+      "id": "{{root obligation ID}}",
+      "status": "CLOSED",
+      "proof_anchor": "candidate_proof.md#{{anchor}}"
+    }
+  ]
+}

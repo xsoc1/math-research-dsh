@@ -238,6 +238,14 @@ replace the theorem contract, B0 gate, or evidence discipline.
    consumed by a revision round or recorded as a routed obligation; a
    finding that is silently dropped is a gate failure. (Distilled from
    dsh-proof: https://github.com/EvilIrving/dsh-proof.)
+6a. **Fast-close exit.** When a hash-bound candidate closes every root
+   obligation, freeze it in `completion_manifest.json`, then obtain one fresh
+   independent `completion_audit.json`. Zero-gap `PASS` sets `STOP`: only
+   deterministic Stage B boundary work remains. One optional frontier call needs
+   a hash-bound `frontier_upgrade.json` (`sequence: 1`, durable authorization,
+   positive budget, exact stop); otherwise no Stage B research-model call is
+   allowed. Pre-contracted Stage C is separate. The deterministic gate validates
+   hashes, root closure, reviewer independence, timestamps, and upgrade bounds.
 7. **Interactive steering.** When the user is in the loop, present each plan
    or action set before executing it, allow the user to redirect Workers,
    interrupt unpromising routes, and accept or reject the next actions with
@@ -262,7 +270,10 @@ tool summaries, `lean-proof/LEMMA_INDEX.md`, and the latest relevant
 `final_report.md` / handoff. Do not require per-route REUSE tags. At run close,
 write `reuse_summary.md` with actual reused items, duplicate work avoided,
 remaining duplicate work, new methods, and a one-line cost assessment. Every
-material run must also meet the minimum artifact checklist. Full details:
+material run must also meet the applicable artifact profile. A fast-close run
+uses the proof-first boundary set; the extended research package is triggered
+only by escalation, multiple live routes, partial/handoff status, reusable
+computation, or a requested frontier upgrade. Full details:
 `references/reuse-protocol.md`.
 
 **Performance observability and user alerts:** when performance metrics are
@@ -509,6 +520,11 @@ agent writes an interruption handoff before returning control:
 
 ## Efficiency rules
 
+- Treat a certified fast close as a hard scheduling boundary. Mechanical
+  index, manifest, and summary updates may continue. No Stage B research-model
+  call is allowed after `STOP` except the single separately authorized frontier
+  call described above; proceed to Stage C only when its formalization decision
+  was already part of the task contract.
 - Parallelize only after the closure-first spawn gate and where dependencies allow: stage B's audit agent may review
   obligations while the solver opens the next route; stage C's verifier may
   scan files as the formalizer writes them. When several members run in

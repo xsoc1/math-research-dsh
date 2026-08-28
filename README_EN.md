@@ -223,7 +223,7 @@ python smoke_distilled_methods.py     # static marker coverage for distilled met
 python smoke_version_bump.py          # version-bump gate smoke (throwaway git repo)
 python smoke_nested_repo.py           # nested git repo skip regression test
 python smoke_lake_build_guard.py      # lake build loop guard smoke
-python smoke_closure_first.py         # closure-first scheduling and version-binding regression
+python smoke_closure_first.py         # closure-first plus adversarial fast-close certificate regression
 ```
 
 GitHub Actions runs all of the above plus the `--check` drift comparison
@@ -251,6 +251,7 @@ scripts/
   dsh_run.py                      prune-aware script wrapper (verdict head+tail, full log on disk)
   check_version_bump.py           CI version-bump gate (skills/ or bundle entry changes must bump package.json)
 tests/                            smoke tests + fixtures
+docs/pipeline-full-flow.md        full pipeline flow synced from the parent
 upstream.lock.json                parent commit + per-file hashes
 install.ps1                       junction install into $DSH_HOME/skills
 ```
@@ -259,6 +260,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.8.0` | 2026-08-28 | Inherits structured fast-close certificates: canonical obligation graph, completion manifest, independent audit, anchor/hash/timestamp gates, and one authorized post-STOP frontier call; syncs the full-flow document and adversarial regressions |
 | `1.7.0` | 2026-08-27 | Inherits closure-first scheduling: directly attack and falsify the first load-bearing obligation, require `decision_delta` for spawn and continuation, materialize nonessential artifacts lazily, and retain independent audits for load-bearing results |
 | `1.6.0` | 2026-08-24 | Inherits the Codex entrypoint optimization and rigorous fence repair; the DSH changelog layer now reuses upstream references/changelog.md and avoids a duplicate pointer |
 | `1.5.0` | 2026-08-23 | Performance observability and alerts: metrics/baseline comparison, writes performance_alert and warns user on cost regressions; single-run alerts require confirmation |

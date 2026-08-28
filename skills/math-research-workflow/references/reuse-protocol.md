@@ -32,24 +32,36 @@ is `archived` (all known classes retired) is not suggested by default but
 remains in the archive and is available on explicit search. Class-scoped
 retirement never deletes a tool.
 
-## Minimum artifact set for every material run
+## Artifact profiles
 
-Each Stage B run with material progress must write at least:
+Use the proof-first boundary set when the closure-first run reaches a certified
+fast close without opening a multi-route portfolio:
 
 - `problem_contract.md`
 - `status_and_literature.md`
-- `approach_registry.md`
 - `research_ledger.md`
-- `obligation_graph.md` (or an explicit note if not applicable)
-- `candidate_proof.md` (if any mathematical result)
-- `escalation_ladder.md`
-- `audit_report.md` (or an explicit audit note if independent audit was
-  not possible)
-- `performance_log.md`
+- canonical `obligation_graph.json` (plus `obligation_graph.md` when a human view is useful)
+- `closure_gate.md` with hash bindings to `completion_manifest.json` and
+  `completion_audit.json`
+- `candidate_proof.md`
+- `audit_report.md` from one fresh independent package audit
+- `repro_manifest.md`
 - `final_report.md`
 - `reuse_summary.md`
 - Lean scaffold (`lean-proof/*.lean` or `formalization_progress.md` entry)
   for every new STRICT/partial result, when the project has `lean-proof/`.
+
+Use the extended research profile when the run escalates, carries multiple live
+routes, closes partial or interrupted, produces reusable computation, or runs a
+requested frontier upgrade. Add the artifacts that acquired content, including
+`approach_registry.md`, `counterexample_log.md`, `escalation_ladder.md`,
+`performance_log.md`/`performance.json`, and `reproducibility/`. At a boundary,
+record an explicit `not applicable` in `final_report.md` for an expected profile
+item that never acquired content; do not create an empty duplicate file.
+
+After a certified fast close, populate indexes, hashes, status files, and concise
+summaries deterministically when possible. Do not purchase a research-model call
+solely to expand a minimal proof package into the extended profile.
 
 ## No per-route tags
 

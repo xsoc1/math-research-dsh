@@ -56,6 +56,7 @@ beside this bundle under the same skill roots.
 - 图谱集成: 若项目提供已接受知识库 (Blueprint v2.2 数学超图), 检索将绑定快照 (math-closure / math-frontier), 可依赖前提与前沿由确定性程序给出, 合同见 references\blueprint-math-graph-integration.md.
 - 启动后按 Phase 0-12 工作, 并维护 "Default research artifacts" 中的台账文件.
 - 单一目标默认先执行 closure-first 门禁: 定位首个承重义务, 直接求解并做廉价证伪, 只有出现明确升级理由后才扩展多路线或子 agent.
+- root obligations 全部闭合时执行 fast-close certificate: 冻结证明和 hash, 只做一次 fresh package audit; `PASS` 后停止未请求的额外路线与 bonus 调用.
 - 结果必须按 "Output protocol" 的状态标签开头, 未闭合义务不得标为完成.
 - 本 Skill 是求解执行层; 长期项目管理由 `$manage-math-research-program` 负责, 二者只允许 管理到求解 的单向调用.
 - 中文设计依据与完整分析: `references/ai-open-math-prompting-design-analysis.zh-CN.md`; 旧版中文 v1 全文: `references/rigorous-mathematical-research.v1-zh-CN.md`.
@@ -90,6 +91,7 @@ Treat the **entire research configuration** as the input: problem statement, att
 12. Lean verification is not only for the final conclusion: machine-check key intermediate lemmas as soon as they become load-bearing, so errors are caught before a route is invested further. A later, more advanced result may supersede an earlier partial/scaffold result; keep the old record in history but mark it superseded in the formalization progress and knowledge base.
 13. A candidate proof submitted for repository acceptance must pass the proof submission audit pipeline (manage workflow 8e): repository comparison, Lean verification/audit, then rule-based integration. The submission audit record must accompany the proof.
 14. Before broad route generation or research sub-agent fan-out, run the closure-first preflight: identify the first open load-bearing claim, attempt it directly, run a cheap falsification probe, and record the decision that escalation can change. Difficulty alone is not an escalation reason.
+15. When a hash-bound candidate closes every root obligation, freeze it and run one fresh package audit. A zero-gap `PASS` triggers fast close: stop extra research calls unless the user requested a single bounded frontier upgrade or it attacks a named pre-existing project frontier within a recorded residual budget and stop condition.
 
 ## Default research artifacts
 
@@ -98,7 +100,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `problem_contract.md` — exact normalized statement and completion criteria.
 - `repro_manifest.md` — all inputs, versions, tools, restrictions, hashes or identifiers, and unknown fields.
 - `status_and_literature.md` — current problem status, exact known theorems, citations, and novelty risks.
-- `obligation_graph.md` — claims, dependencies, and proof status.
+- `obligation_graph.json` — canonical machine-readable root obligations and proof status; `obligation_graph.md` may accompany it as a human-readable view.
 - `approach_registry.md` — route families, owners, states, and exact gaps.
 - `research_ledger.md` — chronological experiments, derivations, decisions, and failures.
 - `counterexample_log.md` — tested edge cases, failed lemmas, minimal counterexamples, and search code.
@@ -108,7 +110,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `formalization_progress.md` — when a formalization project exists, track every new result's Lean scaffold/status here (or in the project's `lean-proof/STATUS.md`).
 - `research_map.md` — the human-readable, continuously updated survey of the problem: routes/methods tried, intermediate results, unexpected findings, failures and reasons, tools, open directions, an avoid list, and human/other-agent contributions (maintained per manage workflow 8f).
 - `escalation_ladder.md` — when cost-tiered escalation is used, the run-level log of cheap probes attempted, tier changes, triggers, failure mechanisms, and the current cost tier (see `references/escalation-ladder.md`).
-- `closure_gate.md` — the first open load-bearing claim, direct attempt, cheapest falsification probe, gate decision, and next decision-changing action (see `references/closure-first-protocol.md`).
+- `closure_gate.md` — the first open load-bearing claim, direct attempt, cheapest falsification probe, gate decision, completion certificate, and fast-close decision (see `references/closure-first-protocol.md`). A certified STOP also carries `completion_manifest.json` and `completion_audit.json`; the optional single post-close call carries `frontier_upgrade.json`.
 - `reuse_summary.md` — when the workflow lightweight reuse protocol is active, the post-run record of actual reused items, duplicate work avoided/remaining, new methods, and a one-line cost assessment (see workflow `references/reuse-protocol.md`).
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded. Publish every material finding, surprise, and failure reason to the research map (or ensure its source is aggregated there) so partial progress is never lost and later humans/agents can build on it.

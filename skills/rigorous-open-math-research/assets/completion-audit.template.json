@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "review_type": "fresh_independent_package",
+  "candidate_author_id": "{{candidate_author_id from completion manifest}}",
+  "reviewer_id": "{{independent reviewer ID}}",
+  "reviewed_at": "{{ISO-8601 timestamp with timezone}}",
+  "audited_manifest_sha256": "{{completion manifest sha256}}",
+  "verdict": "{{PASS or non-PASS}}",
+  "load_bearing_gaps": []
+}

@@ -18,6 +18,11 @@ Checks:
   - stage B solver runs started on or after the whiteboard cutover date carry
     runs/<run_id>/whiteboard.md, and every whiteboard found carries the
     required fields/sections of the OpenProver-style solve-loop memory;
+  - closure gates created after the fast-close cutover carry completion
+    certificate fields; STOP requires a hash-bound frozen completion manifest,
+    a distinct fresh independent structured PASS audit, closed root obligations,
+    and zero load-bearing gaps; an optional frontier upgrade is a separate,
+    single-use, hash-bound, positively budgeted record;
   - completed manager runs carry a non-empty upstream status, and statuses
     outside the formalization gate are reported;
   - a run that claims a gate status (CANDIDATE_COMPLETE_PROOF / \u5df2\u8bc1)
@@ -56,6 +61,7 @@ import json
 import re
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -67,6 +73,8 @@ LEAN_VERDICT = "lean-proof/verification.json"
 LEAN_STATUS = "lean-proof/STATUS.md"
 WHITEBOARD_GLOB = "runs/**/whiteboard.md"
 WHITEBOARD_CUTOVER = 20260814
+CLOSURE_GATE_GLOB = "runs/**/closure_gate.md"
+FAST_CLOSE_CUTOVER = 20260829
 FORMALIZATION_SCAFFOLD_CUTOVER = 20260816
 FORMALIZATION_ALLOWED = ("requested", "not_requested", "skipped", "scaffold")
 
@@ -121,6 +129,26 @@ HANDOFF_ROUTE_RESULT_RE = re.compile(
 )
 RUN_DATE_RE = re.compile(r"R-(\d{8})T")
 DEFAULT_GATE_STATUSES = {"\u5df2\u8bc1", "CANDIDATE_COMPLETE_PROOF"}
+FAST_CLOSE_DECISIONS = {
+    "NOT_READY",
+    "CONTINUE_REQUIRED",
+    "REPAIR",
+    "STOP",
+}
+ROOT_OBLIGATION_STATES = {"OPEN", "CLOSED"}
+GATE_DECISIONS = {"CLOSED", "FALSIFIED", "OPEN_EXACT_GAP", "ESCALATE", "REPAIR_CONTRACT"}
+SHA256_RE = re.compile(r"^[0-9A-Fa-f]{64}$")
+FRONTIER_AUTHORIZATION_TYPES = {"user_request", "pre_existing_frontier"}
+FRONTIER_BUDGET_UNITS = {"model_responses", "tool_calls", "wall_minutes", "tokens"}
+REQUIRED_CLOSURE_FIELDS = (
+    "Gate decision",
+    "Root obligations",
+    "Completion manifest",
+    "Fresh package audit",
+    "Load-bearing gaps",
+    "Fast-close decision",
+    "Frontier upgrade",
+)
 
 REQUIRED_PACKET_HEADINGS = {
     "Source bundle",
@@ -212,6 +240,27 @@ def parse_packet(path: Path) -> tuple[dict[str, str], set[str], str]:
             key = match.group(1).rstrip(":").strip()
             fields[key] = match.group(2).strip()
     return fields, headings, text
+
+
+def parse_plain_fields(text: str) -> dict[str, str]:
+    """Parse unbolded Markdown list fields of the form ``- Key: value``."""
+    fields: dict[str, str] = {}
+    for line in text.splitlines():
+        match = re.match(r"\s*-\s+([^:]+):\s*(.*)$", line)
+        if match:
+            fields[match.group(1).strip()] = strip_inline_code(match.group(2))
+    return fields
+
+
+def parse_semicolon_fields(value: str) -> dict[str, str]:
+    """Parse a compact ``key=value; key=value`` certificate field."""
+    parsed: dict[str, str] = {}
+    for part in value.split(";"):
+        if "=" not in part:
+            continue
+        key, item = part.split("=", 1)
+        parsed[key.strip().lower()] = item.strip()
+    return parsed
 
 
 def parse_source_bundle(text: str) -> list[list[str]]:
@@ -668,6 +717,482 @@ def check_whiteboards(root: Path, report: Report) -> None:
             )
 
 
+def check_bound_artifact(
+    root: Path,
+    gate_path: Path,
+    field_name: str,
+    values: dict[str, str],
+    report: Report,
+) -> Path | None:
+    """Verify a path and SHA-256 binding relative to the closure-gate directory."""
+    rel = gate_path.relative_to(root)
+    artifact_value = values.get("path", "")
+    expected_hash = values.get("sha256", "")
+    if not artifact_value:
+        report.bad(f"{rel}: {field_name} has no path")
+        return None
+    if not SHA256_RE.fullmatch(expected_hash):
+        report.bad(f"{rel}: {field_name} has no valid SHA-256")
+        return None
+    artifact = (gate_path.parent / artifact_value).resolve()
+    try:
+        artifact.relative_to(root)
+    except ValueError:
+        report.bad(f"{rel}: {field_name} path escapes the project root: {artifact_value}")
+        return None
+    if not artifact.is_file():
+        report.bad(f"{rel}: {field_name} artifact is missing: {artifact_value}")
+        return None
+    actual_hash = sha256_file(artifact)
+    if actual_hash != expected_hash.upper():
+        report.bad(
+            f"{rel}: {field_name} hash mismatch for {artifact_value}: "
+            f"{actual_hash} != {expected_hash.upper()}"
+        )
+        return None
+    return artifact
+
+
+def parse_certificate_time(value: object, context: str, report: Report) -> datetime | None:
+    """Parse an ISO-8601 certificate timestamp and require an explicit timezone."""
+    if not isinstance(value, str) or not value.strip():
+        report.bad(f"{context}: missing ISO-8601 timestamp")
+        return None
+    normalized = value.strip().replace("Z", "+00:00")
+    try:
+        parsed = datetime.fromisoformat(normalized)
+    except ValueError:
+        report.bad(f"{context}: invalid ISO-8601 timestamp {value!r}")
+        return None
+    if parsed.tzinfo is None:
+        report.bad(f"{context}: timestamp must include a timezone")
+        return None
+    return parsed
+
+
+def markdown_anchors(path: Path) -> set[str]:
+    """Return explicit HTML IDs and deterministic heading slugs from Markdown."""
+    text = path.read_text(encoding="utf-8")
+    anchors = set(re.findall(r"\bid=[\"']([^\"']+)[\"']", text, re.IGNORECASE))
+    counts: dict[str, int] = {}
+    for line in text.splitlines():
+        match = re.match(r"^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$", line)
+        if match is None:
+            continue
+        heading = re.sub(r"<[^>]+>", "", match.group(1)).lower()
+        slug = re.sub(r"[^\w\- ]", "", heading, flags=re.UNICODE)
+        slug = re.sub(r"\s+", "-", slug.strip())
+        if not slug:
+            continue
+        count = counts.get(slug, 0)
+        counts[slug] = count + 1
+        anchors.add(slug if count == 0 else f"{slug}-{count}")
+    return anchors
+
+
+def normalize_root_obligations(
+    value: object,
+    context: str,
+    report: Report,
+    require_closed: bool,
+) -> dict[str, tuple[str, str]]:
+    """Validate and normalize a structured root-obligation array."""
+    normalized: dict[str, tuple[str, str]] = {}
+    if not isinstance(value, list) or not value:
+        report.bad(f"{context}: needs at least one root obligation")
+        return normalized
+    for index, item in enumerate(value):
+        if not isinstance(item, dict):
+            report.bad(f"{context}: root obligation {index} must be a JSON object")
+            continue
+        obligation_id = item.get("id", "")
+        if not isinstance(obligation_id, str) or not obligation_id.strip():
+            report.bad(f"{context}: root obligation {index} has no id")
+            continue
+        obligation_id = obligation_id.strip()
+        if obligation_id in normalized:
+            report.bad(f"{context}: duplicate root obligation id {obligation_id!r}")
+            continue
+        status = item.get("status", "")
+        if status not in ROOT_OBLIGATION_STATES:
+            report.bad(f"{context}: root obligation {obligation_id!r} has invalid status")
+        if require_closed and status != "CLOSED":
+            report.bad(f"{context}: root obligation {obligation_id!r} is not CLOSED")
+        anchor = item.get("proof_anchor", "")
+        if not isinstance(anchor, str):
+            report.bad(f"{context}: root obligation {obligation_id!r} has invalid proof_anchor")
+            anchor = ""
+        if status == "CLOSED" and not anchor.strip():
+            report.bad(f"{context}: root obligation {obligation_id!r} has no proof_anchor")
+        normalized[obligation_id] = (str(status), anchor.strip())
+    return normalized
+
+
+def validate_completion_manifest(
+    root: Path,
+    gate_path: Path,
+    manifest_path: Path,
+    report: Report,
+) -> tuple[str, datetime | None, Path | None]:
+    """Validate the frozen contract, obligation graph, proof, and root closure."""
+    rel = manifest_path.relative_to(root)
+    data = load_json(manifest_path, report)
+    if not isinstance(data, dict):
+        report.bad(f"{rel}: completion manifest must be a JSON object")
+        return "", None, None
+    if data.get("schema_version") != 1:
+        report.bad(f"{rel}: completion manifest schema_version must be 1")
+    author = data.get("candidate_author_id", "")
+    if not isinstance(author, str) or not author.strip():
+        report.bad(f"{rel}: completion manifest has no candidate_author_id")
+        author = ""
+    frozen_at = parse_certificate_time(data.get("frozen_at"), f"{rel}: frozen_at", report)
+
+    bound_paths: dict[str, Path] = {}
+    for key in ("contract", "obligation_graph", "candidate_proof"):
+        binding = data.get(key)
+        if not isinstance(binding, dict):
+            report.bad(f"{rel}: completion manifest field {key!r} must be a path/hash object")
+            continue
+        values = {str(name).lower(): str(value) for name, value in binding.items()}
+        target = check_bound_artifact(root, gate_path, f"completion manifest {key}", values, report)
+        if target is not None:
+            bound_paths[key] = target
+    if len(set(bound_paths.values())) != len(bound_paths):
+        report.bad(f"{rel}: contract, obligation graph, and candidate proof must be distinct files")
+
+    dependencies = data.get("dependencies")
+    if not isinstance(dependencies, list):
+        report.bad(f"{rel}: completion manifest dependencies must be a JSON array")
+    else:
+        for index, binding in enumerate(dependencies):
+            if not isinstance(binding, dict):
+                report.bad(f"{rel}: dependency {index} must be a path/hash object")
+                continue
+            values = {str(name).lower(): str(value) for name, value in binding.items()}
+            check_bound_artifact(root, gate_path, f"completion dependency {index}", values, report)
+
+    obligations = normalize_root_obligations(
+        data.get("root_obligations"), str(rel), report, require_closed=True
+    )
+    graph_obligations: dict[str, tuple[str, str]] = {}
+    graph_path = bound_paths.get("obligation_graph")
+    if graph_path is not None:
+        graph_rel = graph_path.relative_to(root)
+        graph_data = load_json(graph_path, report)
+        if not isinstance(graph_data, dict):
+            report.bad(f"{graph_rel}: canonical obligation graph must be a JSON object")
+        else:
+            if graph_data.get("schema_version") != 1:
+                report.bad(f"{graph_rel}: obligation graph schema_version must be 1")
+            graph_obligations = normalize_root_obligations(
+                graph_data.get("root_obligations"), str(graph_rel), report, require_closed=False
+            )
+    if obligations != graph_obligations:
+        report.bad(
+            f"{rel}: completion manifest root obligations do not exactly match "
+            "the canonical obligation graph"
+        )
+
+    proof_binding = data.get("candidate_proof")
+    proof_reference = ""
+    if isinstance(proof_binding, dict):
+        proof_reference = str(proof_binding.get("path", "")).replace("\\", "/")
+    proof_path = bound_paths.get("candidate_proof")
+    anchors = markdown_anchors(proof_path) if proof_path is not None else set()
+    for obligation_id, (_, anchor) in obligations.items():
+        normalized_anchor = anchor.replace("\\", "/")
+        prefix = f"{proof_reference}#"
+        if not proof_reference or not normalized_anchor.startswith(prefix):
+            report.bad(
+                f"{rel}: root obligation {obligation_id!r} proof_anchor "
+                "must point into the bound candidate proof"
+            )
+            continue
+        fragment = normalized_anchor[len(prefix):]
+        if not fragment or fragment not in anchors:
+            report.bad(
+                f"{rel}: root obligation {obligation_id!r} proof_anchor fragment "
+                f"{fragment!r} does not exist in the candidate proof"
+            )
+    return author.strip(), frozen_at, proof_path
+
+
+def validate_completion_audit(
+    root: Path,
+    gate_path: Path,
+    audit_path: Path,
+    expected_manifest_hash: str,
+    candidate_author: str,
+    frozen_at: datetime | None,
+    report: Report,
+) -> dict[str, Any]:
+    """Validate a fresh independent zero-gap audit bound to the frozen manifest."""
+    rel = audit_path.relative_to(root)
+    data = load_json(audit_path, report)
+    if not isinstance(data, dict):
+        report.bad(f"{rel}: completion audit must be a JSON object")
+        return {}
+    if data.get("schema_version") != 1:
+        report.bad(f"{rel}: completion audit schema_version must be 1")
+    if data.get("review_type") != "fresh_independent_package":
+        report.bad(f"{rel}: completion audit review_type must be fresh_independent_package")
+    if str(data.get("audited_manifest_sha256", "")).upper() != expected_manifest_hash.upper():
+        report.bad(f"{rel}: completion audit is not bound to the frozen manifest hash")
+    if data.get("candidate_author_id") != candidate_author:
+        report.bad(f"{rel}: completion audit candidate_author_id does not match the manifest")
+    reviewer = data.get("reviewer_id", "")
+    if not isinstance(reviewer, str) or not reviewer.strip():
+        report.bad(f"{rel}: completion audit has no reviewer_id")
+    elif reviewer.strip() == candidate_author:
+        report.bad(f"{rel}: completion audit reviewer must differ from the candidate author")
+    reviewed_at = parse_certificate_time(data.get("reviewed_at"), f"{rel}: reviewed_at", report)
+    if frozen_at is not None and reviewed_at is not None and reviewed_at < frozen_at:
+        report.bad(f"{rel}: completion audit predates the frozen completion manifest")
+    if data.get("verdict") != "PASS":
+        report.bad(f"{rel}: completion audit verdict must be PASS")
+    gaps = data.get("load_bearing_gaps")
+    if gaps != []:
+        report.bad(f"{rel}: completion audit load_bearing_gaps must be an empty array")
+    return data
+
+
+def validate_frontier_upgrade(
+    root: Path,
+    gate_path: Path,
+    upgrade_path: Path,
+    manifest_hash: str,
+    audit_hash: str,
+    report: Report,
+) -> tuple[str, str] | None:
+    """Validate the single bounded transition allowed after certified STOP."""
+    rel = upgrade_path.relative_to(root)
+    data = load_json(upgrade_path, report)
+    if not isinstance(data, dict):
+        report.bad(f"{rel}: frontier upgrade record must be a JSON object")
+        return None
+    if data.get("schema_version") != 1 or data.get("sequence") != 1:
+        report.bad(f"{rel}: frontier upgrade must use schema_version=1 and sequence=1")
+    if str(data.get("base_completion_manifest_sha256", "")).upper() != manifest_hash.upper():
+        report.bad(f"{rel}: frontier upgrade is not bound to the completion manifest")
+    if str(data.get("base_audit_sha256", "")).upper() != audit_hash.upper():
+        report.bad(f"{rel}: frontier upgrade is not bound to the completion audit")
+    obligation_id = data.get("obligation_id", "")
+    if not isinstance(obligation_id, str) or not obligation_id.strip():
+        report.bad(f"{rel}: frontier upgrade has no obligation_id")
+    authorization = data.get("authorization")
+    if not isinstance(authorization, dict):
+        report.bad(f"{rel}: frontier upgrade authorization must be a JSON object")
+    else:
+        if authorization.get("type") not in FRONTIER_AUTHORIZATION_TYPES:
+            report.bad(f"{rel}: frontier upgrade has an invalid authorization type")
+        values = {
+            str(name).lower(): str(value)
+            for name, value in authorization.items()
+            if name in {"path", "sha256"}
+        }
+        authorization_path = check_bound_artifact(
+            root, gate_path, "frontier authorization", values, report
+        )
+        locator = authorization.get("locator", "")
+        if not isinstance(locator, str) or not locator.strip():
+            report.bad(f"{rel}: frontier upgrade authorization has no locator")
+        elif authorization_path is not None:
+            if authorization_path.suffix.lower() != ".md":
+                report.bad(f"{rel}: frontier authorization must be a Markdown record")
+                authorization_path = None
+        if isinstance(locator, str) and locator.strip() and authorization_path is not None:
+            fragment = locator.strip().lstrip("#")
+            if fragment not in markdown_anchors(authorization_path):
+                report.bad(
+                    f"{rel}: frontier authorization locator {locator!r} "
+                    "does not exist in the bound record"
+                )
+    budget = data.get("budget")
+    if not isinstance(budget, dict):
+        report.bad(f"{rel}: frontier upgrade budget must be a JSON object")
+    else:
+        limit = budget.get("limit")
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit <= 0:
+            report.bad(f"{rel}: frontier upgrade budget limit must be a positive integer")
+        if budget.get("unit") not in FRONTIER_BUDGET_UNITS:
+            report.bad(f"{rel}: frontier upgrade budget has an invalid unit")
+    stop_condition = data.get("stop_condition", "")
+    if not isinstance(stop_condition, str) or not stop_condition.strip():
+        report.bad(f"{rel}: frontier upgrade has no stop_condition")
+    elif stop_condition.strip().lower() in {"never", "none", "unbounded", "no limit"}:
+        report.bad(f"{rel}: frontier upgrade stop_condition is not bounded")
+    if SHA256_RE.fullmatch(manifest_hash) and SHA256_RE.fullmatch(audit_hash):
+        return manifest_hash.upper(), audit_hash.upper()
+    return None
+
+
+def check_closure_gates(root: Path, report: Report) -> None:
+    """Validate deterministic completion certificates at the fast-close boundary."""
+    gates = sorted(p for p in root.glob(CLOSURE_GATE_GLOB) if not is_in_nested_repo(root, p))
+    if gates:
+        report.ok(f"found {len(gates)} closure gate(s)")
+    upgrade_bases: dict[tuple[str, str], Path] = {}
+    for path in gates:
+        rel = path.relative_to(root)
+        text = path.read_text(encoding="utf-8")
+        fields = parse_plain_fields(text)
+        start = run_start_date(path.parent)
+        has_fast_close = "Completion manifest" in fields or "Fast-close decision" in fields
+        if not has_fast_close and (start is None or start < FAST_CLOSE_CUTOVER):
+            continue
+        for key in REQUIRED_CLOSURE_FIELDS:
+            if not fields.get(key, "").strip():
+                report.bad(f"{rel}: missing required field {key!r} (fast-close certificate)")
+
+        root_state = fields.get("Root obligations", "")
+        if root_state not in ROOT_OBLIGATION_STATES:
+            report.bad(f"{rel}: invalid Root obligations value {root_state!r}")
+        gate_decision = fields.get("Gate decision", "")
+        if gate_decision not in GATE_DECISIONS:
+            report.bad(f"{rel}: invalid Gate decision {gate_decision!r}")
+        decision = fields.get("Fast-close decision", "")
+        if decision not in FAST_CLOSE_DECISIONS:
+            report.bad(f"{rel}: invalid Fast-close decision {decision!r}")
+            continue
+
+        if gate_decision == "CLOSED" and decision in {"NOT_READY", "CONTINUE_REQUIRED"}:
+            report.bad(
+                f"{rel}: CLOSED gate cannot use Fast-close decision {decision}"
+            )
+        if decision != "STOP":
+            continue
+
+        if gate_decision != "CLOSED":
+            report.bad(f"{rel}: STOP requires Gate decision CLOSED")
+        if root_state != "CLOSED":
+            report.bad(f"{rel}: STOP requires Root obligations CLOSED")
+
+        manifest_binding = parse_semicolon_fields(fields.get("Completion manifest", ""))
+        manifest_path = check_bound_artifact(
+            root, path, "Completion manifest", manifest_binding, report
+        )
+        candidate_author = ""
+        frozen_at: datetime | None = None
+        candidate_path: Path | None = None
+        if manifest_path is not None:
+            if manifest_path.name != "completion_manifest.json":
+                report.bad(f"{rel}: completion manifest file must be named completion_manifest.json")
+            if manifest_path.parent != path.parent:
+                report.bad(f"{rel}: completion manifest must be a sibling of closure_gate.md")
+            candidate_author, frozen_at, candidate_path = validate_completion_manifest(
+                root, path, manifest_path, report
+            )
+
+        audit_binding = parse_semicolon_fields(fields.get("Fresh package audit", ""))
+        audit_path = check_bound_artifact(root, path, "Fresh package audit", audit_binding, report)
+        if audit_path is not None and manifest_path is not None:
+            if audit_path.name != "completion_audit.json":
+                report.bad(f"{rel}: completion audit file must be named completion_audit.json")
+            if audit_path.parent != path.parent:
+                report.bad(f"{rel}: completion audit must be a sibling of closure_gate.md")
+            if audit_path in {manifest_path, candidate_path}:
+                report.bad(f"{rel}: completion audit must be distinct from manifest and proof files")
+            validate_completion_audit(
+                root,
+                path,
+                audit_path,
+                manifest_binding.get("sha256", ""),
+                candidate_author,
+                frozen_at,
+                report,
+            )
+
+        gaps = fields.get("Load-bearing gaps", "")
+        if gaps != "0":
+            report.bad(f"{rel}: STOP requires Load-bearing gaps 0")
+
+        frontier = fields.get("Frontier upgrade", "")
+        if frontier.lower() != "none":
+            frontier_binding = parse_semicolon_fields(frontier)
+            frontier_path = check_bound_artifact(
+                root, path, "Frontier upgrade", frontier_binding, report
+            )
+            if frontier_path is not None and audit_path is not None and manifest_path is not None:
+                if frontier_path.name != "frontier_upgrade.json":
+                    report.bad(f"{rel}: frontier record file must be named frontier_upgrade.json")
+                if frontier_path.parent != path.parent:
+                    report.bad(f"{rel}: frontier record must be a sibling of closure_gate.md")
+                if frontier_path in {audit_path, manifest_path, candidate_path}:
+                    report.bad(f"{rel}: frontier upgrade record must be a distinct file")
+                base = validate_frontier_upgrade(
+                    root,
+                    path,
+                    frontier_path,
+                    manifest_binding.get("sha256", ""),
+                    audit_binding.get("sha256", ""),
+                    report,
+                )
+                if base is not None:
+                    previous = upgrade_bases.get(base)
+                    if previous is not None:
+                        report.bad(
+                            f"{rel}: duplicate frontier upgrade for the same STOP "
+                            f"certificate (already used by {previous.relative_to(root)})"
+                        )
+                    else:
+                        upgrade_bases[base] = frontier_path
+
+    seen_dirs = {path.parent for path in gates}
+    run_markers: set[Path] = set()
+    for marker_name in (
+        "research_ledger.md",
+        "candidate_proof.md",
+        "final_report.md",
+        "completion_manifest.json",
+        "completion_audit.json",
+    ):
+        run_markers.update(
+            path.parent
+            for path in root.glob(f"runs/**/{marker_name}")
+            if not is_in_nested_repo(root, path)
+        )
+    for run_dir in sorted(run_markers):
+        start = run_start_date(run_dir)
+        if start is not None and start >= FAST_CLOSE_CUTOVER and run_dir not in seen_dirs:
+            report.bad(
+                f"{run_dir.relative_to(root)}: solver run started {start} has no closure_gate.md "
+                f"(fast-close protocol since {FAST_CLOSE_CUTOVER})"
+            )
+    for manifest in sorted(p for p in root.glob("runs/**/completion_manifest.json") if not is_in_nested_repo(root, p)):
+        if manifest.parent not in seen_dirs:
+            report.bad(
+                f"{manifest.relative_to(root)}: completion manifest has no sibling closure_gate.md"
+            )
+
+    audits_by_manifest: dict[str, list[Path]] = {}
+    for audit_path in sorted(
+        p for p in root.glob("runs/**/*.json") if not is_in_nested_repo(root, p)
+    ):
+        try:
+            audit_data = json.loads(audit_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+            continue
+        if not isinstance(audit_data, dict) or (
+            audit_data.get("review_type") != "fresh_independent_package"
+        ):
+            continue
+        manifest_hash = str(audit_data.get("audited_manifest_sha256", "")).upper()
+        if not SHA256_RE.fullmatch(manifest_hash):
+            report.bad(
+                f"{audit_path.relative_to(root)}: completion audit has no valid "
+                "audited_manifest_sha256"
+            )
+            continue
+        audits_by_manifest.setdefault(manifest_hash, []).append(audit_path)
+    for manifest_hash, audit_paths in audits_by_manifest.items():
+        if len(audit_paths) > 1:
+            joined = ", ".join(str(path.relative_to(root)) for path in audit_paths)
+            report.bad(
+                f"completion manifest {manifest_hash} has more than one completion audit: {joined}"
+            )
+
+
 def extract_section(text: str, heading: str) -> str:
     marker = f"## {heading}"
     parts = text.split(marker, 1)
@@ -748,6 +1273,7 @@ def main() -> int:
     check_status_declaration(root, report)
     check_interruption_handoffs(root, report)
     check_whiteboards(root, report)
+    check_closure_gates(root, report)
 
     claim_files = iter_claim_files(root)
     report.ok(f"found {len(claim_files)} claim-bearing markdown file(s)")

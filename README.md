@@ -200,7 +200,7 @@ python smoke_distilled_methods.py     # 蒸馏社区方法的静态标记覆盖
 python smoke_version_bump.py          # 版本 bump 门禁脚本冒烟 (临时 git 仓库)
 python smoke_nested_repo.py           # 门禁跳过嵌套 git 仓库回归测试
 python smoke_lake_build_guard.py      # lake build 循环防护冒烟
-python smoke_closure_first.py         # closure-first 调度与版本绑定回归
+python smoke_closure_first.py         # closure-first + fast-close 结构化证书对抗回归
 ```
 
 GitHub Actions 每次 push 运行以上全部 + 对父仓库的 `--check` 漂移比较.
@@ -227,6 +227,7 @@ scripts/
   dsh_run.py                      截断感知脚本包装器 (verdict 头尾 + 完整日志落盘)
   check_version_bump.py           CI 版本 bump 门禁 (skills/或 bundle 入口变更必须 bump package.json)
 tests/                            冒烟测试 + fixtures
+docs/pipeline-full-flow.md        与父仓库同步的完整流水线图
 upstream.lock.json                父仓库 commit + 逐文件哈希
 install.ps1                       junction 安装到 $DSH_HOME/skills
 ```
@@ -235,6 +236,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.8.0` | 2026-08-28 | 继承 fast-close 结构化证书: canonical obligation graph, completion manifest, 独立 audit, anchor/hash/timestamp 门禁, STOP 后单次有授权 frontier call; 同步 pipeline full-flow 文档与对抗回归 |
 | `1.7.0` | 2026-08-27 | 继承 closure-first 调度: 先直接求解并证伪首个承重义务, spawn 与续跑要求 `decision_delta`, 非必要工件延迟生成, load-bearing 结果仍独立审计 |
 | `1.6.0` | 2026-08-24 | 继承 Codex 入口上下文优化和 rigorous fence 修复; DSH changelog 层改为复用上游 references/changelog.md, 避免重复指针 |
 | `1.5.0` | 2026-08-23 | 性能可观测与示警: performance.json + baseline 对比, 成本异常上升时写 performance_alert 并向用户示警, 单次告警需复验 |
