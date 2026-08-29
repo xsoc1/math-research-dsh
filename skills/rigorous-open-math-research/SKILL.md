@@ -92,6 +92,7 @@ Treat the **entire research configuration** as the input: problem statement, att
 13. A candidate proof submitted for repository acceptance must pass the proof submission audit pipeline (manage workflow 8e): repository comparison, Lean verification/audit, then rule-based integration. The submission audit record must accompany the proof.
 14. Before broad route generation or research sub-agent fan-out, run the closure-first preflight: identify the first open load-bearing claim, attempt it directly, run a cheap falsification probe, and record the decision that escalation can change. Difficulty alone is not an escalation reason.
 15. When a hash-bound candidate closes every root obligation, freeze it and run one fresh package audit. A zero-gap `PASS` triggers fast close: stop extra research calls unless the user requested a single bounded frontier upgrade or it attacks a named pre-existing project frontier within a recorded residual budget and stop condition.
+16. At a quota interruption, preserve the status and exact frontier in the workflow's structured interruption state. A resumed segment starts only from a `READY` hash-bound checkpoint receipt, reads its minimal set, reconciles in-flight work first, and never repeats completed or audited-failed work merely because the quota reset.
 
 ## Default research artifacts
 
@@ -112,6 +113,7 @@ When persistent files are available, maintain the following. If files are unavai
 - `escalation_ladder.md` — when cost-tiered escalation is used, the run-level log of cheap probes attempted, tier changes, triggers, failure mechanisms, and the current cost tier (see `references/escalation-ladder.md`).
 - `closure_gate.md` — the first open load-bearing claim, direct attempt, cheapest falsification probe, gate decision, completion certificate, and fast-close decision (see `references/closure-first-protocol.md`). A certified STOP also carries `completion_manifest.json` and `completion_audit.json`; the optional single post-close call carries `frontier_upgrade.json`.
 - `reuse_summary.md` — when the workflow lightweight reuse protocol is active, the post-run record of actual reused items, duplicate work avoided/remaining, new methods, and a one-line cost assessment (see workflow `references/reuse-protocol.md`).
+- `interruption_state-NN.json` — at a quota boundary under the workflow orchestrator, the semantic completed/open/in-flight state, do-not-repeat set, cumulative experiment metrics, and exact resume action; the workflow deterministically seals and verifies it.
 
 Update the ledger immediately after any substantial computation, proof attempt, literature discovery, or route decision. Do not begin a near-duplicate exploration until the previous result and failure mechanism are recorded. Publish every material finding, surprise, and failure reason to the research map (or ensure its source is aggregated there) so partial progress is never lost and later humans/agents can build on it.
 

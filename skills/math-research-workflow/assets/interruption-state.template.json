@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "checkpoint_sequence": 0,
+  "predecessor": null,
+  "run_id": "{{run id}}",
+  "task_packet_id": "{{task packet id}}",
+  "reason": "QUOTA_BOUNDARY",
+  "created_at": "{{ISO-8601 timestamp with timezone}}",
+  "source_commit": "{{40- or 64-hex source commit}}",
+  "task_contract": {
+    "path": "{{project-relative task contract path}}",
+    "sha256": "{{sha256}}"
+  },
+  "closure_gate": {
+    "path": "{{project-relative closure gate path, or replace object with null}}",
+    "sha256": "{{sha256}}"
+  },
+  "whiteboard": {
+    "path": "{{project-relative whiteboard path, or replace object with null}}",
+    "sha256": "{{sha256}}"
+  },
+  "latest_audit": {
+    "path": "{{project-relative latest audit path, or replace object with null}}",
+    "sha256": "{{sha256}}"
+  },
+  "completed_obligations": [
+    {
+      "id": "{{closed obligation id}}",
+      "evidence": {
+        "path": "{{project-relative evidence path}}",
+        "sha256": "{{sha256}}"
+      }
+    }
+  ],
+  "open_obligations": [
+    {
+      "id": "{{open obligation id}}",
+      "exact_gap": "{{exact unresolved gap}}",
+      "next_action": {
+        "action_id": "{{unique next-action id}}",
+        "description": "{{one bounded next action}}"
+      },
+      "required_inputs": [
+        {
+          "path": "{{project-relative input path}}",
+          "sha256": "{{sha256}}"
+        }
+      ]
+    }
+  ],
+  "inflight_work": [],
+  "inflight_reconciliation": [],
+  "do_not_repeat": [
+    {
+      "action_id": "{{completed, failed, or duplicate action id}}",
+      "reason": "{{why repetition is forbidden without new evidence}}",
+      "evidence": {
+        "path": "{{project-relative evidence path}}",
+        "sha256": "{{sha256}}"
+      }
+    }
+  ],
+  "result_status": "RIGOROUS_PARTIAL_RESULT",
+  "status_transition": null,
+  "experiment_integrity": {
+    "enabled": true,
+    "arm_id": "{{required when enabled}}",
+    "task_id": "{{required when enabled}}",
+    "workspace_id": "{{required when enabled}}",
+    "prompt": {
+      "path": "{{required when enabled}}",
+      "sha256": "{{required when enabled}}"
+    },
+    "harness": {
+      "path": "{{required when enabled}}",
+      "sha256": "{{required when enabled}}"
+    },
+    "source_snapshot": {
+      "path": "{{required when enabled}}",
+      "sha256": "{{required when enabled}}"
+    },
+    "hidden_gold_state": "SEALED",
+    "metrics_scope": "cumulative_pre_checkpoint",
+    "checkpoint_overhead_policy": "separate_unscored",
+    "cost_status": "MEASURED",
+    "segment_index": 0,
+    "cumulative_metrics": {
+      "model_responses": 0,
+      "tool_calls": 0,
+      "uncached_input_tokens": 0,
+      "cached_input_tokens": 0,
+      "output_tokens": 0,
+      "wall_seconds": 0,
+      "cost_usd": 0
+    }
+  },
+  "resume": {
+    "first_action": {
+      "kind": "CONTINUE_OBLIGATION",
+      "action_id": "{{must match the target open obligation next_action.action_id}}",
+      "target_id": "{{open obligation id}}"
+    },
+    "minimal_read_set": [
+      {
+        "path": "{{task contract path; include whiteboard and target inputs when present}}",
+        "sha256": "{{sha256}}"
+      }
+    ],
+    "budget": {
+      "unit": "wall_minutes",
+      "limit": 1
+    },
+    "stop_condition": "{{exact next safe boundary}}"
+  }
+}

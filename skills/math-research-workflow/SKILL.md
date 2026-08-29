@@ -20,11 +20,11 @@ named `skill-name` with the `skill` tool using its exact name (a user message
 whose first line is `/skill-name` also loads it). The sibling skills ship beside
 this bundle under the same skill roots.
 
-- `scripts/validate_pipeline.py` and the `assets/` templates live inside this
-  bundle; run them with a local Python interpreter via the shell using the
-  `resourceBase` directory path reported by the skill load result, with
-  `PYTHONUTF8=1` on Windows. Prefer writing a temporary .py file over PowerShell
-  one-line `-c` calls.
+- `scripts/validate_pipeline.py`, `scripts/checkpoint_resume.py`, and the
+  `assets/` templates live inside this bundle; run them with a local Python
+  interpreter via the shell using the `resourceBase` directory path reported by
+  the skill load result, with `PYTHONUTF8=1` on Windows. Prefer writing a
+  temporary .py file over PowerShell one-line `-c` calls.
 - The DSH environment preflight is `scripts/dsh-doctor.py` in the
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
@@ -327,9 +327,13 @@ follow `references/openprover-absorption.md`. In short:
   whiteboard, repository index, and exact artifact paths instead of replaying
   the transcript. Record the current open obligations and next action first.
 - Token budget is checked at safe boundaries. On exhaustion: persist
-  whiteboard/repo/history/facts, write an interruption handoff, mark
-  `PAUSED_BUDGET`, and resume later with an added budget. Budget exhaustion
-  never deletes work.
+  whiteboard/repo/history/facts, seal an immutable interruption checkpoint,
+  write its handoff bindings, mark `PAUSED_BUDGET`, and resume later from a
+  verified receipt. Before any resumed model call, `checkpoint_resume.py`
+  must return `READY`; the successor reads only the receipt's minimal read set
+  and reconciles unresolved workers before dispatch. Scored runs retain
+  cumulative segment metrics. Full protocol:
+  `references/quota-interruption-recovery.md`.
 
 **Numerical evidence discipline (hard rule):**
 
@@ -492,31 +496,23 @@ When any stage stops before completion (budget exhausted, user requests a
 stop, tool/environment failure, or any cross-session cut), the interrupting
 agent writes an interruption handoff before returning control:
 
-1. **Write the record**: use `assets/interruption-handoff.template.md`, saved
-   as `runs/<skill>/<run_id>/handoff-interrupted-<UTC timestamp>.md`. This is
-   an independent, self-contained document. Record the run ID, packet ID,
-   date, interrupt reason, task state, **completed work progress** (what has
-   been achieved and must not be redone), completed/open obligations,
-   **tools and methods tried with outcome markers**
-   (`[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` plus the failure mechanism or partial
-   progress), the exact next actions, and path + sha256 for every key
-   artifact. Do not promote numerical evidence here: reuse upstream status
-   labels verbatim.
-2. **Register**: the manager records the handoff path and hash in the project
-   index and appends a one-line session-log entry. Commit when the working
-   tree allows it.
-3. **Resume**: the successor agent starts by reading the latest handoff, then
-   `research_ledger.md` (last entries first), then `approach_registry.md`,
-   then the key artifacts, then the task packet. It continues only the listed
-   next actions; re-running a `[FAILED]` route requires a new reason recorded
-   in the handoff first.
-4. **Gate**: `validate_pipeline.py` hard-fails handoffs that miss required
-   fields/sections (run ID, packet ID, date, interrupt reason, task state,
-   completed work progress, completed/open obligations, tools and methods
-   tried, attempted routes, next actions), so a successor never resumes
-   blind. Project-level recovery (`state/RESUME.md`, checkpoints) stays with
-   the manage skill (stage A); this protocol covers run-level details from
-   stages B and C.
+1. For a quota/resource boundary, freeze dispatch and use
+   `checkpoint_resume.py` plus `assets/interruption-state.template.json` to
+   seal numbered semantic state. Later segments bind the immediately previous
+   checkpoint/receipt and preserve cumulative metrics. After `SEALED`, make no
+   further research-model call in that segment.
+2. Write `handoff-interrupted-<UTC timestamp>.md` from the template. Preserve
+   upstream status, completed/open work, route outcomes, exact next actions,
+   and key hashes; quota handoffs bind the state and checkpoint. Register its
+   path/hash with the manager.
+3. Before a resumed model call, require `verify=READY` and create the immutable
+   receipt. Read only `minimal_read_set`; execute `first_action`; reconcile
+   unresolved workers before dispatch. `STALE`, completed work, and
+   do-not-repeat targets are hard stops.
+
+`validate_pipeline.py` enforces the handoff and quota bindings. Full state
+schema, benchmark continuity, and replacement rules:
+`references/quota-interruption-recovery.md`.
 
 ## Efficiency rules
 
@@ -555,12 +551,19 @@ agent writes an interruption handoff before returning control:
 - `assets/interruption-handoff.template.md` -- interrupted-work handoff
   template (routes tried, open obligations, next actions) for cross-session
   resume.
+- `assets/interruption-state.template.json` -- structured semantic state for
+  hash-bound quota checkpoints and cumulative experiment metrics.
 - `assets/whiteboard.template.md` -- compact Planner-memory whiteboard
   template (current plan, route history, deferred ideas, open obligations,
   artifact index) for the OpenProver-style solve loop.
 - `scripts/validate_pipeline.py` -- deterministic task-packet, hash-binding,
   run-manifest, numerical-evidence discipline, and git gate checks for stage
   boundaries.
+- `scripts/checkpoint_resume.py` -- idempotent interruption-state sealer,
+  checkpoint verifier, and immutable resume-receipt writer.
+- `references/quota-interruption-recovery.md` -- exact quota boundary,
+  minimal-read resume, in-flight reconciliation, and benchmark-integrity
+  protocol.
 - Repository-level `scripts/dsh-doctor.py` -- DSH environment preflight: the
   four skill bundles under the DSH skill roots, a Python interpreter, and the
   Lean toolchain for stage C.

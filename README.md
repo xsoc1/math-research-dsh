@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 14 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 15 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -46,7 +46,7 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 
 | DSH skill | 角色 | 随包工具 |
 |---|---|---|
-| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/validate_pipeline.py`, `assets/` 模板 |
+| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume}.py`, `assets/` 模板 |
 | `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
 | `rigorous-open-math-research` | 求解层: 定理契约, 路线搜索, 对抗性审计, 校准式报告 | `references/`, `assets/` |
 | `lean-verify` | Lean 4 形式化审计: sorry/axiom 扫描, 义务级审计, 结构化裁决 | `scripts/verify_lean_project.py`, `assets/` 模板 |
@@ -189,6 +189,7 @@ python scripts\check_version_bump.py --base HEAD^   # CI 版本 bump 门禁 (本
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
 python smoke_handoff.py               # 中断交接 fixtures
+python smoke_checkpoint_resume.py     # 配额 checkpoint/resume 对抗回归
 python smoke_lean_verify.py           # lean-verify 扫描 (无需 Lean 工具链)
 python smoke_sync_remotes.py          # 多远程同步 (本地 bare 仓库, 无网络)
 python smoke_doctor.py                # dsh-doctor 模拟环境
@@ -236,6 +237,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.9.0` | 2026-08-29 | 继承配额安全恢复: immutable checkpoint, unique resume receipt, predecessor lineage, action-scoped 最小读取集, in-flight worker/session 对账, 计分累计量和全谱系新鲜审计证据门禁 |
 | `1.8.0` | 2026-08-28 | 继承 fast-close 结构化证书: canonical obligation graph, completion manifest, 独立 audit, anchor/hash/timestamp 门禁, STOP 后单次有授权 frontier call; 同步 pipeline full-flow 文档与对抗回归 |
 | `1.7.0` | 2026-08-27 | 继承 closure-first 调度: 先直接求解并证伪首个承重义务, spawn 与续跑要求 `decision_delta`, 非必要工件延迟生成, load-bearing 结果仍独立审计 |
 | `1.6.0` | 2026-08-24 | 继承 Codex 入口上下文优化和 rigorous fence 修复; DSH changelog 层改为复用上游 references/changelog.md, 避免重复指针 |

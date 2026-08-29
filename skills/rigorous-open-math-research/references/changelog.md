@@ -1,5 +1,14 @@
 # Release history
 
+## Changelog (2026-08-29, v1.9.0)
+
+- Resource-bound runs now expose a structured semantic frontier for the
+  workflow's immutable quota checkpoint: status, completed/open obligations,
+  in-flight work, do-not-repeat actions, and the exact bounded resume action.
+- Resume preserves the previous mathematical label and cumulative experiment
+  metrics; interruption alone cannot trigger status promotion, repeated audit,
+  or replay of completed and audited-failed routes.
+
 ## Changelog (2026-08-28, v1.8.0)
 
 - Added a structured hash-bound completion certificate: the manifest freezes

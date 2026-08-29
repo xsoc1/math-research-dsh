@@ -169,11 +169,11 @@ named `skill-name` with the `skill` tool using its exact name (a user message
 whose first line is `/skill-name` also loads it). The sibling skills ship beside
 this bundle under the same skill roots.
 
-- `scripts/validate_pipeline.py` and the `assets/` templates live inside this
-  bundle; run them with a local Python interpreter via the shell using the
-  `resourceBase` directory path reported by the skill load result, with
-  `PYTHONUTF8=1` on Windows. Prefer writing a temporary .py file over PowerShell
-  one-line `-c` calls.
+- `scripts/validate_pipeline.py`, `scripts/checkpoint_resume.py`, and the
+  `assets/` templates live inside this bundle; run them with a local Python
+  interpreter via the shell using the `resourceBase` directory path reported by
+  the skill load result, with `PYTHONUTF8=1` on Windows. Prefer writing a
+  temporary .py file over PowerShell one-line `-c` calls.
 - The DSH environment preflight is `scripts/dsh-doctor.py` in the
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
@@ -707,6 +707,11 @@ def rewrite_smoke_paths(text: str) -> str:
                 f'\t\traise AssertionError("DSH package version is not {match.group("version")}")'
             ),
             text,
+        )
+    if "checkpoint resume smoke passed" in text:
+        text = text.replace(
+            'WORKFLOW_SKILL = WORKFLOW / "skills" / "math-research-workflow"',
+            "WORKFLOW_SKILL = WORKFLOW",
         )
     return text
 

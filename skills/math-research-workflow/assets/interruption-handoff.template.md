@@ -13,7 +13,13 @@ records its path and hash in the project index.
 - **Date:** `YYYY-MM-DDTHH:MM:SSZ`
 - **Interrupt reason:** `RESOURCE_BOUND | USER_REQUEST | TOOL_FAILURE | UNKNOWN` (details: what stopped the work)
 - **Task state:** `IN_PROGRESS | BLOCKED` (+ upstream status label verbatim if any)
+- **Interruption state:** `path=interruption_state-NN.json; sha256=<64-hex>`
+- **Interruption checkpoint:** `path=interruption_checkpoint-NN.json; sha256=<64-hex>`
 ```
+
+For a quota or budget boundary in a run started on or after 2026-08-29, both
+bindings are mandatory and the checkpoint must verify as `READY`. Follow
+`skills/math-research-workflow/references/quota-interruption-recovery.md`.
 
 ## Completed work progress
 
@@ -74,8 +80,8 @@ open, which route to continue, and what to avoid repeating.
 
 ## Recovery read order
 
-1. This handoff record
-2. `research_ledger.md` (chronological record, last N entries first)
-3. `approach_registry.md` (route states and exact gaps)
-4. The key artifacts listed above
-5. The original task packet (contract and verification criteria)
+1. Verify the bound interruption checkpoint without a model call.
+2. Create the immutable resume receipt.
+3. Read only its `minimal_read_set`.
+4. Execute its exact `first_action`; reconcile unresolved workers before new
+   dispatch.

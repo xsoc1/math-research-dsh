@@ -40,14 +40,19 @@ pause-and-handoff discipline (see `references/openprover-absorption.md` in the
 workflow skill and `assets/budget-state.template.json` in the manage skill):
 
 1. Persist whiteboard, repository items, planner history, verified facts, and
-   failed paths.
-2. Write an interruption handoff with completed work progress, tools/methods
-   tried, open obligations, and exact next actions.
-3. Update `budget_state.json` (`status: paused_budget`) and `state/RESUME.md`.
-4. Mark the run `PAUSED_BUDGET` / `RIGOROUS_PARTIAL_RESULT`; resumption reads
-   the handoff + budget state and continues with an added budget.
-5. If the target is almost complete, request an extension instead of stopping
-   at the finish line.
+   failed paths at an atomic artifact boundary; freeze new dispatch.
+2. Under `$math-research-workflow`, write the numbered structured interruption
+   state and seal its immutable checkpoint. Record completed/open obligations,
+   unresolved workers, do-not-repeat actions, exact first action, minimal read
+   set, cumulative experiment metrics, bounded resume budget, and stop
+   condition.
+3. Write an interruption handoff that hash-binds the state and checkpoint;
+   update `budget_state.json` (`status: paused_budget`) and `state/RESUME.md`.
+4. Mark the run `PAUSED_BUDGET` / `RIGOROUS_PARTIAL_RESULT`. Before any resumed
+   model call, require checkpoint `READY`, create the resume receipt, read only
+   its minimal set, and reconcile unresolved workers before new work.
+5. Preserve the previous status and cumulative metrics. Interruption alone
+   neither upgrades the mathematics nor triggers a repeated audit or route.
 
 ## Result template
 

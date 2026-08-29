@@ -67,16 +67,29 @@ not by the formalizer.
 
 Any stage that stops before completion writes an interruption handoff
 (`runs/<run_id>/handoff-interrupted-<ts>.md`, template
-`assets/interruption-handoff.template.md`) before returning control. It
-records: run/packet IDs, interrupt reason, task state, completed/open
-obligations, every attempted route with `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]`
-outcome markers and failure mechanism, exact next actions, and hashed key
-artifacts. The successor reads handoff -> research_ledger (last entries
-first) -> approach_registry -> artifacts -> task packet, and never re-runs a
-FAILED route without a new recorded reason. `validate_pipeline.py` hard-fails
-incomplete handoffs. Project-level recovery (RESUME/checkpoints) remains the
-manage skill's job; this protocol covers run-level continuity for stages B
-and C.
+`assets/interruption-handoff.template.md`) before returning control. A
+quota/resource boundary first writes `interruption_state-NN.json` and seals
+`interruption_checkpoint-NN.json` with `scripts/checkpoint_resume.py`. The
+state binds completed/open obligations, in-flight workers, do-not-repeat
+actions, exact first action, minimal read set, resume budget, and stop
+condition. Scored experiments additionally bind the arm, prompt, harness,
+source snapshot, hidden-gold state, workspace, segment, and cumulative
+metrics.
+
+Segment `00` is the trust root. Every later segment hash-binds the immediately
+previous checkpoint and its unique canonical receipt. The gate enforces
+contiguous lineage, non-decreasing finite metrics (including explicit cost),
+fixed experiment identity, persistent completed/do-not-repeat sets, structured
+action identity, and new evidence plus audit for any result-status change.
+
+The handoff binds both files by path and hash. The successor runs deterministic
+`verify` before any model call; `STALE` stops recovery, while `READY` permits an
+immutable resume receipt. It reads only the receipt's minimal set and executes
+its first action. Unresolved workers force reconciliation before dispatch, and
+completed or audited-failed work is not replayed. `validate_pipeline.py`
+hard-fails new quota handoffs without a ready checkpoint. Full mechanics and
+experiment replacement rules live in
+`references/quota-interruption-recovery.md`.
 
 ## 6. Efficiency checklist
 
@@ -84,6 +97,7 @@ and C.
 - [ ] Tool library and STATUS.md consulted before new work
 - [ ] Task packet hash-bound before delegation
 - [ ] No duplicate artifact locations
+- [ ] Latest quota checkpoint verifies `READY`; resume metrics are cumulative
 - [ ] Git synced after every stage (parent first, fork second)
 - [ ] AGENTS.md session log appended with the stage summary
 

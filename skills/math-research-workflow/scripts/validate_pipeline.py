@@ -14,7 +14,9 @@ Checks:
     input hashes match the files they reference;
   - run manifests under runs/** and lean-proof/run-manifest.json parse;
   - interruption handoff records (runs/**/handoff-interrupted-*.md) carry
-    the required fields/sections so a successor agent can resume work;
+    the required fields/sections so a successor agent can resume work; new
+    quota handoffs bind a structured state and a checkpoint that verifies
+    READY before any resumed model call;
   - stage B solver runs started on or after the whiteboard cutover date carry
     runs/<run_id>/whiteboard.md, and every whiteboard found carries the
     required fields/sections of the OpenProver-style solve-loop memory;
@@ -65,6 +67,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
+from checkpoint_resume import CheckpointError, verify_checkpoint
+
 
 PACKET_GLOB = "agenda/task-packets/*.md"
 MANAGER_MANIFEST_GLOB = "runs/**/run-manifest.json"
@@ -75,6 +79,7 @@ WHITEBOARD_GLOB = "runs/**/whiteboard.md"
 WHITEBOARD_CUTOVER = 20260814
 CLOSURE_GATE_GLOB = "runs/**/closure_gate.md"
 FAST_CLOSE_CUTOVER = 20260829
+QUOTA_CHECKPOINT_CUTOVER = 20260829
 FORMALIZATION_SCAFFOLD_CUTOVER = 20260816
 FORMALIZATION_ALLOWED = ("requested", "not_requested", "skipped", "scaffold")
 
@@ -650,6 +655,53 @@ def check_interruption_handoffs(root: Path, report: Report) -> None:
             report.warn(
                 f"{rel}: {len(unmarked)} route line(s) without a "
                 "[FAILED|BLOCKED|PARTIAL|SUCCEEDED] outcome marker"
+            )
+        start = run_start_date(path.parent)
+        reason = strip_inline_code(fields.get("Interrupt reason", "")).upper()
+        quota_boundary = "RESOURCE_BOUND" in reason or "QUOTA" in reason
+        if start is None or start < QUOTA_CHECKPOINT_CUTOVER or not quota_boundary:
+            continue
+        state_binding = parse_semicolon_fields(
+            strip_inline_code(fields.get("Interruption state", ""))
+        )
+        checkpoint_binding = parse_semicolon_fields(
+            strip_inline_code(fields.get("Interruption checkpoint", ""))
+        )
+        state_path = check_bound_artifact(
+            root, path, "Interruption state", state_binding, report
+        )
+        checkpoint_path = check_bound_artifact(
+            root, path, "Interruption checkpoint", checkpoint_binding, report
+        )
+        if state_path is None or checkpoint_path is None:
+            continue
+        if state_path.parent != path.parent or checkpoint_path.parent != path.parent:
+            report.bad(f"{rel}: quota state and checkpoint must be siblings of the handoff")
+            continue
+        try:
+            verification = verify_checkpoint(root, checkpoint_path)
+        except CheckpointError as exc:
+            report.bad(f"{rel}: interruption checkpoint is STALE: {exc}")
+            continue
+        checkpoint_data = load_json(checkpoint_path, report)
+        checkpoint_state = None
+        if isinstance(checkpoint_data, dict):
+            state_record = checkpoint_data.get("state")
+            if isinstance(state_record, dict) and isinstance(state_record.get("path"), str):
+                checkpoint_state = (root / state_record["path"]).resolve()
+        if checkpoint_state != state_path.resolve():
+            report.bad(
+                f"{rel}: handoff state binding does not match the checkpoint state"
+            )
+        elif verification["run_id"] != strip_inline_code(fields.get("Run ID", "")):
+            report.bad(f"{rel}: handoff Run ID does not match the checkpoint")
+        elif verification["task_packet_id"] != strip_inline_code(
+            fields.get("Task packet ID", "")
+        ):
+            report.bad(f"{rel}: handoff Task packet ID does not match the checkpoint")
+        else:
+            report.ok(
+                f"{rel}: quota checkpoint {verification['checkpoint_id']} is READY"
             )
 
 

@@ -1,5 +1,20 @@
 # Release history
 
+## Changelog (2026-08-29, v1.9.0)
+
+- Added a deterministic quota interruption boundary: semantic state binds
+  completed/open obligations, in-flight workers, do-not-repeat actions, exact
+  resume work, and all referenced artifacts; immutable checkpoints verify as
+  `READY` before any resumed model call.
+- Added benchmark continuity: prompt/harness/source/workspace bindings,
+  hidden-gold state, segment number, and cumulative metrics survive resume;
+  unresolved workers are reconciled before dispatch and completed work cannot
+  be selected as the first action. Later segments bind the unique predecessor
+  receipt; experiment identity, finite metrics including cost, action IDs, and
+  reviewed status transitions are checked across the complete chain. Resume
+  receipts consume the verified in-memory state snapshot, and status upgrades
+  require proof/audit bindings that are fresh across the full lineage.
+
 ## Changelog (2026-08-28, v1.8.0)
 
 - Stage B now consumes the rigorous hash-bound completion certificate. A

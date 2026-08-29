@@ -16,10 +16,10 @@ as native DSH skills with their scripts and assets bundled.
   which DSH cannot consume. This repository turns each plugin into a DSH skill
   bundle (directory + SKILL.md frontmatter) and keeps the content in sync with
   upstream.
-- Status as of 2026-08-16: all four skills adapted; installed on this machine
+- Status as of 2026-08-29: all four skills adapted; installed on this machine
   via `install.ps1` as junctions under `$DSH_HOME/skills`; the skills appear in
   DSH session catalogs immediately (the watcher follows the junctions);
-  repository validation and the thirteen smoke tests are green; GitHub Actions is
+  repository validation and the fifteen smoke tests are green; GitHub Actions is
   wired up; the repo root now ships as an official bundle skill pack (one
   command install + a submitted listing request).
 
@@ -56,7 +56,7 @@ xsoc1/math-research-dsh                     this repo (DSH adaptation, public)
 
 | DSH skill | Role | Bundled tooling |
 |---|---|---|
-| `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/validate_pipeline.py`, `assets/` templates |
+| `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/{validate_pipeline,checkpoint_resume}.py`, `assets/` templates |
 | `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline; mandatory arXiv-style bilingual LaTeX proof delivery (`papers/`) after Lean verification | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
 | `rigorous-open-math-research` | Solver layer: theorem contracts, route search, adversarial audit, calibrated reporting | `references/`, `assets/` |
 | `lean-verify` | Lean 4 formalization audit: sorry/axiom scan, obligation audit, structured verdict | `scripts/verify_lean_project.py`, `assets/` templates |
@@ -212,6 +212,7 @@ python scripts\check_version_bump.py --base HEAD^   # CI version-bump gate (loca
 cd tests
 python smoke_pipeline_gate.py         # pipeline gate fixtures
 python smoke_handoff.py               # interruption handoff fixtures
+python smoke_checkpoint_resume.py     # adversarial quota checkpoint/resume regression
 python smoke_lean_verify.py           # lean-verify scanner (no Lean toolchain needed)
 python smoke_sync_remotes.py          # multi-remote sync (local bare repos, no network)
 python smoke_doctor.py                # dsh-doctor via simulated environments
@@ -260,6 +261,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.9.0` | 2026-08-29 | Inherits quota-safe recovery: immutable checkpoints, one canonical resume receipt, predecessor lineage, action-scoped minimal reads, in-flight worker/session reconciliation, cumulative scored metrics, and full-lineage fresh audit evidence gates |
 | `1.8.0` | 2026-08-28 | Inherits structured fast-close certificates: canonical obligation graph, completion manifest, independent audit, anchor/hash/timestamp gates, and one authorized post-STOP frontier call; syncs the full-flow document and adversarial regressions |
 | `1.7.0` | 2026-08-27 | Inherits closure-first scheduling: directly attack and falsify the first load-bearing obligation, require `decision_delta` for spawn and continuation, materialize nonessential artifacts lazily, and retain independent audits for load-bearing results |
 | `1.6.0` | 2026-08-24 | Inherits the Codex entrypoint optimization and rigorous fence repair; the DSH changelog layer now reuses upstream references/changelog.md and avoids a duplicate pointer |

@@ -54,7 +54,15 @@ flowchart TD
   BK["预算检查"]
   BK -->|"足够"| B2
   BK -->|"接近完成但不够"| B9["request_extension（请求追加）"]
-  BK -->|"耗尽"| B10["PAUSED_BUDGET: 保存whiteboard/repo/history/facts + 写handoff<br/>后续可恢复"]
+  BK -->|"耗尽/即将触发限额"| Q0["冻结新派发; 合并已返回原子工件<br/>登记 unresolved in-flight work"]
+  Q0 --> Q1["写 interruption_state-NN.json<br/>completed/open/do-not-repeat + cumulative metrics"]
+  Q1 --> Q2["checkpoint_resume.py seal<br/>写不可变 interruption_checkpoint-NN.json"]
+  Q2 --> B10["PAUSED_BUDGET: handoff 绑定 state/checkpoint<br/>封存后不再做研究模型调用"]
+  B10 --> R0["额度恢复: verify checkpoint<br/>必须在首个模型调用之前"]
+  R0 -->|"STALE"| RX["确定性核对变化<br/>写新的 numbered state/checkpoint"] --> R0
+  R0 -->|"READY"| R1["写 immutable resume_receipt-NN.json<br/>只读 minimal_read_set"]
+  R1 -->|"有未决 worker"| R2["RECONCILE_INFLIGHT<br/>禁止先开新 worker"] --> B2
+  R1 -->|"无未决 worker"| B2
 
   C0["Stage C: 执行任务包中的 formalization decision"]
   C0 --> C2["① Lean scaffold (Tier 0) 锁陈述"]
@@ -81,7 +89,8 @@ flowchart TD
 | spawn gate | 有 decision_delta / 无 decision_delta | 有界派发 / 部分结果或 handoff |
 | completion audit | PASS 且零缺口 / non-PASS | STOP / 仅回灌精确 gaps |
 | STOP 后 | 无授权 / 单次有效授权 | 结束 Stage B / 一次有界 frontier call |
-| 预算 | 够 / 追加 / 耗尽 | 继续 / 请求追加 / PAUSED_BUDGET |
+| 预算 | 够 / 追加 / 耗尽 | 继续 / 请求追加 / 封存 state+checkpoint 后 PAUSED_BUDGET |
+| 恢复门禁 | READY / STALE | 最小读取并执行 first_action / 确定性核对后重封存 |
 | Lean 验证 | 通过 / 失败 | 形式化通过 / 修 Lean 或回 NL |
 | 论文级验证 | 通过 / 失败 | 交付 / 修论文 |
 | 8e 比对 | 重复 / 矛盾 / 干净 | REJECT / 停止 / 入库 |
@@ -103,6 +112,40 @@ flowchart TD
 `validate_pipeline.py` 会复算全部文件 hash, 验证 root closure, reviewer independence,
 timestamps 与 frontier budget. 2026-08-29 起, 具有标准日期 run ID 的 Stage B run
 若存在 `research_ledger.md` 但没有 `closure_gate.md`, 门禁失败. 旧 run 不追溯改写.
+
+## Quota interruption certificate
+
+Quota recovery uses a separate certificate boundary and does not change a
+mathematical verdict:
+
+- `interruption_state-NN.json` is the semantic snapshot: contract/whiteboard/
+  closure bindings, completed and open obligations, exact gaps, unresolved
+  workers, do-not-repeat actions, current status, first resume action, minimal
+  read set, bounded budget, and stop condition.
+- `interruption_checkpoint-NN.json` is an immutable deterministic envelope over
+  the state and every referenced artifact. Re-sealing is byte-idempotent; a
+  changed state receives a new segment number.
+- `resume_receipt-NN.json` can be written only after `verify` returns `READY`.
+  It freezes the first action and read set. `STALE` forbids a model call until
+  deterministic reconciliation produces a new checkpoint.
+- Segment `00` is the trust root. Every later state binds the immediately
+  previous checkpoint and its unique canonical receipt. The gate rejects a
+  broken sequence, duplicate receipt path, resume time before seal, lost
+  completed/do-not-repeat item, transcript injection, or unreviewed status
+  change. The receipt is derived from the verified in-memory state snapshot;
+  status-upgrade evidence and audit must be distinct and content-hash fresh
+  across the full lineage.
+- For benchmarks, the state binds arm/task/workspace, prompt, harness, source
+  snapshot, hidden-gold state, segment index, and cumulative wall/response/
+  tool/token/cost counters. Counters are finite and non-decreasing. Resume never resets counters or silently mixes an
+  infrastructure-replacement run. Local checkpoint overhead is separate and
+  unscored unless preregistration says otherwise.
+
+After sealing, the interrupted segment makes no further research-model call.
+Unresolved child sessions are the first resume action; completed obligations,
+completed arms, audits, and audited-failed routes are not repeated because the
+quota reset. The detailed protocol is
+`plugins/math-research-workflow/skills/math-research-workflow/references/quota-interruption-recovery.md`.
 
 ## Terminal states
 
@@ -178,8 +221,16 @@ Stage B · 求解 (rigorous-open-math-research; closure-first, 有条件子 agen
    ├─ 预算检查 (每步边界)
    │    ├─ 足够 → 继续
    │    ├─ 接近完成但不够 → request_extension (请求追加)
-   │    └─ 耗尽 → PAUSED_BUDGET: 保存 whiteboard/repo/history/facts
-   │         + 写 handoff → 后续可恢复
+   │    └─ 耗尽/即将触发限额
+   │         ├─ 冻结新派发, 合并已返回的原子工件
+   │         ├─ 写 numbered interruption_state (义务/in-flight/do-not-repeat/metrics)
+   │         ├─ seal immutable checkpoint, handoff 绑定两者
+   │         └─ PAUSED_BUDGET; 封存后不再做研究模型调用
+   │              └─ 额度恢复
+   │                   ├─ verify=STALE → 确定性核对, 新编号重封存
+   │                   └─ verify=READY → 写 resume receipt, 只读 minimal set
+   │                        ├─ 有未决 worker → 先 RECONCILE_INFLIGHT
+   │                        └─ 无未决 worker → 执行精确 first_action
    └─ 全部 root obligations CLOSED
         ├─ 写 canonical obligation_graph.json
         ├─ 写 completion_manifest.json 并冻结 hashes/root anchors
