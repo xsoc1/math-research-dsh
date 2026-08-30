@@ -13,9 +13,9 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
 - 上游是 Codex marketplace 仓库, 只能以 Codex 打包格式安装 (plugin.json / openai.yaml /
   marketplace.json / cachebuster), DSH 无法直接消费. 本仓库把每个插件转为一个 DSH skill
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
-- 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
+- 当前状态 (2026-08-31): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 17 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 18 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -47,7 +47,7 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 | DSH skill | 角色 | 随包工具 |
 |---|---|---|
 | `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, 包含 exact-copy receipt 与 canonical consumption, `assets/` 模板 |
-| `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
+| `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `runtime/blueprintctl.py`, `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
 | `rigorous-open-math-research` | 求解层: 定理契约, 路线搜索, 对抗性审计, 校准式报告 | `references/`, `assets/` |
 | `lean-verify` | Lean 4 形式化审计: sorry/axiom 扫描, 义务级审计, 结构化裁决 | `scripts/verify_lean_project.py`, `assets/` 模板 |
 
@@ -107,7 +107,9 @@ python "$env:DSH_HOME\math-research-dsh\scripts\dsh-doctor.py"
    DSH 适配历史追加到同一引用文件, 不再生成第二份历史指针;
 3. workflow `SKILL.md` 的 doctor 段落改写为仓库级 `scripts/dsh-doctor.py`
    (Codex 版 `scripts/doctor.py` 移除);
-4. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow),
+4. manage plugin 的 `runtime/` 同步到 manage skill 根, 使 DSH 通过
+   `<resourceBase>/runtime/blueprintctl.py` 使用同一 Blueprint v2.2 网关;
+5. 层自有新增文件: `references/dsh-execution.md` (rigorous + workflow),
    `assets/dsh-solve-audit-workflow.js` (workflow), 以及仓库根官方 bundle 打包
    `package.json` / `index.mjs` / `cordis.patch.yml` 与门禁
    `scripts/dsh-check-bundle.py`.
@@ -188,6 +190,7 @@ python scripts\dsh-check-bundle.py    # 官方 bundle 打包门禁 (package.json
 python scripts\check_version_bump.py --base HEAD^   # CI 版本 bump 门禁 (本地按需)
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
+python smoke_blueprint_gateway.py     # Blueprint v2.2 单一 runtime 网关与注入防护
 python smoke_scoped_pipeline.py       # 自包含 scope 门禁与路径逃逸对抗回归
 python smoke_formalization_handoff.py # 跨逻辑根 Tier 0 scaffold 收据对抗回归
 python smoke_handoff.py               # 中断交接 fixtures
@@ -217,6 +220,7 @@ cordis.patch.yml                  层栈 insert 行 (id = index.mjs 的 name, na
 skills/                         DSH skill bundles (父仓库同步 + DSH 层)
   rigorous-open-math-research/
   manage-math-research-program/   (含 MANIFEST.sha256)
+    runtime/blueprintctl.py       Blueprint v2.2 单一活动网关
   math-research-workflow/
   lean-verify/
   每个 bundle 内: references/changelog.md (上游 + DSH 适配历史)
@@ -239,6 +243,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.14.0` | 2026-08-31 | 继承 Blueprint v2.2 active runtime gateway: manage bundle 携带 `runtime/blueprintctl.py`, ensure-once 绑定 layout/config/runtime, canonical validate/query/proposal/integrate 只走插件代码, 支持跨根 artifact 并拒绝 project-local 工具注入 |
 | `1.13.0` | 2026-08-30 | 继承 canonical formalization consumption: `consume/verify-consumption` 在 receipt `READY` 后生成唯一 immutable sibling record, 显式保持数学/验证状态不变, 允许 Stage C 合法演化目标 scaffold, 并以 exclusive-create 关闭 overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | 继承 cross-root Tier 0 formalization handoff: immutable exact-copy receipt 绑定 Stage B scope, Stage C Lean project, proof/scaffold 和 registration anchors; 完整 requested package 仍不支持, 不升级 FORMALLY_VERIFIED; Stage C 详细协议改为按需加载 |
 | `1.11.0` | 2026-08-30 | 继承 workflow scoped pipeline gate: 自包含逻辑项目可独立校验, 路径绑定与 git 检查限制在 scope 内, scoped PASS 明确不等于全仓 PASS; DSH 同步器支持 rigorous/workflow 独立 semver |

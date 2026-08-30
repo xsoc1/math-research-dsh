@@ -1,9 +1,12 @@
 # Mathematics Graph Integration (Blueprint v2.2 distilled)
 
 This contract is distilled from the Blueprint v2.2 mathematics toolkit. Use it
-when the project provides a canonical accepted-knowledge base: a
-`manage-math-research-program` project root with `knowledge/`, or a Blueprint
-v2.2 project with `statistics/`. When no such base exists, run the standard
+when the project provides a canonical accepted-knowledge base. When
+`blueprint-project.json` exists, it is the physical-layout authority. Resolve
+the active `manage-math-research-program` plugin's
+`runtime/blueprintctl.py`, run `ensure --project <PROJECT_ROOT>` exactly once,
+and use that entry point for every canonical operation. Never run or copy a
+project-local Blueprint tool. When no accepted base exists, run the standard
 file-artifact workflow of this Skill unchanged.
 
 ## 1. Snapshot-bound retrieval
@@ -11,10 +14,10 @@ file-artifact workflow of this Skill unchanged.
 Start with the deterministic gateway:
 
 ```text
-<python3> knowledge/tools/blueprint_query.py snapshot            # or statistics/tools/...
-<python3> knowledge/tools/blueprint_query.py math-closure --context <CONTEXT-ID>
-<python3> knowledge/tools/blueprint_query.py math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT-ID>
-<python3> knowledge/tools/blueprint_query.py math-goals --context <CONTEXT-ID>
+<python3> <active-manage-plugin>/runtime/blueprintctl.py query --project <PROJECT_ROOT> snapshot
+<python3> <active-manage-plugin>/runtime/blueprintctl.py query --project <PROJECT_ROOT> math-closure --context <CONTEXT-ID>
+<python3> <active-manage-plugin>/runtime/blueprintctl.py query --project <PROJECT_ROOT> math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT-ID>
+<python3> <active-manage-plugin>/runtime/blueprintctl.py query --project <PROJECT_ROOT> math-goals --context <CONTEXT-ID>
 ```
 
 Bind every follow-up query to both snapshot hashes. On `SNAPSHOT_MISMATCH`,

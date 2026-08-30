@@ -16,10 +16,10 @@ as native DSH skills with their scripts and assets bundled.
   which DSH cannot consume. This repository turns each plugin into a DSH skill
   bundle (directory + SKILL.md frontmatter) and keeps the content in sync with
   upstream.
-- Status as of 2026-08-30: all four skills adapted; installed on this machine
+- Status as of 2026-08-31: all four skills adapted; installed on this machine
   via `install.ps1` as junctions under `$DSH_HOME/skills`; the skills appear in
   DSH session catalogs immediately (the watcher follows the junctions);
-  repository validation and the seventeen smoke tests are green; GitHub Actions is
+  repository validation and the eighteen smoke tests are green; GitHub Actions is
   wired up; the repo root now ships as an official bundle skill pack (one
   command install + a submitted listing request).
 
@@ -57,7 +57,7 @@ xsoc1/math-research-dsh                     this repo (DSH adaptation, public)
 | DSH skill | Role | Bundled tooling |
 |---|---|---|
 | `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, including exact-copy receipts and canonical consumption, `assets/` templates |
-| `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline; mandatory arXiv-style bilingual LaTeX proof delivery (`papers/`) after Lean verification | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
+| `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline; mandatory arXiv-style bilingual LaTeX proof delivery (`papers/`) after Lean verification | `runtime/blueprintctl.py`, `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
 | `rigorous-open-math-research` | Solver layer: theorem contracts, route search, adversarial audit, calibrated reporting | `references/`, `assets/` |
 | `lean-verify` | Lean 4 formalization audit: sorry/axiom scan, obligation audit, structured verdict | `scripts/verify_lean_project.py`, `assets/` templates |
 
@@ -128,7 +128,9 @@ machine-applied **DSH layer**:
    that reference instead of creating a second history pointer;
 3. the workflow `SKILL.md` doctor passages rewritten for the repository-level
    `scripts/dsh-doctor.py` (the Codex `scripts/doctor.py` is dropped);
-4. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow),
+4. the manage plugin's `runtime/` is synced into the manage skill root, so DSH
+   uses the same Blueprint v2.2 gateway at `<resourceBase>/runtime/blueprintctl.py`;
+5. layer-owned additions: `references/dsh-execution.md` (rigorous + workflow),
    `assets/dsh-solve-audit-workflow.js` (workflow), and the official bundle
    packaging at the repo root (`package.json` / `index.mjs` /
    `cordis.patch.yml`) with its gate `scripts/dsh-check-bundle.py`.
@@ -211,6 +213,7 @@ python scripts\dsh-check-bundle.py    # official bundle gate (package.json / pat
 python scripts\check_version_bump.py --base HEAD^   # CI version-bump gate (local, as needed)
 cd tests
 python smoke_pipeline_gate.py         # pipeline gate fixtures
+python smoke_blueprint_gateway.py     # Blueprint v2.2 single runtime gateway and injection guard
 python smoke_scoped_pipeline.py       # self-contained scope and path-escape regression
 python smoke_formalization_handoff.py # adversarial cross-root Tier 0 scaffold receipt regression
 python smoke_handoff.py               # interruption handoff fixtures
@@ -241,6 +244,7 @@ cordis.patch.yml                  layer-stack insert row (id = index.mjs name, n
 skills/                         DSH skill bundles (synced from the parent + DSH layer)
   rigorous-open-math-research/
   manage-math-research-program/   (incl. MANIFEST.sha256)
+    runtime/blueprintctl.py       single active Blueprint v2.2 gateway
   math-research-workflow/
   lean-verify/
   inside each bundle: references/changelog.md (upstream + DSH adaptation history)
@@ -263,6 +267,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.14.0` | 2026-08-31 | Inherits the Blueprint v2.2 active runtime gateway: the manage bundle carries `runtime/blueprintctl.py`, ensure-once binds layout/config/runtime, canonical validation/query/proposal/integration use plugin-owned code, cross-root artifacts resolve correctly, and project-local tool injection is rejected |
 | `1.13.0` | 2026-08-30 | Inherits canonical formalization consumption: `consume/verify-consumption` writes one immutable sibling record after receipt `READY`, explicitly preserves mathematical and verification status, permits legitimate later Stage C destination-scaffold evolution, and uses exclusive creation to close overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | Inherits the cross-root Tier 0 formalization handoff: an immutable exact-copy receipt binds the Stage B scope, Stage C Lean project, proof/scaffold, and registration anchors; full requested packages remain unsupported, no FORMALLY_VERIFIED promotion occurs, and detailed Stage C rules load only on demand |
 | `1.11.0` | 2026-08-30 | Inherits the workflow scoped pipeline gate: a self-contained logical project validates independently, bindings and git checks stay inside the scope, and a scoped PASS is explicitly not a whole-project PASS; the DSH sync layer now supports independent rigorous/workflow semver |

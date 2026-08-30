@@ -17,6 +17,9 @@ beside this bundle under the same skill roots.
 
 - Reference files under `references/` and `assets/` are read with the read tool
   using the `resourceBase` directory path reported by the skill load result.
+- For Blueprint projects, load the sibling `manage-math-research-program` skill
+  and treat its `resourceBase` as `<active-manage-plugin>`; the sole gateway is
+  `<resourceBase>/runtime/blueprintctl.py`.
 - Bundled scripts (of the sibling skills) run with a local Python interpreter via
   the shell: `python <script> ...`, with `PYTHONUTF8=1` on Windows. Prefer writing
   a temporary .py file over PowerShell one-line `-c` calls.

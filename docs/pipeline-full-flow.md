@@ -22,7 +22,10 @@ flowchart LR
 flowchart TD
   IN["输入数学问题"]
   IN --> A1["初始化/恢复项目<br/>(project.json, state/RESUME.md)"]
-  A1 --> A2["写任务包 task packet<br/>+ 可选 theorem.lean 骨架 + budget"]
+  A1 --> A1B{"存在 blueprint-project.json?"}
+  A1B -->|"是"| A1C["active plugin blueprintctl ensure 一次<br/>后续 canonical 操作只走 gateway"]
+  A1B -->|"否, legacy"| A2
+  A1C --> A2["写任务包 task packet<br/>+ 可选 theorem.lean 骨架 + budget"]
   A2 --> A3["B0 新颖性前置门禁<br/>(openness + novelty + 文献快照)"]
   A3 -->|"问题已解决"| E0["停止/报告已解决"]
   A3 -->|"与已有结果矛盾"| E1["报告冲突/拒绝"]
@@ -85,6 +88,7 @@ flowchart TD
 
 | 位置 | 分支 | 结果 |
 | --- | --- | --- |
+| Blueprint runtime | marker 存在 / legacy 无 marker | active gateway ensure 一次 / 保持现有 layout, 不隐式迁移 |
 | B0 新颖性 | 已解决 / 矛盾 / 通过 | 停止 / 拒绝 / 继续 |
 | closure-first | FALSIFIED / CLOSED / OPEN_EXACT_GAP | 否证 / 下一个 root / 精确缺口 |
 | spawn gate | 有 decision_delta / 无 decision_delta | 有界派发 / 部分结果或 handoff |
@@ -95,6 +99,37 @@ flowchart TD
 | Lean 验证 | 通过 / 失败 | 形式化通过 / 修 Lean 或回 NL |
 | 论文级验证 | 通过 / 失败 | 交付 / 修论文 |
 | 8e 比对 | 重复 / 矛盾 / 干净 | REJECT / 停止 / 入库 |
+
+## Blueprint v2.2 active runtime gateway
+
+When `blueprint-project.json` exists, it is the physical-layout authority.
+Resolve the active `manage-math-research-program` plugin from the loaded skill
+path, then run exactly one binding preflight after installation or update:
+
+```text
+py -3 <active-manage-plugin>/runtime/blueprintctl.py ensure \
+  --project <project-root>
+```
+
+The binding records only disposable runtime state under the declared work
+root and binds project identity/root plus the active runtime-code hash. It
+fails closed on schema or runtime drift, path escape, and disagreement
+between the layout and configured artifact root. Canonical operations then use
+the same entry point:
+
+```text
+py -3 <active-manage-plugin>/runtime/blueprintctl.py validate --project <project-root>
+py -3 <active-manage-plugin>/runtime/blueprintctl.py query --project <project-root> snapshot
+py -3 <active-manage-plugin>/runtime/blueprintctl.py validate-submission --project <project-root> --submission submissions/<id>
+py -3 <active-manage-plugin>/runtime/blueprintctl.py integrate --project <project-root> --submission submissions/<id>
+```
+
+The gateway executes plugin-owned deterministic code. Project-local Blueprint
+Python tools must not be executed or copied. Relative evidence locators resolve
+from the configured artifact root, so a canonical graph under `blueprint/` can
+bind artifacts under `research/` without false broken-path reports. Projects
+without a marker remain on their documented legacy layout until an explicit,
+receipt-backed migration is authorized.
 
 ## Whole-project and scoped validation
 
@@ -298,6 +333,8 @@ re-optimize an already-explored route.
    ▼
 Stage A · 任务准备 (manage-math-research-program)
    ├─ 初始化/恢复项目 (project.json, state/RESUME.md)
+   ├─ 若有 blueprint-project.json: active blueprintctl ensure 一次
+   │    └─ 后续 canonical validate/query/submit/integrate 只走 plugin gateway
    ├─ 写任务包 task packet
    │    └─ 可选: theorem.lean 骨架 (带 sorry) + budget 块
    └─ B0 新颖性前置门禁 (openness + novelty + 文献快照)

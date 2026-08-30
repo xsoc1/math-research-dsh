@@ -1,5 +1,14 @@
 # Release history
 
+## Changelog (2026-08-31, v1.14.0)
+
+- Stage A now treats `blueprint-project.json` as the physical-layout authority
+  and requires one active manage-plugin `runtime/blueprintctl.py ensure`
+  binding before canonical knowledge operations.
+- Validation, snapshot retrieval, proposal validation, and integration use the
+  plugin-owned gateway. Project-local Blueprint tools are neither copied nor
+  executed, and configured cross-root artifacts remain hash-verifiable.
+
 ## Changelog (2026-08-30, v1.13.0)
 
 - Added canonical `consume` and `verify-consumption` commands. After a live

@@ -25,6 +25,9 @@ this bundle under the same skill roots.
   interpreter via the shell using the `resourceBase` directory path reported by
   the skill load result, with `PYTHONUTF8=1` on Windows. Prefer writing a
   temporary .py file over PowerShell one-line `-c` calls.
+- For Blueprint projects, load the sibling `manage-math-research-program` skill
+  and treat its `resourceBase` as `<active-manage-plugin>`; use only
+  `<resourceBase>/runtime/blueprintctl.py` after its single `ensure`.
 - The DSH environment preflight is `scripts/dsh-doctor.py` in the
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
@@ -97,22 +100,28 @@ Do **not** use this skill for a single proof request (use
 1. Read the project entry point (`AGENTS.md` if present), `lean-proof/STATUS.md`
    (formalization matrix) and the program index produced by
    `manage-math-research-program`.
-2. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
+2. If `blueprint-project.json` exists, resolve the active
+   `manage-math-research-program` plugin root from its loaded skill path and
+   run `runtime/blueprintctl.py ensure --project <PROJECT_ROOT>` exactly once.
+   Use only that gateway for canonical Blueprint validation, queries,
+   proposal validation, and integration. Never execute or copy a
+   project-local Blueprint tool.
+3. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
    math-research-dsh repository checkout, installed under
    `$DSH_HOME/math-research-dsh`). On a hard `FAIL`, apply the printed repair
    command before any dispatch. It verifies that all four skill bundles are
    mounted under the DSH skill roots (`$DSH_HOME/skills` or the project
    `.dsh/skills`), that a Python interpreter is available, and that the Lean
    toolchain exists when stage C is planned.
-3. Run the git-sync check (manage skill section 0): record dirty files,
+4. Run the git-sync check (manage skill section 0): record dirty files,
    ahead/behind, current commit hash.
-4. Run the deterministic pipeline gate shipped with this plugin
+5. Run the deterministic pipeline gate shipped with this plugin
    (`scripts/validate_pipeline.py --project .`). Fix every hard `FAIL` before
    dispatch; treat `warn:` lines as advisory notes to record, not as blockers.
    For a nested logical project use `--scope <relative-logical-root>`; a scoped
    PASS must never be reported as a whole-project PASS. The on-demand contract
    is in `docs/pipeline-full-flow.md`.
-5. For each task: build or refresh the **task packet** (contract, source
+6. For each task: build or refresh the **task packet** (contract, source
    documents, obligations, verification criteria, hashes) and delegate.
 
 **Stage B0 -- Openness and novelty preflight (mandatory before dispatch):**

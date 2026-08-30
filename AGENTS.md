@@ -14,7 +14,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `scripts/sync-from-parent.py` -- 父仓库同步 + DSH 层重放 + upstream.lock.json
 - `scripts/validate_all.py` -- 仓库校验 (结构/MANIFEST/lock/UTF-8+LF/py_compile/JSON+YAML)
 - `scripts/dsh-doctor.py` -- DSH 环境自检 (skill 挂载/python/lake)
-- `tests/` -- fixtures + 17 个 smoke
+- `tests/` -- fixtures + 18 个 smoke
 - `package.json` / `index.mjs` / `cordis.patch.yml` -- 官方 bundle 技能包 (社区一键安装)
 - `scripts/dsh-check-bundle.py` -- bundle 打包门禁 (package.json/patch/index.mjs/skills)
 - `upstream.lock.json` -- 父仓库 commit + 逐文件哈希
@@ -44,7 +44,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `install.ps1` (junction) 只能二选一, 同时安装会导致同一批 skill 双份注册.
 - **README 中英同步**: README.md 与 README_EN.md 必须同步更新; `validate_all.py` 会
   检查所有 `tests/smoke_*.py` 是否都出现在两份 README 中.
-- **测试数量**: 当前 17 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
+- **测试数量**: 当前 18 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
 - **GitHub 网络**: 直连 github.com 失败时, 用本地代理 push:
   `git -c http.proxy=http://127.0.0.1:7897 push origin main` (本机实测可用).
 
@@ -468,3 +468,12 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `sync-from-parent.py` 机械继承 skills/tests/full-flow; package bump 1.12.0 ->
   1.13.0, upstream lock 仍为 110 文件 @ 96df6de, README 中英版同步. smoke 文件总数
   仍为 17, 新覆盖位于既有 formalization handoff smoke.
+### 2026-08-31 会话: 继承 Blueprint v2.2 active runtime gateway (v1.14.0)
+- 上游 968a1cd: manage v1.7.0 新增 plugin-owned `runtime/blueprintctl.py`,
+  ensure-once 绑定 project/layout/config/runtime; canonical validate/query/proposal/integrate
+  拒绝 project-local 工具注入并支持跨根 artifact.
+- `sync-from-parent.py` 将 manage plugin runtime 机械同步到扁平 skill 根, runtime notes
+  把上游 `<plugin-root>` 映射为 DSH `resourceBase`; gateway 同时兼容 Codex 与 DSH
+  布局. 同步器的 workflow doctor 锚点随上游步骤编号更新.
+- package.json bump 1.13.0 -> 1.14.0, upstream lock 111 文件 @ 968a1cd,
+  README 中英版与 full-flow 文档同步; 新增 gateway smoke, 总数 18.

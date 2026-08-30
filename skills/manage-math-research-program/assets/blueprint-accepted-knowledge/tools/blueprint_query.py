@@ -207,6 +207,21 @@ class BlueprintStore:
         config_path = statistics_root / ".blueprint" / "config.json"
         self.config = load_json_bytes(read_bytes(config_path, "Blueprint configuration"), config_path)
 
+        configured_artifact_root = self.config.get("artifact_root", ".")
+        if not isinstance(configured_artifact_root, str) or not configured_artifact_root:
+            raise QueryFailure(
+                "INVALID_CONFIG",
+                "Blueprint configuration artifact_root must be a non-empty path.",
+                exit_code=3,
+                details={"artifact_root": configured_artifact_root},
+            )
+        raw_artifact_root = Path(configured_artifact_root).expanduser()
+        self.artifact_root = (
+            raw_artifact_root.resolve()
+            if raw_artifact_root.is_absolute()
+            else (statistics_root / raw_artifact_root).resolve()
+        )
+
         canonical_name = self.config.get("canonical_blueprint", "blueprint.json")
         inventory_name = self.config.get("evidence_inventory", "evidence_inventory.csv")
         self.blueprint_path = (statistics_root / canonical_name).resolve()
@@ -358,13 +373,14 @@ class BlueprintStore:
             if not locator:
                 continue
             raw_path = Path(locator).expanduser()
-            resolved = raw_path.resolve() if raw_path.is_absolute() else (self.statistics_root / raw_path).resolve()
+            resolved = raw_path.resolve() if raw_path.is_absolute() else (self.artifact_root / raw_path).resolve()
             exists = resolved.is_file()
             record: dict[str, Any] = {
                 "result_id": row.get("result_id", ""),
                 "locator": locator,
                 "resolved_path": str(resolved),
                 "external_to_statistics_root": not resolved.is_relative_to(self.statistics_root),
+                "external_to_artifact_root": not resolved.is_relative_to(self.artifact_root),
                 "exists": exists,
             }
             if exists:
@@ -920,6 +936,7 @@ def response_envelope(
     }
     if statistics_root is not None:
         response["statistics_root"] = str(statistics_root)
+        response["blueprint_root"] = str(statistics_root)
     if snapshot is not None:
         response["snapshot"] = snapshot
     if result is not None:

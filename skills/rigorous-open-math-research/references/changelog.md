@@ -1,5 +1,12 @@
 # Release history
 
+## Changelog (2026-08-31, v1.11.0)
+
+- Blueprint snapshot retrieval now resolves the active manage plugin's
+  `runtime/blueprintctl.py`, requires its ensure-once binding, and forbids
+  project-local query tools. This keeps Stage B on the same layout and
+  cross-root artifact contract as Stage A.
+
 ## Changelog (2026-08-30, v1.10.0)
 
 - Quota-bound semantic state now supports typed obligation refinement or

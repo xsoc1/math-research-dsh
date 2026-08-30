@@ -1,5 +1,19 @@
 # Release history
 
+## Changelog (2026-08-31, v1.7.0)
+
+- Added the plugin-owned `runtime/blueprintctl.py` gateway for Blueprint v2.2
+  layout markers. `ensure` binds project identity/root, runtime-code hash,
+  layout, and config once, creates only declared operational directories, and
+  fails closed on path escape, drift, or artifact-root disagreement.
+- Canonical validation, retrieval, proposal validation, and deterministic
+  integration now route through one active entry point. Cross-root artifacts
+  resolve from the configured artifact root, and the receiver invokes the
+  plugin-owned validator instead of a project-local `tools/` copy.
+- Added an adversarial smoke covering pre-ensure rejection, idempotent state,
+  project-local validator poisoning, external artifact hashes, immutable no-op
+  proposal validation, and layout/config escape rejection.
+
 ## Changelog (2026-08-24, v1.6.0)
 
 - Moved release history behind this pointer, reducing the always-loaded

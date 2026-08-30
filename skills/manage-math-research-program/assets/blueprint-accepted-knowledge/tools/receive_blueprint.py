@@ -31,6 +31,7 @@ from blueprint_common import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TOOL_ROOT = Path(__file__).resolve().parent
 SCHEMA_VERSION = "2.2"
 DEPENDENCY_FIELDS = {
     "assumptions",
@@ -593,7 +594,7 @@ def check_manual_only(proposal: dict[str, Any], config: dict[str, Any]) -> list[
     return reasons
 
 
-def check_artifact_refs(proposal: dict[str, Any], root: Path) -> list[dict[str, Any]]:
+def check_artifact_refs(proposal: dict[str, Any], artifact_root: Path) -> list[dict[str, Any]]:
     reasons = []
     evidence = proposal.get("review_evidence", {})
     for method_match in evidence.get("method_matches", []) if isinstance(evidence, dict) else []:
@@ -603,7 +604,7 @@ def check_artifact_refs(proposal: dict[str, Any], root: Path) -> list[dict[str, 
                 reasons.append({"code": "MISSING_ARTIFACT_PATH", "message": "method artifact path is missing"})
                 continue
             path = Path(raw_path)
-            resolved = path if path.is_absolute() else root / path
+            resolved = path if path.is_absolute() else artifact_root / path
             if not resolved.exists():
                 reasons.append({"code": "MISSING_ARTIFACT", "message": f"artifact does not exist: {raw_path}", "path": raw_path})
     return reasons
@@ -879,18 +880,32 @@ def check_review_evidence_structure(
     return reasons
 
 
-def run_validator(blueprint: Path, inventory: Path, root: Path) -> dict[str, Any]:
+def configured_path(root: Path, config: dict[str, Any], key: str, default: str) -> Path:
+    raw = config.get(key, default)
+    if not isinstance(raw, str) or not raw:
+        raise ProposalError("INVALID_CONFIG", f"{key} must be a non-empty path")
+    path = Path(raw)
+    return path.resolve() if path.is_absolute() else (root / path).resolve()
+
+
+def run_validator(blueprint: Path, inventory: Path, artifact_root: Path) -> dict[str, Any]:
     command = [
         sys.executable,
-        str(root / "tools" / "validate_blueprint.py"),
+        str(TOOL_ROOT / "validate_blueprint.py"),
         "--blueprint",
         str(blueprint),
         "--inventory",
         str(inventory),
         "--artifact-root",
-        str(root),
+        str(artifact_root),
     ]
-    completed = subprocess.run(command, cwd=root, capture_output=True, text=True, encoding="utf-8")
+    completed = subprocess.run(
+        command,
+        cwd=blueprint.parent,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
     output: Any = completed.stdout.strip()
     if output:
         try:
@@ -998,6 +1013,9 @@ def validate_submission(root: Path, submission: Path, actor_agent_id: str) -> di
     config = load_json(root / ".blueprint" / "config.json")
     blueprint_path = root / config.get("canonical_blueprint", "blueprint.json")
     inventory_path = root / config.get("evidence_inventory", "evidence_inventory.csv")
+    artifact_root = configured_path(root, config, "artifact_root", ".")
+    validation_work_dir = configured_path(root, config, "validation_work_dir", ".blueprint")
+    validation_work_dir.mkdir(parents=True, exist_ok=True)
     current = load_json(blueprint_path)
     reasons = proposal_contract_reasons(proposal, current, inventory_path, config)
     if proposal.get("submission_id") != submission.name:
@@ -1012,10 +1030,10 @@ def validate_submission(root: Path, submission: Path, actor_agent_id: str) -> di
     if not reasons:
         try:
             candidate, fields, rows = build_candidate(proposal, current, inventory_path)
-            reasons.extend(check_artifact_refs(proposal, root))
-            with tempfile.TemporaryDirectory(prefix="validate-", dir=root / ".blueprint") as temp:
+            reasons.extend(check_artifact_refs(proposal, artifact_root))
+            with tempfile.TemporaryDirectory(prefix="validate-", dir=validation_work_dir) as temp:
                 candidate_blueprint, candidate_inventory = write_candidate_files(Path(temp), candidate, fields, rows)
-                validator = run_validator(candidate_blueprint, candidate_inventory, root)
+                validator = run_validator(candidate_blueprint, candidate_inventory, artifact_root)
                 candidate_hashes = {
                     "blueprint": sha256_file(candidate_blueprint),
                     "evidence_inventory": sha256_file(candidate_inventory),
@@ -1373,6 +1391,7 @@ def recover_transactions(root: Path, config: dict[str, Any], integrator_agent_id
     transactions.mkdir(parents=True, exist_ok=True)
     canonical_blueprint = root / config.get("canonical_blueprint", "blueprint.json")
     canonical_inventory = root / config.get("evidence_inventory", "evidence_inventory.csv")
+    artifact_root = configured_path(root, config, "artifact_root", ".")
     for state_path in sorted(transactions.glob("*/state.json")):
         state = load_json(state_path)
         phase = state.get("phase")
@@ -1402,7 +1421,7 @@ def recover_transactions(root: Path, config: dict[str, Any], integrator_agent_id
             replace_from(candidate_blueprint, canonical_blueprint)
         if current_hashes[1] != candidate_hashes[1]:
             replace_from(candidate_inventory, canonical_inventory)
-        validator = run_validator(canonical_blueprint, canonical_inventory, root)
+        validator = run_validator(canonical_blueprint, canonical_inventory, artifact_root)
         if not validator["passed"]:
             replace_from(before_blueprint, canonical_blueprint)
             replace_from(before_inventory, canonical_inventory)
@@ -1555,10 +1574,11 @@ def receive_submission(root: Path, submission: Path, integrator_agent_id: str) -
             append_event(root, event="integration", result=status, agent_id=integrator_agent_id, submission_id=proposal.get("submission_id"), proposal_hash=proposal_hash, reasons=conflict_reasons, details={"receipt_path": str(receipt_path)})
             return receipt
 
+        artifact_root = configured_path(root, config, "artifact_root", ".")
         try:
             candidate, inventory_fields, candidate_rows = build_candidate(proposal, current, inventory_path)
             candidate_reasons = check_protection(current, candidate, config.get("protected_node_policy", {}))
-            candidate_reasons.extend(check_artifact_refs(proposal, root))
+            candidate_reasons.extend(check_artifact_refs(proposal, artifact_root))
         except ProposalError as exc:
             candidate = current
             candidate_rows = inventory_rows
@@ -1571,7 +1591,7 @@ def receive_submission(root: Path, submission: Path, integrator_agent_id: str) -
         shutil.copy2(blueprint_path, before_dir / "blueprint.json")
         shutil.copy2(inventory_path, before_dir / "evidence_inventory.csv")
         candidate_blueprint, candidate_inventory = write_candidate_files(candidate_dir, candidate, inventory_fields, candidate_rows)
-        validator = run_validator(candidate_blueprint, candidate_inventory, root)
+        validator = run_validator(candidate_blueprint, candidate_inventory, artifact_root)
         if not validator["passed"]:
             candidate_reasons.append({"code": "BLUEPRINT_VALIDATION", "message": validator["stderr"] or "candidate validation failed"})
         if candidate_reasons:
@@ -1651,7 +1671,7 @@ def receive_submission(root: Path, submission: Path, integrator_agent_id: str) -
         atomic_write_json(state_path, state)
         replace_from(candidate_blueprint, blueprint_path)
         replace_from(candidate_inventory, inventory_path)
-        live_validator = run_validator(blueprint_path, inventory_path, root)
+        live_validator = run_validator(blueprint_path, inventory_path, artifact_root)
         if not live_validator["passed"]:
             replace_from(before_dir / "blueprint.json", blueprint_path)
             replace_from(before_dir / "evidence_inventory.csv", inventory_path)

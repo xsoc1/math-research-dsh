@@ -120,8 +120,8 @@ def main() -> None:
 		("completion_manifest.json", "Fast-close STOP", "frontier_upgrade.json"),
 	)
 	package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
-	if package["version"] != "1.13.0":
-		raise AssertionError("DSH package version is not 1.13.0")
+	if package["version"] != "1.14.0":
+		raise AssertionError("DSH package version is not 1.14.0")
 
 	good = validate_fixture(FAST_CLOSE_GOOD)
 	if good.returncode != 0:

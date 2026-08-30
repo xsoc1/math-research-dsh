@@ -64,6 +64,7 @@ BUNDLE_SOURCES = {
 
 # plugin-level dirs merged into the corresponding bundle
 EXTRA_SOURCES = {
+    "manage-math-research-program": ("runtime",),
     "math-research-workflow": ("assets", "scripts"),
     "lean-verify": ("assets", "scripts"),
 }
@@ -97,6 +98,9 @@ beside this bundle under the same skill roots.
 
 - Reference files under `references/` and `assets/` are read with the read tool
   using the `resourceBase` directory path reported by the skill load result.
+- For Blueprint projects, load the sibling `manage-math-research-program` skill
+  and treat its `resourceBase` as `<active-manage-plugin>`; the sole gateway is
+  `<resourceBase>/runtime/blueprintctl.py`.
 - Bundled scripts (of the sibling skills) run with a local Python interpreter via
   the shell: `python <script> ...`, with `PYTHONUTF8=1` on Windows. Prefer writing
   a temporary .py file over PowerShell one-line `-c` calls.
@@ -134,13 +138,17 @@ first line is `/skill-name` also loads it). The sibling skills
 `rigorous-open-math-research`, `math-research-workflow`, and `lean-verify` ship
 beside this bundle under the same skill roots.
 
-- `scripts/` (init_project.py, validate_project.py, sync_remotes.py), the
-  `assets/` templates, and the blueprint-accepted-knowledge tools under
+- `runtime/blueprintctl.py`, `scripts/` (init_project.py, validate_project.py,
+  sync_remotes.py), the `assets/` templates, and the blueprint-accepted-knowledge tools under
   `assets/blueprint-accepted-knowledge/tools/` live inside this bundle; run them
   with a local Python interpreter via the shell using the `resourceBase`
   directory path reported by the skill load result, with `PYTHONUTF8=1` on
   Windows. Prefer writing a temporary .py file over PowerShell one-line `-c`
   calls.
+- In every upstream command, `<plugin-root>` and `<active-manage-plugin>` mean
+  this skill's `resourceBase`. For a Blueprint project, run
+  `<resourceBase>/runtime/blueprintctl.py ensure` exactly once and keep all
+  canonical operations on that gateway.
 - `MANIFEST.sha256` is re-verified by the repository `scripts/validate_all.py`.
 - The DSH adaptation keeps every upstream file byte-identical except this block
   and the DSH changelog append; the synced upstream commit is recorded in the
@@ -174,6 +182,9 @@ this bundle under the same skill roots.
   interpreter via the shell using the `resourceBase` directory path reported by
   the skill load result, with `PYTHONUTF8=1` on Windows. Prefer writing a
   temporary .py file over PowerShell one-line `-c` calls.
+- For Blueprint projects, load the sibling `manage-math-research-program` skill
+  and treat its `resourceBase` as `<active-manage-plugin>`; use only
+  `<resourceBase>/runtime/blueprintctl.py` after its single `ensure`.
 - The DSH environment preflight is `scripts/dsh-doctor.py` in the
   `math-research-dsh` repository checkout (when installed by the repository
   `install.ps1`, the checkout lives at `$DSH_HOME/math-research-dsh`).
@@ -278,13 +289,13 @@ DSH_CHANGELOGS = {
 """,
 }
 
-WORKFLOW_DOCTOR_STEP_OLD = """2. Run the environment preflight (`scripts/doctor.py`). On a hard `FAIL`,
+WORKFLOW_DOCTOR_STEP_OLD = """3. Run the environment preflight (`scripts/doctor.py`). On a hard `FAIL`,
    apply the printed repair command (usually `codex plugin add
    math-research-workflow@math-research`) before any dispatch; the desktop app
    may rewrite `config.toml` and drop plugin-enable entries between sessions.
 """
 
-WORKFLOW_DOCTOR_STEP_NEW = """2. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
+WORKFLOW_DOCTOR_STEP_NEW = """3. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
    math-research-dsh repository checkout, installed under
    `$DSH_HOME/math-research-dsh`). On a hard `FAIL`, apply the printed repair
    command before any dispatch. It verifies that all four skill bundles are
@@ -667,6 +678,11 @@ def rewrite_smoke_paths(text: str) -> str:
     path expressions; smoke_doctor.py is not synced (replaced by the DSH
     doctor smoke for scripts/dsh-doctor.py).
     """
+    text = re.sub(
+        r'"plugins"\s*/\s*"manage-math-research-program"\s*/\s*"runtime"',
+        '"skills" / "manage-math-research-program" / "runtime"',
+        text,
+    )
     text = re.sub(
         r'"plugins"\s*/\s*"manage-math-research-program"\s*/\s*"skills"\s*/\s*"manage-math-research-program"',
         '"skills" / "manage-math-research-program"',

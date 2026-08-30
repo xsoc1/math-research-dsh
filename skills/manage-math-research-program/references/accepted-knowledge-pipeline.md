@@ -3,8 +3,28 @@
 This reference defines how a `manage-math-research-program` project turns
 reusable knowledge produced by `$rigorous-open-math-research` runs into a
 canonical, hash-bound accepted-knowledge base. The pipeline reuses the
-Blueprint v2.2 mathematics machinery ported into the project under
-`knowledge/`.
+Blueprint v2.2 mathematics machinery through the active plugin runtime.
+
+## Physical layout and active gateway
+
+If `blueprint-project.json` exists, it is the physical-layout authority. The
+canonical graph, inventory, submissions, audit log, artifact root, and work
+root are resolved from that marker plus the Blueprint configuration. Resolve
+`$BlueprintCtl` to the active manage plugin's `runtime/blueprintctl.py`, then
+run exactly one binding preflight:
+
+```powershell
+py -3 $BlueprintCtl ensure --project $ProjectRoot
+```
+
+Use that gateway for every later operation. It refuses path escape, layout and
+artifact-root disagreement, a missing ensure binding, and runtime or
+configuration drift. It executes plugin-owned deterministic code; never run or
+copy a project-local `tools/*.py` file.
+
+A project without `blueprint-project.json` may retain the legacy `knowledge/`
+layout. This reference does not authorize an implicit migration between the
+two layouts.
 
 ## Purpose and trust boundary
 
@@ -15,9 +35,9 @@ Blueprint v2.2 mathematics machinery ported into the project under
   classification, hash binding, mathematics-evidence coverage,
   protected-node compliance, and author-reviewer independence. It never
   re-audits a proof.
-- The canonical accepted state is exactly `knowledge/blueprint.json` and
-  `knowledge/evidence_inventory.csv` resolved by
-  `knowledge/.blueprint/config.json`. Everything else is candidate content.
+- The canonical accepted state is exactly the graph and inventory resolved by
+  `blueprint-project.json` and the Blueprint configuration. Everything else is
+  candidate content.
 - Canonical presence certifies that a record and its accepted status passed
   the update process. It does not imply that every stored proposition is
   true. Only the deterministic trusted closure makes a claim eligible as a
@@ -29,22 +49,24 @@ Blueprint v2.2 mathematics machinery ported into the project under
 ## Canonical store layout
 
 ```text
-PROJECT_ROOT/knowledge/
-├── .blueprint/config.json         # Paths, policy, merge settings
-├── blueprint.json                 # Canonical graph: claims, inferences, research state
-├── evidence_inventory.csv         # Canonical accepted evidence index
-├── blueprint_update_requests.jsonl  # Append-only event log
-├── submissions/                   # Immutable proposals, validations, reviews, receipts
-├── backups/                       # Optional verified canonical backups
-├── artifacts/                     # Content-hashed proof and refutation packages
-├── tools/                         # Deterministic query, validator, receiver, viewer server
-└── viewer/                        # Offline read-only graph explorer
+PROJECT_ROOT/
+├── blueprint-project.json         # Physical-layout and runtime API authority
+├── blueprint/
+│   ├── .blueprint/config.json     # Canonical names, policy, audit/runtime paths
+│   ├── blueprint.json             # Canonical graph
+│   ├── evidence_inventory.csv     # Canonical evidence index
+│   └── submissions/               # Immutable proposal lineage and receipts
+└── research/
+    ├── artifacts/                 # Hash-bound proof/refutation packages
+    └── work/                      # Disposable runtime state and transactions
 ```
 
 `blueprint.json` and `evidence_inventory.csv` are a paired transaction.
 `submissions/` is audit history, never a second canonical database. Proof and
 refutation packages under `artifacts/` are bound by SHA-256 and must not be
-edited after binding.
+edited after binding. Runtime code remains in the active plugin and is never
+copied into this tree. Legacy markerless projects may keep the older
+`knowledge/` layout until an explicit migration receipt exists.
 
 ## Epistemic classification
 
@@ -99,7 +121,7 @@ A proved inference binds a content-hashed `proof_package` with
 ### 1. Snapshot and classify
 
 ```powershell
-python knowledge/tools/blueprint_query.py snapshot
+py -3 $BlueprintCtl query --project $ProjectRoot snapshot
 ```
 
 Record the current canonical hashes, then classify the knowledge with exactly
@@ -109,7 +131,7 @@ stop using accumulated retrieval and re-fetch the envelope.
 
 ### 2. Freeze a proposal
 
-Write one immutable `knowledge/submissions/<SUBMISSION_ID>/proposal.json`.
+Write one immutable `<blueprint-root>/submissions/<SUBMISSION_ID>/proposal.json`.
 The submission directory name must equal `proposal.submission_id`. The
 proposal must contain:
 
@@ -140,7 +162,7 @@ change.
 ### 3. Validate deterministically
 
 ```powershell
-python knowledge/tools/receive_blueprint.py --blueprint-root knowledge --submission submissions/<SUBMISSION_ID> --validate-only --actor-agent-id <AGENT_ID>
+py -3 $BlueprintCtl validate-submission --project $ProjectRoot --submission submissions/<SUBMISSION_ID> --actor-agent-id <AGENT_ID>
 ```
 
 The receiver always writes an immutable `validation.json` when it can read a
@@ -152,7 +174,7 @@ or report; create a new submission and use `supersedes`.
 ### 4. Review independently
 
 A reviewer whose agent ID differs from the author writes one immutable
-`knowledge/submissions/<SUBMISSION_ID>/review.json` binding the exact
+`<blueprint-root>/submissions/<SUBMISSION_ID>/review.json` binding the exact
 `proposal.json` and `validation.json` file hashes. Verdicts are `approve`,
 `changes_requested`, or `reject`. Non-approval verdicts must carry blocking or
 major findings with required fixes sufficient for the author to correct the
@@ -179,11 +201,11 @@ Allowed rule codes: `PROTECTED_NODE`, `INVALID_DERIVATION` (evidence-level),
 ### 5. Integrate through the receiver
 
 ```powershell
-python knowledge/tools/receive_blueprint.py --blueprint-root knowledge --submission submissions/<SUBMISSION_ID> --integrator-agent-id <AGENT_ID>
+py -3 $BlueprintCtl integrate --project $ProjectRoot --submission submissions/<SUBMISSION_ID> --integrator-agent-id <AGENT_ID>
 ```
 
-Only the deterministic receiver may change `knowledge/blueprint.json` or
-`knowledge/evidence_inventory.csv`. It verifies hash bindings, read/write-set
+Only the deterministic receiver behind the active gateway may change the
+configured canonical graph or evidence inventory. It verifies hash bindings, read/write-set
 freshness, protected-node rules, mathematics coverage, candidate validation,
 file locking, transaction recovery, and immutable receipt creation. A single
 writer runs the merge; do not reinterpret a conflict as permission to patch
@@ -197,8 +219,8 @@ project index and event log. Refresh the snapshot hashes and update
 post-merge trusted closure and goal frontier:
 
 ```powershell
-python knowledge/tools/blueprint_query.py math-closure --context <CONTEXT_ID>
-python knowledge/tools/blueprint_query.py math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot math-closure --context <CONTEXT_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT_ID>
 ```
 
 ### 7. Mirror into project records
@@ -212,19 +234,19 @@ python knowledge/tools/blueprint_query.py math-frontier --goal <GOAL-OR-CLAIM-ID
 
 ## Deterministic retrieval gateway
 
-Research sub-agents and task packets use `knowledge/tools/blueprint_query.py`
-for canonical lookup:
+Research sub-agents and task packets use the active gateway for canonical
+lookup:
 
 ```powershell
-python knowledge/tools/blueprint_query.py snapshot
-python knowledge/tools/blueprint_query.py math-closure --context <CONTEXT_ID>
-python knowledge/tools/blueprint_query.py math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT_ID>
-python knowledge/tools/blueprint_query.py math-goals --context <CONTEXT_ID>
-python knowledge/tools/blueprint_query.py find --text <QUERY> --limit 10 --math-view trusted
-python knowledge/tools/blueprint_query.py get --id <NODE_ID>
-python knowledge/tools/blueprint_query.py graph --id <NODE_ID> --direction incoming --depth 2 --max-nodes 30
-python knowledge/tools/blueprint_query.py evidence --node <NODE_ID>
-python knowledge/tools/blueprint_query.py artifact-meta --node <NODE_ID> --verify-sha256
+py -3 $BlueprintCtl query --project $ProjectRoot snapshot
+py -3 $BlueprintCtl query --project $ProjectRoot math-closure --context <CONTEXT_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot math-frontier --goal <GOAL-OR-CLAIM-ID> --context <CONTEXT_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot math-goals --context <CONTEXT_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot find --text <QUERY> --limit 10 --math-view trusted
+py -3 $BlueprintCtl query --project $ProjectRoot get --id <NODE_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot graph --id <NODE_ID> --direction incoming --depth 2 --max-nodes 30
+py -3 $BlueprintCtl query --project $ProjectRoot evidence --node <NODE_ID>
+py -3 $BlueprintCtl query --project $ProjectRoot artifact-meta --node <NODE_ID> --verify-sha256
 ```
 
 After the seed call, pass `--expected-blueprint-sha256` and
@@ -244,8 +266,9 @@ or its protected incoming dependencies.
 
 ## Validation after every stage
 
-Run `python scripts/validate_project.py PROJECT_ROOT` after each pipeline
-stage. It checks the knowledge subsystem structure, config resolution, tool
-presence (including `math_blueprint.py`), the canonical pair against
-`validate_blueprint.py` (which also validates the mathematics profile),
-and event-log JSONL integrity.
+For a layout-aware project, run
+`py -3 $BlueprintCtl validate --project $ProjectRoot` after each pipeline
+stage. Legacy markerless projects may continue using
+`python scripts/validate_project.py PROJECT_ROOT`; that legacy validator may
+check its embedded tool bundle, but it is not the runtime for a
+`blueprint-project.json` project.

@@ -1,10 +1,10 @@
 # Accepted Knowledge Base (Blueprint v2.2 mathematics profile)
 
-This directory is the canonical accepted-knowledge subsystem of a
-`manage-math-research-program` project. It reuses the Blueprint v2.2
-mathematics machinery so that reusable mathematical knowledge enters the
-program only through a hash-bound, independently reviewed, receiver-verified
-transaction.
+This directory is the legacy seed and internal deterministic library for the
+accepted-knowledge subsystem. In a project with `blueprint-project.json`, the
+active manage plugin's `runtime/blueprintctl.py` is the only supported entry
+point. Do not copy or run project-local tool files. Markerless legacy projects
+may keep this layout until an explicit migration receipt exists.
 
 ## What lives here
 
@@ -49,23 +49,16 @@ only the deterministic trusted closure is authoritative:
   store (`blueprint_query.py snapshot`); on `SNAPSHOT_MISMATCH`, stop and
   re-fetch.
 
-## Deterministic commands (run from this directory)
+## Deterministic commands for a layout-aware project
 
 ```powershell
-python tools/blueprint_query.py snapshot
-python tools/blueprint_query.py math-closure --context CTX-DEFAULT
-python tools/blueprint_query.py math-frontier --goal <GOAL-OR-CLAIM-ID> --context CTX-DEFAULT
-python tools/blueprint_query.py math-goals --context CTX-DEFAULT
-python tools/blueprint_query.py find --text <QUERY> --math-view trusted
-python tools/blueprint_query.py get --id <NODE_ID>
-python tools/validate_blueprint.py
-python tools/receive_blueprint.py --submission submissions/<SUB-ID> --validate-only --actor-agent-id <AGENT>
-python tools/receive_blueprint.py --submission submissions/<SUB-ID> --integrator-agent-id <AGENT>
-python tools/serve_blueprint_viewer.py
+py -3 $BlueprintCtl ensure --project $ProjectRoot
+py -3 $BlueprintCtl query --project $ProjectRoot snapshot
+py -3 $BlueprintCtl query --project $ProjectRoot math-closure --context CTX-DEFAULT
+py -3 $BlueprintCtl validate --project $ProjectRoot
+py -3 $BlueprintCtl validate-submission --project $ProjectRoot --submission submissions/<SUB-ID> --actor-agent-id <AGENT>
+py -3 $BlueprintCtl integrate --project $ProjectRoot --submission submissions/<SUB-ID> --integrator-agent-id <AGENT>
 ```
-
-Run the receiver from the project root as
-`python knowledge/tools/receive_blueprint.py --blueprint-root knowledge --submission submissions/<SUB-ID> ...`.
 
 ## Mathematics node classes
 
