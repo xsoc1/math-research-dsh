@@ -49,8 +49,13 @@ Checks:
   - optionally, the git working tree is clean at a stage boundary.
 
 Usage:
-  python validate_pipeline.py --project ROOT [--check-git] [--allow-dirty]
-      [--gate-status STATUS,STATUS...]
+  python validate_pipeline.py --project ROOT [--scope RELATIVE_PROJECT_ROOT]
+      [--check-git] [--allow-dirty] [--gate-status STATUS,STATUS...]
+
+When --scope is present, RELATIVE_PROJECT_ROOT is treated as a complete nested
+logical project. Discovery and path bindings are confined to that directory;
+artifacts elsewhere under ROOT are not assessed, so a scoped PASS is never a
+whole-project PASS.
 
 Exit code 0 when all hard checks pass, 1 otherwise.
 """
@@ -181,6 +186,7 @@ NUMERICAL_DOWNGRADE_RE = re.compile(
     re.IGNORECASE,
 )
 CLAIM_FILE_GLOBS = ("docs/**/*.md", "runs/**/*.md")
+SCOPED_PROJECT_MARKERS = ("project.json", "blueprint-project.json")
 
 
 class Report:
@@ -210,6 +216,46 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: fh.read(1 << 20), b""):
             h.update(chunk)
     return h.hexdigest().upper()
+
+
+def resolve_confined_path(root: Path, value: str) -> Path | None:
+    """Resolve a portable relative path without permitting root escape."""
+    normalized = value.replace("\\", "/")
+    if not normalized or normalized.startswith("/") or re.match(r"^[A-Za-z]:/", normalized):
+        return None
+    parts = [part for part in normalized.split("/") if part]
+    if not parts:
+        return None
+    target = root.joinpath(*parts).resolve()
+    try:
+        target.relative_to(root.resolve())
+    except ValueError:
+        return None
+    return target
+
+
+def resolve_validation_root(project_root: Path, scope: str | None) -> tuple[Path | None, str]:
+    """Resolve an optional self-contained nested logical project root."""
+    if scope is None:
+        return project_root, ""
+    scope_path = Path(scope)
+    if scope_path.is_absolute() or re.match(r"^[A-Za-z]:[\\/]", scope):
+        return None, "--scope must be project-relative, not absolute"
+    validation_root = (project_root / scope_path).resolve()
+    try:
+        relative = validation_root.relative_to(project_root)
+    except ValueError:
+        return None, "--scope escapes the project root"
+    if not validation_root.is_dir():
+        return None, f"scoped project directory not found: {relative}"
+    if validation_root != project_root:
+        marker = validation_root / "__scope_boundary__"
+        if is_in_nested_repo(project_root, marker):
+            return None, f"--scope enters a nested git repository: {relative}"
+        if not any((validation_root / name).is_file() for name in SCOPED_PROJECT_MARKERS):
+            names = " or ".join(SCOPED_PROJECT_MARKERS)
+            return None, f"scoped project root {relative} has no {names} marker"
+    return validation_root, ""
 
 
 def load_json(path: Path, report: Report) -> Any | None:
@@ -372,11 +418,10 @@ def check_referenced_hash(
     # Windows-style separators in manifests are normalized so that
     # lean-proof/run-manifest.json entries like "SL\\BalancedPhase.lean"
     # resolve on any platform.
-    parts = [part for part in rel_path.replace("\\", "/").split("/") if part]
-    if not parts:
-        report.bad(f"{context}: empty referenced path")
+    target = resolve_confined_path(root, rel_path)
+    if target is None:
+        report.bad(f"{context}: referenced path is empty, absolute, or escapes the validation root: {rel_path}")
         return
-    target = root.joinpath(*parts)
     if not target.is_file():
         report.bad(f"{context}: referenced file missing: {rel_path}")
         return
@@ -442,11 +487,11 @@ def check_manager_manifest(
             )
         elif formalization == "requested":
             fm = data.get("formalization_manifest")
-            fm_path = root.joinpath(fm) if isinstance(fm, str) and fm else None
+            fm_path = resolve_confined_path(root, fm) if isinstance(fm, str) and fm else None
             if fm_path is None or not fm_path.is_file():
                 report.bad(
                     f"{rel}: formalization requested but formalization_manifest "
-                    "does not point to an existing file"
+                    "does not point to an existing file inside the validation root"
                 )
             if not (root / LEAN_VERDICT).is_file():
                 report.bad(
@@ -461,11 +506,11 @@ def check_manager_manifest(
                 )
         elif formalization == "scaffold":
             fm = data.get("formalization_manifest")
-            fm_path = root.joinpath(fm) if isinstance(fm, str) and fm else None
+            fm_path = resolve_confined_path(root, fm) if isinstance(fm, str) and fm else None
             if fm_path is None or not fm_path.is_file():
                 report.bad(
                     f"{rel}: formalization scaffold but formalization_manifest "
-                    "does not point to an existing scaffold file"
+                    "does not point to an existing scaffold file inside the validation root"
                 )
 
     # New runs with material progress must scaffold a Lean file even when the
@@ -1254,9 +1299,19 @@ def extract_section(text: str, heading: str) -> str:
     return body
 
 
-def check_git(root: Path, report: Report, allow_dirty: bool) -> None:
+def check_git(
+    project_root: Path,
+    validation_root: Path,
+    report: Report,
+    allow_dirty: bool,
+) -> None:
+    command = ["git", "-C", str(project_root), "status", "--porcelain"]
+    scoped = validation_root != project_root
+    if scoped:
+        scope_path = validation_root.relative_to(project_root).as_posix()
+        command.extend(["--", scope_path])
     proc = subprocess.run(
-        ["git", "-C", str(root), "status", "--porcelain"],
+        command,
         capture_output=True,
         text=True,
         errors="replace",
@@ -1265,13 +1320,16 @@ def check_git(root: Path, report: Report, allow_dirty: bool) -> None:
         report.warn(f"cannot run git status: {proc.stderr.strip()}")
         return
     if proc.stdout.strip():
-        message = "working tree is dirty: run git status --porcelain"
+        if scoped:
+            message = f"scoped working tree is dirty under {scope_path}: run git status --porcelain -- {scope_path}"
+        else:
+            message = "working tree is dirty: run git status --porcelain"
         if allow_dirty:
             report.warn(message)
         else:
             report.bad(message)
     else:
-        report.ok("git working tree is clean")
+        report.ok("scoped git working tree is clean" if scoped else "git working tree is clean")
 
 
 def iter_packet_files(root: Path) -> Iterable[Path]:
@@ -1285,6 +1343,13 @@ def iter_manager_manifests(root: Path) -> Iterable[Path]:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Deterministic pipeline gate checks")
     parser.add_argument("--project", required=True, help="math project root directory")
+    parser.add_argument(
+        "--scope",
+        help=(
+            "project-relative self-contained logical project root; validates only "
+            "that root and never implies whole-project validity"
+        ),
+    )
     parser.add_argument("--check-git", action="store_true", help="require a clean git tree")
     parser.add_argument("--allow-dirty", action="store_true", help="warn instead of fail on dirty tree")
     parser.add_argument(
@@ -1294,13 +1359,26 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    root = Path(args.project).resolve()
-    if not root.is_dir():
-        print(f"FAIL: project directory not found: {root}")
+    project_root = Path(args.project).resolve()
+    if not project_root.is_dir():
+        print(f"FAIL: project directory not found: {project_root}")
+        return 2
+
+    root, scope_error = resolve_validation_root(project_root, args.scope)
+    if root is None:
+        print(f"FAIL: {scope_error}")
         return 2
 
     gate_statuses = {s.strip() for s in args.gate_status.split(",") if s.strip()}
     report = Report()
+    scoped = root != project_root
+    if scoped:
+        scope_rel = root.relative_to(project_root).as_posix()
+        report.ok(f"scoped logical project root: {scope_rel}")
+        print(
+            "note: scoped validation does not assess artifacts outside this logical "
+            "project and is not a whole-project PASS"
+        )
 
     packets = list(iter_packet_files(root))
     report.ok(f"found {len(packets)} task packet(s)")
@@ -1334,11 +1412,13 @@ def main() -> int:
     check_claim_evidence(root, report)
 
     if args.check_git:
-        check_git(root, report, args.allow_dirty)
+        check_git(project_root, root, report, args.allow_dirty)
 
     problem_count = len(report.errors)
+    result_kind = "scoped" if scoped else "whole-project"
     print(
-        f"{problem_count} problem(s) found, {len(report.warnings)} warning(s), "
+        f"{result_kind} result: {problem_count} problem(s) found, "
+        f"{len(report.warnings)} warning(s), "
         f"{report.checks} check(s)."
     )
     return 1 if problem_count else 0

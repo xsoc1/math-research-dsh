@@ -96,6 +96,35 @@ flowchart TD
 | 论文级验证 | 通过 / 失败 | 交付 / 修论文 |
 | 8e 比对 | 重复 / 矛盾 / 干净 | REJECT / 停止 / 入库 |
 
+## Whole-project and scoped validation
+
+The default gate validates the complete logical project rooted at `--project`:
+
+```text
+python validate_pipeline.py --project <project-root>
+```
+
+When a new experiment is intentionally isolated inside a repository that has
+unrelated historical migration debt, validate the nested logical project from
+the physical repository root:
+
+```text
+python validate_pipeline.py --project <repository-root> \
+  --scope <relative-logical-root>
+```
+
+The scoped root must contain `project.json` or `blueprint-project.json`.
+Discovery starts from that root and every source, task-packet, formalization,
+checkpoint, and completion-certificate binding remains inside it. Absolute or
+escaping paths, markerless roots, and nested git repositories fail before the
+gate can return success. With `--check-git`, only changes under the selected
+scope are considered.
+
+The output always labels the result `scoped` and states that artifacts outside
+the logical root were not assessed. Therefore, a scoped PASS can certify one
+new experiment without claiming that legacy whole-project problems are fixed;
+the unscoped command remains the only whole-project verdict.
+
 ## Fast-close certificate
 
 `closure_gate.md` 只保存人类可读摘要与两个 hash binding. `STOP` 的确定性依据在:

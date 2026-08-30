@@ -1,5 +1,16 @@
 # Release history
 
+## Changelog (2026-08-30, v1.11.0)
+
+- Added `validate_pipeline.py --scope <relative-logical-root>` for a complete
+  nested project inside a legacy repository. Scoped discovery, hash bindings,
+  formalization paths, checkpoints, and scoped git cleanliness are confined to
+  that root; the output explicitly states that a scoped PASS is not a
+  whole-project PASS.
+- Scope roots must carry `project.json` or `blueprint-project.json`; absolute,
+  escaping, markerless, and nested-git scopes fail before validation. Relative
+  source and formalization bindings can no longer escape their validation root.
+
 ## Changelog (2026-08-30, v1.10.0)
 
 - Added `checkpoint_resume.py advance`: it verifies the predecessor pair,

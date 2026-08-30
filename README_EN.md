@@ -211,6 +211,7 @@ python scripts\dsh-check-bundle.py    # official bundle gate (package.json / pat
 python scripts\check_version_bump.py --base HEAD^   # CI version-bump gate (local, as needed)
 cd tests
 python smoke_pipeline_gate.py         # pipeline gate fixtures
+python smoke_scoped_pipeline.py       # self-contained scope and path-escape regression
 python smoke_handoff.py               # interruption handoff fixtures
 python smoke_checkpoint_resume.py     # adversarial quota checkpoint/resume regression
 python smoke_lean_verify.py           # lean-verify scanner (no Lean toolchain needed)
@@ -261,6 +262,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.11.0` | 2026-08-30 | Inherits the workflow scoped pipeline gate: a self-contained logical project validates independently, bindings and git checks stay inside the scope, and a scoped PASS is explicitly not a whole-project PASS; the DSH sync layer now supports independent rigorous/workflow semver |
 | `1.10.0` | 2026-08-30 | Inherits checkpoint recovery usability: `advance` versions bound whiteboard/closure files and creates a guarded draft; project-prefixed paths and seven-digit timestamps work; typed obligation lineage retires predecessor actions automatically |
 | `1.9.0` | 2026-08-29 | Inherits quota-safe recovery: immutable checkpoints, one canonical resume receipt, predecessor lineage, action-scoped minimal reads, in-flight worker/session reconciliation, cumulative scored metrics, and full-lineage fresh audit evidence gates |
 | `1.8.0` | 2026-08-28 | Inherits structured fast-close certificates: canonical obligation graph, completion manifest, independent audit, anchor/hash/timestamp gates, and one authorized post-STOP frontier call; syncs the full-flow document and adversarial regressions |

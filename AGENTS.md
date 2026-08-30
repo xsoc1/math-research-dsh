@@ -14,7 +14,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `scripts/sync-from-parent.py` -- 父仓库同步 + DSH 层重放 + upstream.lock.json
 - `scripts/validate_all.py` -- 仓库校验 (结构/MANIFEST/lock/UTF-8+LF/py_compile/JSON+YAML)
 - `scripts/dsh-doctor.py` -- DSH 环境自检 (skill 挂载/python/lake)
-- `tests/` -- fixtures + 15 个 smoke
+- `tests/` -- fixtures + 16 个 smoke
 - `package.json` / `index.mjs` / `cordis.patch.yml` -- 官方 bundle 技能包 (社区一键安装)
 - `scripts/dsh-check-bundle.py` -- bundle 打包门禁 (package.json/patch/index.mjs/skills)
 - `upstream.lock.json` -- 父仓库 commit + 逐文件哈希
@@ -44,7 +44,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `install.ps1` (junction) 只能二选一, 同时安装会导致同一批 skill 双份注册.
 - **README 中英同步**: README.md 与 README_EN.md 必须同步更新; `validate_all.py` 会
   检查所有 `tests/smoke_*.py` 是否都出现在两份 README 中.
-- **测试数量**: 当前 15 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
+- **测试数量**: 当前 16 个 smoke; 新增 smoke 后同步更新 README 两版与 AGENTS.md.
 - **GitHub 网络**: 直连 github.com 失败时, 用本地代理 push:
   `git -c http.proxy=http://127.0.0.1:7897 push origin main` (本机实测可用).
 
@@ -445,3 +445,12 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `sync-from-parent.py` 机械继承 skills/tests 和 `docs/pipeline-full-flow.md`, lock
   保持 107 文件; package.json bump 1.9.0 -> 1.10.0, README 中英版同步.
 - 校验: validate_all 51/51, BUNDLE OK, sync-check clean, 15 个 smoke 全过.
+### 2026-08-30 会话: 继承 scoped pipeline validation (v1.11.0)
+- 上游 2c61581: workflow 新增自包含逻辑项目 `--scope` 门禁, 路径绑定和 scoped
+  git cleanliness 均限制在 scope 内, 并明确 scoped PASS 不等于全仓 PASS.
+- `sync-from-parent.py` 适配 rigorous/workflow 独立 semver: 从上游
+  `expected_versions` 读取 workflow 版本并转换为 DSH package 断言. 同步新增
+  `smoke_scoped_pipeline.py`, full-flow 文档, validator 与 changelog; package bump
+  1.10.0 -> 1.11.0, README 中英版同步.
+- 校验: validate_all 51/51, BUNDLE OK, node check, sync-check clean, 16 个 smoke,
+  py_compile 与 diff check 全部通过; upstream lock 107 文件 @ 2c61581.

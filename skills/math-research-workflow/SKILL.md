@@ -109,6 +109,9 @@ Do **not** use this skill for a single proof request (use
 4. Run the deterministic pipeline gate shipped with this plugin
    (`scripts/validate_pipeline.py --project .`). Fix every hard `FAIL` before
    dispatch; treat `warn:` lines as advisory notes to record, not as blockers.
+   For a nested logical project use `--scope <relative-logical-root>`; a scoped
+   PASS must never be reported as a whole-project PASS. The on-demand contract
+   is in `docs/pipeline-full-flow.md`.
 5. For each task: build or refresh the **task packet** (contract, source
    documents, obligations, verification criteria, hashes) and delegate.
 
@@ -555,8 +558,8 @@ schema, benchmark continuity, and replacement rules:
   template (current plan, route history, deferred ideas, open obligations,
   artifact index) for the OpenProver-style solve loop.
 - `scripts/validate_pipeline.py` -- deterministic task-packet, hash-binding,
-  run-manifest, numerical-evidence discipline, and git gate checks for stage
-  boundaries.
+  run-manifest, numerical-evidence discipline, confined logical-project scope,
+  and git gate checks for stage boundaries.
 - `scripts/checkpoint_resume.py` -- checkpoint seal/verify/resume, timestamp,
   and next-segment artifact versioning.
 - `references/quota-interruption-recovery.md` -- exact quota boundary,

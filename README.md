@@ -188,6 +188,7 @@ python scripts\dsh-check-bundle.py    # 官方 bundle 打包门禁 (package.json
 python scripts\check_version_bump.py --base HEAD^   # CI 版本 bump 门禁 (本地按需)
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
+python smoke_scoped_pipeline.py       # 自包含 scope 门禁与路径逃逸对抗回归
 python smoke_handoff.py               # 中断交接 fixtures
 python smoke_checkpoint_resume.py     # 配额 checkpoint/resume 对抗回归
 python smoke_lean_verify.py           # lean-verify 扫描 (无需 Lean 工具链)
@@ -237,6 +238,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.11.0` | 2026-08-30 | 继承 workflow scoped pipeline gate: 自包含逻辑项目可独立校验, 路径绑定与 git 检查限制在 scope 内, scoped PASS 明确不等于全仓 PASS; DSH 同步器支持 rigorous/workflow 独立 semver |
 | `1.10.0` | 2026-08-30 | 继承 checkpoint recovery usability: `advance` 版本化 bound whiteboard/closure 并生成 guarded draft; project-prefixed path 与 7 位 timestamp 兼容; typed obligation lineage 自动退休 predecessor action |
 | `1.9.0` | 2026-08-29 | 继承配额安全恢复: immutable checkpoint, unique resume receipt, predecessor lineage, action-scoped 最小读取集, in-flight worker/session 对账, 计分累计量和全谱系新鲜审计证据门禁 |
 | `1.8.0` | 2026-08-28 | 继承 fast-close 结构化证书: canonical obligation graph, completion manifest, 独立 audit, anchor/hash/timestamp 门禁, STOP 后单次有授权 frontier call; 同步 pipeline full-flow 文档与对抗回归 |

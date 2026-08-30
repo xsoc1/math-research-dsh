@@ -708,6 +708,21 @@ def rewrite_smoke_paths(text: str) -> str:
             ),
             text,
         )
+        text = re.sub(
+            r'\texpected_versions = \{RIGOROUS: "\d+\.\d+\.\d+", WORKFLOW: "(?P<version>\d+\.\d+\.\d+)"\}\n'
+            r'\tfor plugin, expected_version in expected_versions\.items\(\):\n'
+            r'\t\tmanifest = json\.loads\(\(plugin / "\.codex-plugin" / "plugin\.json"\)\.read_text\(encoding="utf-8"\)\)\n'
+            r'\t\tif manifest\["version"\] != expected_version:\n'
+            r'\t\t\traise AssertionError\(\n'
+            r'\t\t\t\tf"\{manifest\[\'name\'\]\} version is not \{expected_version\}"\n'
+            r'\t\t\t\)',
+            lambda match: (
+                '\tpackage = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))\n'
+                f'\tif package["version"] != "{match.group("version")}":\n'
+                f'\t\traise AssertionError("DSH package version is not {match.group("version")}")'
+            ),
+            text,
+        )
     if "checkpoint resume smoke passed" in text:
         text = text.replace(
             'WORKFLOW_SKILL = WORKFLOW / "skills" / "math-research-workflow"',
