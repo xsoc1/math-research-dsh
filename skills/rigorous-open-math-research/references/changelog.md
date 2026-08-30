@@ -1,5 +1,11 @@
 # Release history
 
+## Changelog (2026-08-30, v1.10.0)
+
+- Quota-bound semantic state now supports typed obligation refinement or
+  supersession, while the workflow versions mutable whiteboard and closure
+  artifacts before resumed research edits them.
+
 ## Changelog (2026-08-29, v1.9.0)
 
 - Resource-bound runs now expose a structured semantic frontier for the

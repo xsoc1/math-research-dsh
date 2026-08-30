@@ -237,6 +237,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.10.0` | 2026-08-30 | 继承 checkpoint recovery usability: `advance` 版本化 bound whiteboard/closure 并生成 guarded draft; project-prefixed path 与 7 位 timestamp 兼容; typed obligation lineage 自动退休 predecessor action |
 | `1.9.0` | 2026-08-29 | 继承配额安全恢复: immutable checkpoint, unique resume receipt, predecessor lineage, action-scoped 最小读取集, in-flight worker/session 对账, 计分累计量和全谱系新鲜审计证据门禁 |
 | `1.8.0` | 2026-08-28 | 继承 fast-close 结构化证书: canonical obligation graph, completion manifest, 独立 audit, anchor/hash/timestamp 门禁, STOP 后单次有授权 frontier call; 同步 pipeline full-flow 文档与对抗回归 |
 | `1.7.0` | 2026-08-27 | 继承 closure-first 调度: 先直接求解并证伪首个承重义务, spawn 与续跑要求 `decision_delta`, 非必要工件延迟生成, load-bearing 结果仍独立审计 |

@@ -438,3 +438,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - package.json bump 1.8.0 -> 1.9.0; README 中英版, 完整流程图和
   smoke 清单同步. 校验: validate_all 51/51, BUNDLE OK,
   sync-check clean, 15 个 smoke 全过.
+### 2026-08-30 会话: 继承 checkpoint recovery usability (v1.10.0)
+- 上游 dff2248: workflow 新增 `advance` 自动版本化 checkpoint-bound
+  whiteboard/closure, guarded next-state draft, project/cwd path 归一化,
+  canonical/7 位 timestamp 支持和 typed obligation lineage action retirement.
+- `sync-from-parent.py` 机械继承 skills/tests 和 `docs/pipeline-full-flow.md`, lock
+  保持 107 文件; package.json bump 1.9.0 -> 1.10.0, README 中英版同步.
+- 校验: validate_all 51/51, BUNDLE OK, sync-check clean, 15 个 smoke 全过.

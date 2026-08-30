@@ -46,6 +46,15 @@ def run(*args: str) -> subprocess.CompletedProcess[str]:
 	)
 
 
+def run_from(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
+	return subprocess.run(
+		[sys.executable, str(SCRIPT), *args],
+		cwd=cwd,
+		capture_output=True,
+		text=True,
+	)
+
+
 def run_pipeline(project: Path) -> subprocess.CompletedProcess[str]:
 	return subprocess.run(
 		[sys.executable, str(PIPELINE), "--project", str(project)],
@@ -308,11 +317,22 @@ Verify the checkpoint, then continue O2.
 def main() -> None:
 	require_markers(
 		WORKFLOW_SKILL / "SKILL.md",
-		("checkpoint_resume.py", "quota-interruption-recovery.md", "minimal_read_set"),
+		(
+			"checkpoint_resume.py",
+			"quota-interruption-recovery.md",
+			"minimal_read_set",
+			"checkpoint_resume.py advance",
+		),
 	)
 	require_markers(
 		WORKFLOW_SKILL / "references" / "quota-interruption-recovery.md",
-		("RECONCILE_INFLIGHT", "cumulative metrics", "hidden-gold"),
+		(
+			"RECONCILE_INFLIGHT",
+			"cumulative metrics",
+			"hidden-gold",
+			"advance_draft=true",
+			"SUPERSEDES",
+		),
 	)
 	require_markers(
 		FULL_FLOW,
@@ -1045,6 +1065,189 @@ def main() -> None:
 			run("verify", "--project", str(project), "--checkpoint", str(checkpoint_path)),
 			"envelope does not match",
 		)
+
+	stamp = run("timestamp")
+	if stamp.returncode != 0:
+		raise AssertionError(f"canonical timestamp command failed:\n{stamp.stdout}")
+	stamp_value = json.loads(stamp.stdout)["timestamp"]
+	if not stamp_value.endswith("Z") or "." in stamp_value:
+		raise AssertionError(f"canonical timestamp is not second-precision UTC: {stamp_value}")
+
+	with tempfile.TemporaryDirectory() as temp:
+		project, state_path, checkpoint_path = fixture(Path(temp))
+		state = json.loads(state_path.read_text(encoding="utf-8"))
+		state["created_at"] = "2026-08-29T12:30:00.1234567Z"
+		write_json(state_path, state)
+		receipt_path = seal_and_resume(
+			project,
+			state_path,
+			checkpoint_path,
+			resumed_at="2026-08-29T13:00:00.7654321Z",
+		)
+		if not receipt_path.is_file():
+			raise AssertionError("seven-digit fractional timestamp was not accepted")
+
+	with tempfile.TemporaryDirectory() as temp:
+		root = Path(temp)
+		project, state_path, checkpoint_path = fixture(root)
+		project_arg = project.name
+		state_arg = state_path.relative_to(root).as_posix()
+		checkpoint_arg = checkpoint_path.relative_to(root).as_posix()
+		sealed = run_from(
+			root,
+			"seal",
+			"--project",
+			project_arg,
+			"--state",
+			state_arg,
+			"--output",
+			checkpoint_arg,
+		)
+		if sealed.returncode != 0:
+			raise AssertionError(
+				f"project-prefixed cwd-relative paths failed:\n{sealed.stdout}"
+			)
+
+	with tempfile.TemporaryDirectory() as temp:
+		project, state_path, checkpoint_path = fixture(Path(temp))
+		original_whiteboard_hash = sha256(state_path.parent / "whiteboard.md")
+		receipt_path = seal_and_resume(project, state_path, checkpoint_path)
+		next_state_path = state_path.with_name("interruption_state-01.json")
+		advanced = run(
+			"advance",
+			"--project",
+			str(project),
+			"--checkpoint",
+			str(checkpoint_path),
+			"--receipt",
+			str(receipt_path),
+			"--output",
+			str(next_state_path),
+			"--created-at",
+			"2026-08-29T14:00:00Z",
+		)
+		if advanced.returncode != 0:
+			raise AssertionError(f"advance failed:\n{advanced.stdout}")
+		advance_result = json.loads(advanced.stdout)
+		if advance_result["verdict"] != "ADVANCE_DRAFT_READY":
+			raise AssertionError("advance did not return the draft-ready verdict")
+		versioned_whiteboard = state_path.parent / "whiteboard-01.md"
+		if not versioned_whiteboard.is_file():
+			raise AssertionError("advance did not version the mutable whiteboard")
+		if sha256(versioned_whiteboard) != original_whiteboard_hash:
+			raise AssertionError("advance changed the copied whiteboard bytes")
+		if sha256(state_path.parent / "whiteboard.md") != original_whiteboard_hash:
+			raise AssertionError("advance changed the checkpoint-bound whiteboard")
+		if run(
+			"verify", "--project", str(project), "--checkpoint", str(checkpoint_path)
+		).returncode != 0:
+			raise AssertionError("advance made the predecessor checkpoint stale")
+		expect_failure(
+			run(
+				"seal",
+				"--project",
+				str(project),
+				"--state",
+				str(next_state_path),
+				"--output",
+				str(checkpoint_path.with_name("interruption_checkpoint-01.json")),
+			),
+			"advance draft must be finalized",
+		)
+		versioned_whiteboard.write_text(
+			"# Whiteboard\n\nSegment 01 update.\n",
+			encoding="utf-8",
+			newline="\n",
+		)
+		next_state_value = json.loads(next_state_path.read_text(encoding="utf-8"))
+		next_state_value.pop("advance_draft")
+		new_whiteboard_binding = binding(project, versioned_whiteboard)
+		next_state_value["whiteboard"] = new_whiteboard_binding
+		for index, item in enumerate(next_state_value["resume"]["minimal_read_set"]):
+			if item["path"].endswith("whiteboard-01.md"):
+				next_state_value["resume"]["minimal_read_set"][index] = new_whiteboard_binding
+		write_json(next_state_path, next_state_value)
+		sealed_next = run(
+			"seal",
+			"--project",
+			str(project),
+			"--state",
+			str(next_state_path),
+			"--output",
+			str(checkpoint_path.with_name("interruption_checkpoint-01.json")),
+		)
+		if sealed_next.returncode != 0:
+			raise AssertionError(
+				f"finalized advance state did not seal:\n{sealed_next.stdout}"
+			)
+
+	with tempfile.TemporaryDirectory() as temp:
+		project, state_path, checkpoint_path = fixture(Path(temp))
+		receipt_path = seal_and_resume(project, state_path, checkpoint_path)
+		next_state_path, next_checkpoint_path, next_value = next_state(
+			project, state_path, checkpoint_path, receipt_path
+		)
+		refinement = state_path.parent / "o2-refinement.md"
+		refinement.write_text(
+			"O2 reduces to the endpoint kernel sign.\n",
+			encoding="utf-8",
+			newline="\n",
+		)
+		next_value["open_obligations"][0] = {
+			"id": "O2-ENDPOINT-KERNEL",
+			"exact_gap": "Exclude the endpoint kernel sign.",
+			"lineage": {
+				"relation": "REFINES",
+				"predecessor_id": "O2",
+				"evidence": binding(project, refinement),
+			},
+			"next_action": {
+				"action_id": "check-endpoint-kernel",
+				"description": "Check the exact endpoint kernel sign.",
+			},
+			"required_inputs": [binding(project, refinement)],
+		}
+		next_value["resume"]["first_action"] = {
+			"kind": "CONTINUE_OBLIGATION",
+			"action_id": "check-endpoint-kernel",
+			"target_id": "O2-ENDPOINT-KERNEL",
+		}
+		next_value["resume"]["minimal_read_set"] = [
+			next_value["task_contract"],
+			next_value["whiteboard"],
+			binding(project, refinement),
+		]
+		write_json(next_state_path, next_value)
+		sealed = run(
+			"seal",
+			"--project",
+			str(project),
+			"--state",
+			str(next_state_path),
+			"--output",
+			str(next_checkpoint_path),
+		)
+		if sealed.returncode != 0:
+			raise AssertionError(f"typed obligation refinement failed:\n{sealed.stdout}")
+		receipt1_path = next_checkpoint_path.with_name("resume_receipt-01.json")
+		resumed = run(
+			"resume",
+			"--project",
+			str(project),
+			"--checkpoint",
+			str(next_checkpoint_path),
+			"--receipt",
+			str(receipt1_path),
+			"--resumed-at",
+			"2026-08-29T15:00:00Z",
+		)
+		if resumed.returncode != 0:
+			raise AssertionError(f"refinement receipt failed:\n{resumed.stdout}")
+		receipt1 = json.loads(receipt1_path.read_text(encoding="utf-8"))
+		if "continue-o2" not in receipt1["do_not_repeat_action_ids"]:
+			raise AssertionError("refinement did not retire the predecessor action")
+		if receipt1["obligation_lineage"][0]["predecessor_id"] != "O2":
+			raise AssertionError("resume receipt lost typed obligation lineage")
 
 	print("checkpoint resume smoke passed")
 

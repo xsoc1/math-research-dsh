@@ -326,13 +326,10 @@ follow `references/openprover-absorption.md`. In short:
 - At route boundaries or before context compaction, reconstruct from the
   whiteboard, repository index, and exact artifact paths instead of replaying
   the transcript. Record the current open obligations and next action first.
-- Token budget is checked at safe boundaries. On exhaustion: persist
-  whiteboard/repo/history/facts, seal an immutable interruption checkpoint,
-  write its handoff bindings, mark `PAUSED_BUDGET`, and resume later from a
-  verified receipt. Before any resumed model call, `checkpoint_resume.py`
-  must return `READY`; the successor reads only the receipt's minimal read set
-  and reconciles unresolved workers before dispatch. Scored runs retain
-  cumulative segment metrics. Full protocol:
+- On budget exhaustion, seal an immutable checkpoint and mark `PAUSED_BUDGET`.
+  Resume only after `READY`, use the receipt's minimal read set, reconcile
+  unresolved workers, and run `checkpoint_resume.py advance` before editing
+  bound mutable artifacts. Scored metrics stay cumulative. Full protocol:
   `references/quota-interruption-recovery.md`.
 
 **Numerical evidence discipline (hard rule):**
@@ -505,10 +502,11 @@ agent writes an interruption handoff before returning control:
    upstream status, completed/open work, route outcomes, exact next actions,
    and key hashes; quota handoffs bind the state and checkpoint. Register its
    path/hash with the manager.
-3. Before a resumed model call, require `verify=READY` and create the immutable
-   receipt. Read only `minimal_read_set`; execute `first_action`; reconcile
-   unresolved workers before dispatch. `STALE`, completed work, and
-   do-not-repeat targets are hard stops.
+3. Before a resumed model call, require `verify=READY`, create the receipt and
+   `advance` draft, then read only `minimal_read_set` and execute
+   `first_action`. Reconcile workers first. Use typed `REFINES`/`SUPERSEDES`
+   when a sharper obligation replaces an open ID. Stale or unfinished drafts
+   and completed/do-not-repeat work are hard stops.
 
 `validate_pipeline.py` enforces the handoff and quota bindings. Full state
 schema, benchmark continuity, and replacement rules:
@@ -559,8 +557,8 @@ schema, benchmark continuity, and replacement rules:
 - `scripts/validate_pipeline.py` -- deterministic task-packet, hash-binding,
   run-manifest, numerical-evidence discipline, and git gate checks for stage
   boundaries.
-- `scripts/checkpoint_resume.py` -- idempotent interruption-state sealer,
-  checkpoint verifier, and immutable resume-receipt writer.
+- `scripts/checkpoint_resume.py` -- checkpoint seal/verify/resume, timestamp,
+  and next-segment artifact versioning.
 - `references/quota-interruption-recovery.md` -- exact quota boundary,
   minimal-read resume, in-flight reconciliation, and benchmark-integrity
   protocol.

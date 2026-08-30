@@ -10,12 +10,13 @@ hash-bound envelope over that state and its referenced artifacts.
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import math
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -75,6 +76,12 @@ FORBIDDEN_READ_SET_TOKENS = {
     "raw-response",
 }
 MAX_MINIMAL_READ_SET = 12
+OBLIGATION_LINEAGE_RELATIONS = {"REFINES", "SUPERSEDES"}
+MUTABLE_CHECKPOINT_BINDINGS = ("whiteboard", "closure_gate")
+FRACTIONAL_SECONDS_RE = re.compile(
+    r"(?P<prefix>\.\d{6})\d+(?P<suffix>Z|[+-]\d{2}:\d{2})$"
+)
+VERSIONED_ARTIFACT_RE = re.compile(r"^(?P<stem>.+)-\d{2,}$")
 
 
 class CheckpointError(RuntimeError):
@@ -119,9 +126,48 @@ def load_json(path: Path, context: str) -> dict[str, Any]:
     return value
 
 
+def is_inside(project: Path, path: Path) -> bool:
+    try:
+        path.resolve().relative_to(project.resolve())
+    except ValueError:
+        return False
+    return True
+
+
 def inside_project(project: Path, path: Path, context: str, *, must_exist: bool) -> Path:
     project = project.resolve()
-    candidate = path if path.is_absolute() else project / path
+    if path.is_absolute():
+        candidate = path
+    else:
+        project_candidate = (project / path).resolve()
+        cwd_candidate = (Path.cwd() / path).resolve()
+        if project_candidate == cwd_candidate or not is_inside(project, cwd_candidate):
+            candidate = project_candidate
+        elif must_exist:
+            project_exists = project_candidate.is_file()
+            cwd_exists = cwd_candidate.is_file()
+            if project_exists and cwd_exists:
+                raise CheckpointError(
+                    f"{context} is ambiguous between project-relative and cwd-relative paths"
+                )
+            candidate = cwd_candidate if cwd_exists else project_candidate
+        else:
+            project_exists = project_candidate.exists()
+            cwd_exists = cwd_candidate.exists()
+            if project_exists and cwd_exists:
+                raise CheckpointError(
+                    f"{context} is ambiguous between project-relative and cwd-relative paths"
+                )
+            if project_exists or cwd_exists:
+                candidate = cwd_candidate if cwd_exists else project_candidate
+            else:
+                project_parent = project_candidate.parent.exists()
+                cwd_parent = cwd_candidate.parent.exists()
+                if project_parent and cwd_parent:
+                    raise CheckpointError(
+                        f"{context} is ambiguous between project-relative and cwd-relative paths"
+                    )
+                candidate = cwd_candidate if cwd_parent else project_candidate
     candidate = candidate.resolve()
     try:
         candidate.relative_to(project)
@@ -141,7 +187,7 @@ def nonempty(value: Any, context: str) -> str:
 def parse_time(value: Any, context: str) -> str:
     text = nonempty(value, context)
     try:
-        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        parsed = datetime.fromisoformat(python_iso_time(text))
     except ValueError as exc:
         raise CheckpointError(f"{context} must be an ISO-8601 timestamp") from exc
     if parsed.tzinfo is None:
@@ -150,7 +196,24 @@ def parse_time(value: Any, context: str) -> str:
 
 
 def time_value(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return datetime.fromisoformat(python_iso_time(value))
+
+
+def python_iso_time(value: str) -> str:
+    normalized = value.replace("Z", "+00:00")
+    return FRACTIONAL_SECONDS_RE.sub(
+        lambda match: match.group("prefix") + match.group("suffix").replace("Z", "+00:00"),
+        normalized,
+    )
+
+
+def canonical_utc_timestamp() -> str:
+    return (
+        datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
 
 
 def validate_binding(
@@ -210,6 +273,13 @@ def validate_state(
     rendered_state = json.dumps(state, ensure_ascii=False)
     if "{{" in rendered_state:
         raise CheckpointError("interruption state still contains template placeholders")
+    advance_draft = state.get("advance_draft")
+    if advance_draft is True:
+        raise CheckpointError(
+            "advance draft must be finalized and advance_draft removed before sealing"
+        )
+    if advance_draft is not None and advance_draft is not False:
+        raise CheckpointError("advance_draft must be boolean when present")
     if state.get("schema_version") != 1:
         raise CheckpointError("interruption state schema_version must be 1")
     checkpoint_sequence = state.get("checkpoint_sequence")
@@ -273,6 +343,7 @@ def validate_state(
     open_ids: set[str] = set()
     open_inputs: dict[str, set[str]] = {}
     open_action_ids: dict[str, str] = {}
+    open_lineage: dict[str, dict[str, Any]] = {}
     live_action_ids: set[str] = set()
     for index, item in enumerate(open_value):
         if not isinstance(item, dict):
@@ -308,6 +379,41 @@ def validate_state(
         open_inputs[obligation_id] = {binding["path"] for binding in inputs}
         for binding in inputs:
             register_binding(binding_table, binding, f"open obligation {obligation_id}")
+        lineage = item.get("lineage")
+        if lineage is not None:
+            if not isinstance(lineage, dict):
+                raise CheckpointError(
+                    f"open_obligations[{index}].lineage must be an object"
+                )
+            relation = nonempty(
+                lineage.get("relation"),
+                f"open_obligations[{index}].lineage.relation",
+            )
+            if relation not in OBLIGATION_LINEAGE_RELATIONS:
+                raise CheckpointError(
+                    f"open_obligations[{index}].lineage.relation must be one of "
+                    f"{sorted(OBLIGATION_LINEAGE_RELATIONS)}"
+                )
+            predecessor_id = nonempty(
+                lineage.get("predecessor_id"),
+                f"open_obligations[{index}].lineage.predecessor_id",
+            )
+            evidence = validate_binding(
+                project,
+                lineage.get("evidence"),
+                f"open_obligations[{index}].lineage.evidence",
+            )
+            register_binding(
+                binding_table,
+                evidence,
+                f"open obligation lineage {obligation_id}",
+            )
+            open_lineage[obligation_id] = {
+                "id": obligation_id,
+                "relation": relation,
+                "predecessor_id": predecessor_id,
+                "evidence": evidence,
+            }
     overlap = completed_ids & open_ids
     if overlap:
         raise CheckpointError(f"obligations cannot be both completed and open: {sorted(overlap)}")
@@ -375,6 +481,7 @@ def validate_state(
     if not isinstance(do_not_repeat_value, list):
         raise CheckpointError("do_not_repeat must be a JSON array")
     blocked_actions: set[str] = set()
+    blocked_action_order: list[str] = []
     for index, item in enumerate(do_not_repeat_value):
         if not isinstance(item, dict):
             raise CheckpointError(f"do_not_repeat[{index}] must be an object")
@@ -383,6 +490,7 @@ def validate_state(
         if action_id in blocked_actions:
             raise CheckpointError(f"duplicate do-not-repeat action {action_id!r}")
         blocked_actions.add(action_id)
+        blocked_action_order.append(action_id)
         evidence = validate_binding(project, item.get("evidence"), f"do_not_repeat[{index}].evidence")
         register_binding(binding_table, evidence, f"do-not-repeat action {action_id}")
     conflicting_open_actions = set(open_action_ids.values()) & blocked_actions
@@ -559,6 +667,8 @@ def validate_state(
     predecessor = state.get("predecessor")
     status_transition = state.get("status_transition")
     ancestor_bound_artifacts: set[tuple[str, str]] = set()
+    effective_blocked_actions = set(blocked_actions)
+    effective_blocked_action_order = list(blocked_action_order)
     if checkpoint_sequence == 0:
         if predecessor is not None:
             raise CheckpointError("checkpoint_sequence 0 must have predecessor=null")
@@ -566,6 +676,8 @@ def validate_state(
             raise CheckpointError("checkpoint_sequence 0 must have status_transition=null")
         if reconciled_workers:
             raise CheckpointError("checkpoint_sequence 0 must have empty inflight_reconciliation")
+        if open_lineage:
+            raise CheckpointError("checkpoint_sequence 0 cannot declare obligation lineage")
     else:
         if not isinstance(predecessor, dict):
             raise CheckpointError("checkpoint_sequence > 0 requires predecessor bindings")
@@ -654,14 +766,43 @@ def validate_state(
             if isinstance(item, dict)
         ]
         previous_open = {str(item.get("id", "")) for item in previous_open_items}
-        if not previous_open.issubset(open_ids | completed_ids):
+        lineage_predecessors: dict[str, str] = {}
+        ancestor_hashes = {sha256 for _path, sha256 in ancestor_bound_artifacts}
+        for obligation_id, lineage in open_lineage.items():
+            predecessor_id = lineage["predecessor_id"]
+            if predecessor_id not in previous_open:
+                raise CheckpointError(
+                    f"obligation lineage predecessor {predecessor_id!r} is not open "
+                    "in the predecessor"
+                )
+            if predecessor_id == obligation_id:
+                raise CheckpointError(
+                    "obligation lineage must rename the predecessor obligation"
+                )
+            if predecessor_id in lineage_predecessors:
+                raise CheckpointError(
+                    f"multiple obligations replace predecessor {predecessor_id!r}"
+                )
+            if predecessor_id in open_ids or predecessor_id in completed_ids:
+                raise CheckpointError(
+                    f"lineage predecessor {predecessor_id!r} remains active or completed"
+                )
+            if lineage["evidence"]["sha256"] in ancestor_hashes:
+                raise CheckpointError(
+                    "obligation lineage evidence must be new to the full lineage"
+                )
+            lineage_predecessors[predecessor_id] = obligation_id
+        if not previous_open.issubset(
+            open_ids | completed_ids | set(lineage_predecessors)
+        ):
             raise CheckpointError("open obligations cannot disappear without completion")
-        previous_blocked = {
-            str(item.get("action_id", "")) for item in previous_state.get("do_not_repeat", [])
-            if isinstance(item, dict)
-        }
-        if not previous_blocked.issubset(blocked_actions):
-            raise CheckpointError("do-not-repeat actions cannot disappear across segments")
+        previous_blocked_order = [
+            str(item) for item in previous_receipt.get("do_not_repeat_action_ids", [])
+        ]
+        for blocked_action_id in previous_blocked_order:
+            if blocked_action_id not in effective_blocked_actions:
+                effective_blocked_actions.add(blocked_action_id)
+                effective_blocked_action_order.append(blocked_action_id)
         previous_open_actions = {
             str(item.get("id", "")): str(item.get("next_action", {}).get("action_id", ""))
             for item in previous_open_items
@@ -672,12 +813,20 @@ def validate_state(
             for obligation_id, previous_action in previous_open_actions.items()
             if open_action_ids.get(obligation_id) != previous_action
         }
-        missing_retired_actions = retired_actions - blocked_actions
+        lineage_retired_actions = {
+            previous_open_actions[predecessor_id]
+            for predecessor_id in lineage_predecessors
+        }
+        missing_retired_actions = retired_actions - blocked_actions - lineage_retired_actions
         if missing_retired_actions:
             raise CheckpointError(
                 "completed or replaced next actions must enter do_not_repeat: "
                 f"{sorted(missing_retired_actions)}"
             )
+        for blocked_action_id in sorted(lineage_retired_actions):
+            if blocked_action_id not in effective_blocked_actions:
+                effective_blocked_actions.add(blocked_action_id)
+                effective_blocked_action_order.append(blocked_action_id)
         previous_unresolved = {
             str(item.get("worker_id", "")): str(item.get("session_id", ""))
             for item in previous_state.get("inflight_work", [])
@@ -800,11 +949,21 @@ def validate_state(
                 raise CheckpointError(
                     "status transition evidence and audit must be distinct artifacts"
                 )
-            ancestor_hashes = {sha256 for _path, sha256 in ancestor_bound_artifacts}
             if transition_evidence["sha256"] in ancestor_hashes:
                 raise CheckpointError("status transition evidence must be new to the full lineage")
             if transition_audit["sha256"] in ancestor_hashes:
                 raise CheckpointError("status transition audit must be new to the full lineage")
+
+    effective_conflicts = set(open_action_ids.values()) & effective_blocked_actions
+    if effective_conflicts:
+        raise CheckpointError(
+            "open obligations select inherited or lineage-retired actions: "
+            f"{sorted(effective_conflicts)}"
+        )
+    if action_id in effective_blocked_actions:
+        raise CheckpointError(
+            "resume first action selects inherited or lineage-retired work"
+        )
 
     bindings = [
         {"path": path, "sha256": binding_table[path]}
@@ -820,6 +979,8 @@ def validate_state(
         "result_status": result_status,
         "resume": resume,
         "experiment_integrity": experiment,
+        "obligation_lineage": [open_lineage[key] for key in sorted(open_lineage)],
+        "_effective_blocked_action_ids": effective_blocked_action_order,
         "_ancestor_bound_artifacts": sorted(ancestor_bound_artifacts),
     }
     return summary, bindings
@@ -928,6 +1089,10 @@ def _verify_checkpoint_snapshot(
         "checkpoint": checkpoint,
         "state": state_data,
         "lineage_bound_artifacts": frozenset(lineage_bound),
+        "obligation_lineage": summary["obligation_lineage"],
+        "effective_do_not_repeat_action_ids": summary[
+            "_effective_blocked_action_ids"
+        ],
     }
 
 
@@ -972,7 +1137,7 @@ def build_resume_receipt(
             if item["status"] in UNRESOLVED_INFLIGHT
         ],
         "do_not_repeat_action_ids": [
-            item["action_id"] for item in state["do_not_repeat"]
+            item for item in snapshot["effective_do_not_repeat_action_ids"]
         ],
         "first_action": state["resume"]["first_action"],
         "minimal_read_set": state["resume"]["minimal_read_set"],
@@ -988,6 +1153,8 @@ def build_resume_receipt(
             "cumulative_metrics": experiment["cumulative_metrics"],
             "checkpoint_overhead_policy": experiment["checkpoint_overhead_policy"],
         }
+    if snapshot["obligation_lineage"]:
+        receipt["obligation_lineage"] = snapshot["obligation_lineage"]
     return receipt
 
 
@@ -1048,6 +1215,147 @@ def write_resume_receipt(
     return receipt
 
 
+def versioned_artifact_path(path: Path, sequence: int) -> Path:
+    match = VERSIONED_ARTIFACT_RE.fullmatch(path.stem)
+    stem = match.group("stem") if match is not None else path.stem
+    return path.with_name(f"{stem}-{sequence:02d}{path.suffix}")
+
+
+def replace_exact_binding(
+    value: Any,
+    old_binding: dict[str, str],
+    new_binding: dict[str, str],
+) -> Any:
+    if isinstance(value, list):
+        return [replace_exact_binding(item, old_binding, new_binding) for item in value]
+    if not isinstance(value, dict):
+        return value
+    raw_path = value.get("path")
+    raw_hash = value.get("sha256")
+    if (
+        isinstance(raw_path, str)
+        and raw_path.replace("\\", "/") == old_binding["path"]
+        and isinstance(raw_hash, str)
+        and raw_hash.lower() == old_binding["sha256"]
+    ):
+        result = dict(value)
+        result.update(new_binding)
+        return result
+    return {
+        key: replace_exact_binding(item, old_binding, new_binding)
+        for key, item in value.items()
+    }
+
+
+def copy_file_immutable(source: Path, target: Path, context: str) -> None:
+    payload = source.read_bytes()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with target.open("xb") as handle:
+            handle.write(payload)
+    except FileExistsError:
+        if target.read_bytes() != payload:
+            raise CheckpointError(
+                f"existing {context} differs; refuse to overwrite versioned artifact"
+            )
+
+
+def write_new_json(path: Path, value: dict[str, Any], context: str) -> None:
+    rendered = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with path.open("x", encoding="utf-8", newline="\n") as handle:
+            handle.write(rendered)
+    except FileExistsError as exc:
+        raise CheckpointError(f"existing {context} must not be overwritten") from exc
+
+
+def advance_state(
+    project: Path,
+    checkpoint_path: Path,
+    receipt_path: Path,
+    output_path: Path,
+    created_at: str,
+) -> dict[str, Any]:
+    project = project.resolve()
+    checkpoint_path = inside_project(
+        project, checkpoint_path, "checkpoint", must_exist=True
+    )
+    receipt_path = inside_project(
+        project, receipt_path, "resume receipt", must_exist=True
+    )
+    output_path = inside_project(
+        project, output_path, "advance output", must_exist=False
+    )
+    snapshot = _verify_checkpoint_snapshot(project, checkpoint_path)
+    receipt = validate_resume_receipt(
+        project,
+        checkpoint_path,
+        receipt_path,
+        snapshot=snapshot,
+    )
+    created_at = parse_time(created_at, "created_at")
+    if time_value(created_at) < time_value(receipt["resumed_at"]):
+        raise CheckpointError("advance created_at precedes the predecessor resume")
+    next_sequence = receipt["next_checkpoint_sequence"]
+    expected_output = checkpoint_path.with_name(
+        f"interruption_state-{next_sequence:02d}.json"
+    )
+    if output_path != expected_output:
+        raise CheckpointError(f"advance output must be {expected_output.name}")
+
+    state = copy.deepcopy(snapshot["state"])
+    state["checkpoint_sequence"] = next_sequence
+    state["created_at"] = created_at
+    state["predecessor"] = {
+        "checkpoint": {
+            "path": checkpoint_path.relative_to(project).as_posix(),
+            "sha256": file_hash(checkpoint_path),
+        },
+        "resume_receipt": {
+            "path": receipt_path.relative_to(project).as_posix(),
+            "sha256": file_hash(receipt_path),
+        },
+    }
+    state["inflight_reconciliation"] = []
+    state["status_transition"] = None
+    state["advance_draft"] = True
+    experiment = state.get("experiment_integrity")
+    if isinstance(experiment, dict) and experiment.get("enabled") is True:
+        experiment["segment_index"] = next_sequence
+
+    versioned: list[dict[str, str]] = []
+    for key in MUTABLE_CHECKPOINT_BINDINGS:
+        raw_binding = state.get(key)
+        if raw_binding is None:
+            continue
+        old_binding = validate_binding(project, raw_binding, key)
+        source = inside_project(
+            project,
+            Path(old_binding["path"]),
+            key,
+            must_exist=True,
+        )
+        target = versioned_artifact_path(source, next_sequence)
+        copy_file_immutable(source, target, f"versioned {key}")
+        new_binding = {
+            "path": target.relative_to(project).as_posix(),
+            "sha256": file_hash(target),
+        }
+        state = replace_exact_binding(state, old_binding, new_binding)
+        versioned.append({"key": key, **new_binding})
+
+    write_new_json(output_path, state, "advance state")
+    return {
+        "state_path": output_path.relative_to(project).as_posix(),
+        "checkpoint_sequence": next_sequence,
+        "predecessor_checkpoint_id": receipt["checkpoint_id"],
+        "created_at": created_at,
+        "versioned_artifacts": versioned,
+        "draft_requires_update": True,
+    }
+
+
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description=__doc__)
     subparsers = result.add_subparsers(dest="command", required=True)
@@ -1062,7 +1370,17 @@ def parser() -> argparse.ArgumentParser:
     resume.add_argument("--project", required=True, type=Path)
     resume.add_argument("--checkpoint", required=True, type=Path)
     resume.add_argument("--receipt", required=True, type=Path)
-    resume.add_argument("--resumed-at", required=True)
+    resume.add_argument("--resumed-at")
+    advance = subparsers.add_parser(
+        "advance",
+        help="create the next draft state and version mutable checkpoint artifacts",
+    )
+    advance.add_argument("--project", required=True, type=Path)
+    advance.add_argument("--checkpoint", required=True, type=Path)
+    advance.add_argument("--receipt", required=True, type=Path)
+    advance.add_argument("--output", required=True, type=Path)
+    advance.add_argument("--created-at")
+    subparsers.add_parser("timestamp", help="print a canonical UTC timestamp")
     return result
 
 
@@ -1079,12 +1397,12 @@ def main() -> int:
             }
         elif args.command == "verify":
             result = verify_checkpoint(args.project, args.checkpoint)
-        else:
+        elif args.command == "resume":
             receipt = write_resume_receipt(
                 args.project,
                 args.checkpoint,
                 args.receipt,
-                args.resumed_at,
+                args.resumed_at or canonical_utc_timestamp(),
             )
             result = {
                 "verdict": "RESUME_READY",
@@ -1092,6 +1410,17 @@ def main() -> int:
                 "run_id": receipt["run_id"],
                 "first_action": receipt["first_action"],
             }
+        elif args.command == "advance":
+            result = advance_state(
+                args.project,
+                args.checkpoint,
+                args.receipt,
+                args.output,
+                args.created_at or canonical_utc_timestamp(),
+            )
+            result["verdict"] = "ADVANCE_DRAFT_READY"
+        else:
+            result = {"timestamp": canonical_utc_timestamp()}
     except CheckpointError as exc:
         print(json.dumps({"verdict": "STALE", "error": str(exc)}, ensure_ascii=False))
         return 1

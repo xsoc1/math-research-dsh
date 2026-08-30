@@ -86,9 +86,33 @@ Then create the resume receipt:
 ```text
 python scripts/checkpoint_resume.py resume --project <project-root> \
   --checkpoint <run>/interruption_checkpoint-NN.json \
-  --receipt <run>/resume_receipt-NN.json \
-  --resumed-at <ISO-8601-time-with-timezone>
+  --receipt <run>/resume_receipt-NN.json
 ```
+
+Omitting `--resumed-at` uses a canonical second-precision UTC timestamp. For an
+initial state or an externally recorded boundary, obtain the same format with
+`checkpoint_resume.py timestamp`. Explicit ISO-8601 input remains supported,
+including PowerShell timestamps with seven fractional-second digits.
+
+Before editing the checkpoint-bound whiteboard or closure gate, create the next
+segment draft:
+
+```text
+python scripts/checkpoint_resume.py advance --project <project-root> \
+  --checkpoint <run>/interruption_checkpoint-NN.json \
+  --receipt <run>/resume_receipt-NN.json \
+  --output <run>/interruption_state-(NN+1).json
+```
+
+`advance` verifies the predecessor pair, copies mutable bindings to canonical
+numbered paths such as `whiteboard-01.md` and `closure_gate-01.md`, rewrites
+their exact bindings in the next state, and leaves the sealed predecessor
+bytes untouched. It accepts either project-relative paths or unambiguous
+cwd-relative paths already prefixed by the project directory. The generated
+state has `advance_draft=true`; execute the receipt's exact first action, update
+the numbered artifacts and semantic delta, then remove the draft flag before
+sealing. The sealer rejects unfinished advance drafts and differing existing
+versioned files.
 
 The successor reads only the receipt's `minimal_read_set` and executes exactly
 its `first_action`. Unresolved in-flight work forces
@@ -109,6 +133,22 @@ A receipt is built only from the in-memory state snapshot that passed `verify`;
 later file replacement cannot inject a new action or read set into that receipt.
 A later checkpoint must bind that receipt, retain all completed and
 do-not-repeat IDs, and preserve run, packet, source commit, and task contract.
+When a newly isolated exact gap replaces an earlier open obligation, attach a
+typed lineage record to the new open item:
+
+```json
+"lineage": {
+  "relation": "REFINES",
+  "predecessor_id": "OLD-OBLIGATION-ID",
+  "evidence": {"path": "...", "sha256": "..."}
+}
+```
+
+`REFINES` records a strictly sharper residual gap; `SUPERSEDES` records a
+corrected replacement. The evidence must be new to the full checkpoint
+lineage. The predecessor action is retired automatically and propagated in
+resume receipts, so the old ID need not remain open and no duplicate
+`do_not_repeat` repair is required.
 Changing a result status requires new hash-bound evidence and a new audit plus
 an explicit timed `status_transition`. Evidence and audit must be new to the
 complete predecessor lineage, not merely absent from the immediately previous

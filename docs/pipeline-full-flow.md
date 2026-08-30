@@ -61,8 +61,9 @@ flowchart TD
   B10 --> R0["额度恢复: verify checkpoint<br/>必须在首个模型调用之前"]
   R0 -->|"STALE"| RX["确定性核对变化<br/>写新的 numbered state/checkpoint"] --> R0
   R0 -->|"READY"| R1["写 immutable resume_receipt-NN.json<br/>只读 minimal_read_set"]
-  R1 -->|"有未决 worker"| R2["RECONCILE_INFLIGHT<br/>禁止先开新 worker"] --> B2
-  R1 -->|"无未决 worker"| B2
+  R1 --> RA["advance next segment draft<br/>版本化 whiteboard/closure, 原 checkpoint 不变"]
+  RA -->|"有未决 worker"| R2["RECONCILE_INFLIGHT<br/>禁止先开新 worker"] --> B2
+  RA -->|"无未决 worker"| B2
 
   C0["Stage C: 执行任务包中的 formalization decision"]
   C0 --> C2["① Lean scaffold (Tier 0) 锁陈述"]
@@ -128,11 +129,18 @@ mathematical verdict:
 - `resume_receipt-NN.json` can be written only after `verify` returns `READY`.
   It freezes the first action and read set. `STALE` forbids a model call until
   deterministic reconciliation produces a new checkpoint.
+- `checkpoint_resume.py advance` verifies the predecessor checkpoint/receipt,
+  copies mutable whiteboard and closure bindings to the next numbered paths,
+  and writes `interruption_state-(NN+1).json` with `advance_draft=true`.
+  The draft cannot seal until its semantic delta is finalized and the flag is
+  removed. This prevents an edit from invalidating an earlier checkpoint.
 - Segment `00` is the trust root. Every later state binds the immediately
   previous checkpoint and its unique canonical receipt. The gate rejects a
   broken sequence, duplicate receipt path, resume time before seal, lost
   completed/do-not-repeat item, transcript injection, or unreviewed status
-  change. The receipt is derived from the verified in-memory state snapshot;
+  change. A typed `REFINES` or `SUPERSEDES` record may rename a predecessor
+  obligation while automatically retiring its old action. The receipt is
+  derived from the verified in-memory state snapshot;
   status-upgrade evidence and audit must be distinct and content-hash fresh
   across the full lineage.
 - For benchmarks, the state binds arm/task/workspace, prompt, harness, source
@@ -229,8 +237,9 @@ Stage B · 求解 (rigorous-open-math-research; closure-first, 有条件子 agen
    │              └─ 额度恢复
    │                   ├─ verify=STALE → 确定性核对, 新编号重封存
    │                   └─ verify=READY → 写 resume receipt, 只读 minimal set
-   │                        ├─ 有未决 worker → 先 RECONCILE_INFLIGHT
-   │                        └─ 无未决 worker → 执行精确 first_action
+   │                        └─ advance next draft, 版本化 whiteboard/closure
+   │                             ├─ 有未决 worker → 先 RECONCILE_INFLIGHT
+   │                             └─ 无未决 worker → 执行精确 first_action
    └─ 全部 root obligations CLOSED
         ├─ 写 canonical obligation_graph.json
         ├─ 写 completion_manifest.json 并冻结 hashes/root anchors

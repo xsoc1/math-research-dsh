@@ -261,6 +261,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.10.0` | 2026-08-30 | Inherits checkpoint recovery usability: `advance` versions bound whiteboard/closure files and creates a guarded draft; project-prefixed paths and seven-digit timestamps work; typed obligation lineage retires predecessor actions automatically |
 | `1.9.0` | 2026-08-29 | Inherits quota-safe recovery: immutable checkpoints, one canonical resume receipt, predecessor lineage, action-scoped minimal reads, in-flight worker/session reconciliation, cumulative scored metrics, and full-lineage fresh audit evidence gates |
 | `1.8.0` | 2026-08-28 | Inherits structured fast-close certificates: canonical obligation graph, completion manifest, independent audit, anchor/hash/timestamp gates, and one authorized post-STOP frontier call; syncs the full-flow document and adversarial regressions |
 | `1.7.0` | 2026-08-27 | Inherits closure-first scheduling: directly attack and falsify the first load-bearing obligation, require `decision_delta` for spawn and continuation, materialize nonessential artifacts lazily, and retain independent audits for load-bearing results |

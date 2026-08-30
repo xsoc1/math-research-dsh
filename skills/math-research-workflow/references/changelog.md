@@ -1,5 +1,15 @@
 # Release history
 
+## Changelog (2026-08-30, v1.10.0)
+
+- Added `checkpoint_resume.py advance`: it verifies the predecessor pair,
+  versions checkpoint-bound whiteboard and closure artifacts, writes a guarded
+  next-segment draft, and prevents in-place edits from invalidating earlier
+  checkpoints.
+- Added unambiguous project/cwd path normalization, canonical UTC timestamps,
+  seven-digit fractional-second support, and typed `REFINES`/`SUPERSEDES`
+  obligation lineage with automatic predecessor-action retirement.
+
 ## Changelog (2026-08-29, v1.9.0)
 
 - Added a deterministic quota interruption boundary: semantic state binds
