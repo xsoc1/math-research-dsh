@@ -360,7 +360,8 @@ Lean verification is still reserved for results labeled `已证` /
 
 When Stage B and Stage C use different logical project roots, seal and verify
 the exact-copy Tier 0 scaffold handoff in
-`references/formalization-handoff.md` before Stage C consumes the copy.
+`references/formalization-handoff.md`, then record its canonical consumption
+before Stage C changes the copy.
 
 Before doing Stage C work, read
 `references/stage-c-formalization.md` completely and follow its decision,

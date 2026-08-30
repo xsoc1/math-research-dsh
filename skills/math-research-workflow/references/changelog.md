@@ -1,5 +1,18 @@
 # Release history
 
+## Changelog (2026-08-30, v1.13.0)
+
+- Added canonical `consume` and `verify-consumption` commands. After a live
+  exact-copy receipt returns `READY`, Stage C records one immutable sibling
+  consumption bound to the receipt hash, consumer root, artifact snapshot, and
+  an already registered anchor. Duplicate, relocated, or unbound consumption
+  records fail closed.
+- Consumption explicitly leaves mathematical and verification status
+  unchanged. Historical verification permits legitimate destination-scaffold
+  evolution, while receipt/source drift, project-ID change, anchor removal, or
+  a claimed promotion remains invalid. Seal and consume now use exclusive file
+  creation to close their overwrite TOCTOU window.
+
 ## Changelog (2026-08-30, v1.12.0)
 
 - Added `formalization_handoff.py seal/verify` for exact-copy Tier 0 scaffolds

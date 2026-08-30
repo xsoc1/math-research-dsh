@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Seal and verify an exact-copy formalization handoff across logical roots."""
+"""Seal, consume, and verify exact-copy formalization handoffs across roots."""
 
 from __future__ import annotations
 
@@ -16,6 +16,7 @@ from typing import Any
 
 SHA256_RE = re.compile(r"^[0-9A-Fa-f]{64}$")
 HANDOFF_ID_RE = re.compile(r"^FH-[A-Za-z0-9][A-Za-z0-9._-]{7,}$")
+CONSUMPTION_ID_RE = re.compile(r"^FHC-[A-Za-z0-9][A-Za-z0-9._-]{7,}$")
 PROJECT_MARKERS = ("blueprint-project.json", "project.json")
 FORMALIZATION_STATES = {"scaffold"}
 
@@ -40,6 +41,16 @@ def load_json(path: Path, context: str) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise HandoffError(f"{context} must be a JSON object")
     return data
+
+
+def write_immutable_json(path: Path, data: dict[str, Any], context: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with open(path, "x", encoding="utf-8", newline="\n") as stream:
+            json.dump(data, stream, indent=2, ensure_ascii=False)
+            stream.write("\n")
+    except FileExistsError as exc:
+        raise HandoffError(f"immutable {context} already exists: {path}") from exc
 
 
 def portable_path(value: str, context: str) -> str:
@@ -153,6 +164,37 @@ def verify_marker(root: Path, record: Any, context: str) -> None:
         raise HandoffError(f"{context} project_id does not match the marker")
 
 
+def verify_marker_identity(root: Path, record: Any, context: str) -> None:
+    if not isinstance(record, dict):
+        raise HandoffError(f"{context} must be an object")
+    path_value = record.get("path")
+    expected_hash = record.get("sha256")
+    expected_id = record.get("project_id")
+    if not isinstance(path_value, str):
+        raise HandoffError(f"{context} has no path")
+    if not isinstance(expected_hash, str) or not SHA256_RE.fullmatch(expected_hash):
+        raise HandoffError(f"{context} has no valid SHA-256")
+    if not isinstance(expected_id, str) or not expected_id:
+        raise HandoffError(f"{context} has no project_id")
+    path = resolve_file(root, path_value, context)
+    data = load_json(path, context)
+    if data.get("project_id") != expected_id:
+        raise HandoffError(f"{context} current project_id does not match the receipt")
+
+
+def evolved_binding_hash(root: Path, binding: Any, context: str) -> str:
+    if not isinstance(binding, dict):
+        raise HandoffError(f"{context} must be a path/hash object")
+    path_value = binding.get("path")
+    expected = binding.get("sha256")
+    if not isinstance(path_value, str):
+        raise HandoffError(f"{context} has no path")
+    if not isinstance(expected, str) or not SHA256_RE.fullmatch(expected):
+        raise HandoffError(f"{context} has no valid SHA-256")
+    resolve_file(root, path_value, context)
+    return expected.upper()
+
+
 def manifest_artifact(
     manifest: dict[str, Any], path_value: str, expected_hash: str, context: str
 ) -> None:
@@ -229,6 +271,79 @@ def verify_registration(root: Path, record: Any, context: str) -> None:
     path = resolve_file(root, path_value, context)
     if anchor not in path.read_text(encoding="utf-8", errors="replace"):
         raise HandoffError(f"{context} required anchor is missing: {anchor}")
+
+
+def consumption_id(handoff_id: str) -> str:
+    value = "FHC-" + handoff_id.removeprefix("FH-")
+    if not CONSUMPTION_ID_RE.fullmatch(value):
+        raise HandoffError("derived consumption_id is invalid")
+    return value
+
+
+def canonical_consumption_path(handoff_path: Path, handoff_id: str) -> Path:
+    return handoff_path.with_name(consumption_id(handoff_id) + ".json")
+
+
+def consumption_registration(
+    destination_root: Path, receipt: dict[str, Any], value: str
+) -> dict[str, str]:
+    path_value, anchor = parse_registration(value)
+    path = resolve_file(destination_root, path_value, "Stage C registration")
+    relative = path.relative_to(destination_root).as_posix()
+    registrations = receipt.get("destination", {}).get("registrations")
+    if not isinstance(registrations, list):
+        raise HandoffError("handoff has no destination registrations")
+    matches = [
+        item
+        for item in registrations
+        if isinstance(item, dict)
+        and item.get("path") == relative
+        and item.get("required_anchor") == anchor
+    ]
+    if len(matches) != 1:
+        raise HandoffError(
+            "Stage C registration must exactly match one handoff registration"
+        )
+    if anchor not in path.read_text(encoding="utf-8", errors="replace"):
+        raise HandoffError(f"Stage C registration anchor is missing: {anchor}")
+    return {
+        "path": relative,
+        "required_anchor": anchor,
+        "sha256_at_consumption": sha256_file(path),
+    }
+
+
+def verify_consumption_registration(
+    destination_root: Path,
+    receipt: dict[str, Any],
+    record: Any,
+) -> None:
+    if not isinstance(record, dict):
+        raise HandoffError("Stage C consumption registration must be an object")
+    path_value = record.get("path")
+    anchor = record.get("required_anchor")
+    consumed_hash = record.get("sha256_at_consumption")
+    if not isinstance(path_value, str) or not isinstance(anchor, str) or not anchor:
+        raise HandoffError("Stage C consumption registration has no path or anchor")
+    if not isinstance(consumed_hash, str) or not SHA256_RE.fullmatch(consumed_hash):
+        raise HandoffError("Stage C consumption registration has no valid SHA-256")
+    path = resolve_file(destination_root, path_value, "Stage C registration")
+    if anchor not in path.read_text(encoding="utf-8", errors="replace"):
+        raise HandoffError(f"Stage C consumption anchor is missing: {anchor}")
+    registrations = receipt.get("destination", {}).get("registrations")
+    if not isinstance(registrations, list):
+        raise HandoffError("handoff has no destination registrations")
+    matches = [
+        item
+        for item in registrations
+        if isinstance(item, dict)
+        and item.get("path") == path.relative_to(destination_root).as_posix()
+        and item.get("required_anchor") == anchor
+    ]
+    if len(matches) != 1:
+        raise HandoffError(
+            "Stage C consumption registration is not bound by the handoff"
+        )
 
 
 def git_head(project_root: Path) -> str | None:
@@ -334,7 +449,11 @@ def build_record(args: argparse.Namespace, project_root: Path) -> dict[str, Any]
     return record
 
 
-def verify_record(project_root: Path, record: dict[str, Any]) -> None:
+def verify_record(
+    project_root: Path,
+    record: dict[str, Any],
+    allow_destination_evolution: bool = False,
+) -> None:
     if record.get("schema_version") != 1:
         raise HandoffError("schema_version must be 1")
     handoff_id = record.get("handoff_id")
@@ -358,11 +477,18 @@ def verify_record(project_root: Path, record: dict[str, Any]) -> None:
     if source_root == destination_root:
         raise HandoffError("source and destination logical roots must differ")
     verify_marker(source_root, source.get("project_marker"), "source project marker")
-    verify_marker(
-        destination_root,
-        destination.get("project_marker"),
-        "destination project marker",
-    )
+    if allow_destination_evolution:
+        verify_marker_identity(
+            destination_root,
+            destination.get("project_marker"),
+            "destination project marker",
+        )
+    else:
+        verify_marker(
+            destination_root,
+            destination.get("project_marker"),
+            "destination project marker",
+        )
     manifest_path = verify_binding(
         source_root, source.get("run_manifest"), "source run manifest"
     )
@@ -395,12 +521,20 @@ def verify_record(project_root: Path, record: dict[str, Any]) -> None:
         sha256_file(source_proof),
         "source proof",
     )
-    destination_artifact = verify_binding(
-        destination_root,
-        destination.get("formalization_artifact"),
-        "destination formalization artifact",
-    )
-    if sha256_file(source_artifact) != sha256_file(destination_artifact):
+    if allow_destination_evolution:
+        destination_hash = evolved_binding_hash(
+            destination_root,
+            destination.get("formalization_artifact"),
+            "destination formalization artifact",
+        )
+    else:
+        destination_artifact = verify_binding(
+            destination_root,
+            destination.get("formalization_artifact"),
+            "destination formalization artifact",
+        )
+        destination_hash = sha256_file(destination_artifact)
+    if sha256_file(source_artifact) != destination_hash:
         raise HandoffError(
             "exact-copy handoff source and destination artifact hashes differ"
         )
@@ -418,6 +552,113 @@ def verify_record(project_root: Path, record: dict[str, Any]) -> None:
         seen.add(path_value)
 
 
+def build_consumption_record(
+    args: argparse.Namespace,
+    project_root: Path,
+    handoff_path: Path,
+    receipt: dict[str, Any],
+) -> dict[str, Any]:
+    verify_record(project_root, receipt)
+    handoff_id = str(receipt["handoff_id"])
+    destination = receipt["destination"]
+    destination_value = destination.get("logical_root")
+    if not isinstance(destination_value, str):
+        raise HandoffError("handoff destination logical root is missing")
+    destination_root = resolve_logical_root(
+        project_root, destination_value, "destination logical root"
+    )
+    return {
+        "schema_version": 1,
+        "consumption_id": consumption_id(handoff_id),
+        "consumed_at": canonical_timestamp(args.consumed_at),
+        "status": "CONSUMED",
+        "effects": {
+            "mathematical_status": "UNCHANGED",
+            "verification_status": "UNCHANGED",
+        },
+        "handoff": {
+            "path": handoff_path.relative_to(project_root).as_posix(),
+            "sha256": sha256_file(handoff_path),
+            "handoff_id": handoff_id,
+        },
+        "consumer": {
+            "logical_root": destination_value,
+            "formalization_status": receipt["source"]["formalization_status"],
+            "formalization_artifact_sha256_at_consumption": receipt["destination"][
+                "formalization_artifact"
+            ]["sha256"],
+            "stage_c_registration": consumption_registration(
+                destination_root, receipt, args.stage_c_registration
+            ),
+        },
+    }
+
+
+def verify_consumption_record(
+    project_root: Path,
+    record: dict[str, Any],
+    consumption_path: Path | None = None,
+) -> None:
+    if record.get("schema_version") != 1:
+        raise HandoffError("consumption schema_version must be 1")
+    if record.get("status") != "CONSUMED":
+        raise HandoffError("consumption status must be CONSUMED")
+    if record.get("effects") != {
+        "mathematical_status": "UNCHANGED",
+        "verification_status": "UNCHANGED",
+    }:
+        raise HandoffError("consumption must leave mathematical and verification status unchanged")
+    canonical_timestamp(str(record.get("consumed_at", "")))
+    handoff_binding = record.get("handoff")
+    handoff_path = verify_binding(project_root, handoff_binding, "formalization handoff")
+    receipt = load_json(handoff_path, "formalization handoff")
+    verify_record(project_root, receipt, allow_destination_evolution=True)
+    if not isinstance(handoff_binding, dict):
+        raise HandoffError("consumption handoff binding must be an object")
+    handoff_id = receipt.get("handoff_id")
+    if handoff_binding.get("handoff_id") != handoff_id:
+        raise HandoffError("consumption handoff_id does not match the handoff")
+    expected_id = consumption_id(str(handoff_id))
+    if record.get("consumption_id") != expected_id:
+        raise HandoffError("consumption_id does not match the handoff")
+    if consumption_path is not None:
+        expected_path = canonical_consumption_path(handoff_path, str(handoff_id))
+        if consumption_path.resolve() != expected_path.resolve():
+            raise HandoffError(
+                "consumption record is not at its canonical handoff-sibling path"
+            )
+    consumer = record.get("consumer")
+    if not isinstance(consumer, dict):
+        raise HandoffError("consumer must be an object")
+    destination = receipt.get("destination")
+    source = receipt.get("source")
+    if not isinstance(destination, dict) or not isinstance(source, dict):
+        raise HandoffError("handoff source or destination is invalid")
+    destination_value = destination.get("logical_root")
+    if consumer.get("logical_root") != destination_value:
+        raise HandoffError("consumer logical root does not match the handoff destination")
+    if consumer.get("formalization_status") != source.get("formalization_status"):
+        raise HandoffError("consumer formalization status does not match the handoff")
+    destination_artifact = destination.get("formalization_artifact")
+    if not isinstance(destination_artifact, dict):
+        raise HandoffError("handoff destination formalization artifact is invalid")
+    if (
+        consumer.get("formalization_artifact_sha256_at_consumption")
+        != destination_artifact.get("sha256")
+    ):
+        raise HandoffError(
+            "consumed artifact hash does not match the handoff destination snapshot"
+        )
+    destination_root = resolve_logical_root(
+        project_root, str(destination_value), "destination logical root"
+    )
+    verify_consumption_registration(
+        destination_root,
+        receipt,
+        consumer.get("stage_c_registration"),
+    )
+
+
 def seal(args: argparse.Namespace) -> int:
     project_root = Path(args.project).resolve()
     if not project_root.is_dir():
@@ -425,16 +666,9 @@ def seal(args: argparse.Namespace) -> int:
     output = resolve_inside(project_root, args.output, "handoff output")
     if output.suffix.lower() != ".json":
         raise HandoffError("handoff output must be a JSON file")
-    if output.exists():
-        raise HandoffError(f"immutable handoff output already exists: {args.output}")
     record = build_record(args, project_root)
     verify_record(project_root, record)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
-        json.dumps(record, indent=2, ensure_ascii=False) + "\n",
-        encoding="utf-8",
-        newline="\n",
-    )
+    write_immutable_json(output, record, "handoff output")
     print(f"SEALED: {record['handoff_id']}")
     print(f"path: {output.relative_to(project_root).as_posix()}")
     print(f"sha256: {sha256_file(output)}")
@@ -450,6 +684,36 @@ def verify(args: argparse.Namespace) -> int:
     verify_record(project_root, record)
     print(f"READY: {record['handoff_id']}")
     print(f"sha256: {sha256_file(handoff_path)}")
+    return 0
+
+
+def consume(args: argparse.Namespace) -> int:
+    project_root = Path(args.project).resolve()
+    if not project_root.is_dir():
+        raise HandoffError(f"project directory not found: {project_root}")
+    handoff_path = resolve_file(project_root, args.handoff, "formalization handoff")
+    receipt = load_json(handoff_path, "formalization handoff")
+    record = build_consumption_record(args, project_root, handoff_path, receipt)
+    output = canonical_consumption_path(handoff_path, str(receipt["handoff_id"]))
+    verify_consumption_record(project_root, record)
+    write_immutable_json(output, record, "consumption record")
+    print(f"CONSUMED: {record['consumption_id']}")
+    print(f"path: {output.relative_to(project_root).as_posix()}")
+    print(f"sha256: {sha256_file(output)}")
+    return 0
+
+
+def verify_consumption(args: argparse.Namespace) -> int:
+    project_root = Path(args.project).resolve()
+    if not project_root.is_dir():
+        raise HandoffError(f"project directory not found: {project_root}")
+    consumption_path = resolve_file(
+        project_root, args.consumption, "formalization consumption"
+    )
+    record = load_json(consumption_path, "formalization consumption")
+    verify_consumption_record(project_root, record, consumption_path)
+    print(f"CONSUMED_READY: {record['consumption_id']}")
+    print(f"sha256: {sha256_file(consumption_path)}")
     return 0
 
 
@@ -479,6 +743,20 @@ def parser() -> argparse.ArgumentParser:
     verify_parser.add_argument("--project", required=True)
     verify_parser.add_argument("--handoff", required=True)
     verify_parser.set_defaults(handler=verify)
+    consume_parser = subparsers.add_parser("consume")
+    consume_parser.add_argument("--project", required=True)
+    consume_parser.add_argument("--handoff", required=True)
+    consume_parser.add_argument(
+        "--stage-c-registration",
+        required=True,
+        metavar="PATH::ANCHOR",
+    )
+    consume_parser.add_argument("--consumed-at")
+    consume_parser.set_defaults(handler=consume)
+    verify_consumption_parser = subparsers.add_parser("verify-consumption")
+    verify_consumption_parser.add_argument("--project", required=True)
+    verify_consumption_parser.add_argument("--consumption", required=True)
+    verify_consumption_parser.set_defaults(handler=verify_consumption)
     return root
 
 

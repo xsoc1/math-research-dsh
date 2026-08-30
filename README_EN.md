@@ -56,7 +56,7 @@ xsoc1/math-research-dsh                     this repo (DSH adaptation, public)
 
 | DSH skill | Role | Bundled tooling |
 |---|---|---|
-| `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, `assets/` templates |
+| `math-research-workflow` | Orchestration: manage -> solve -> verify pipeline, stage gates, handoff protocol | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, including exact-copy receipts and canonical consumption, `assets/` templates |
 | `manage-math-research-program` | Program management: project init, literature, tool library, task packets, accepted-knowledge pipeline; mandatory arXiv-style bilingual LaTeX proof delivery (`papers/`) after Lean verification | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` templates, blueprint tools |
 | `rigorous-open-math-research` | Solver layer: theorem contracts, route search, adversarial audit, calibrated reporting | `references/`, `assets/` |
 | `lean-verify` | Lean 4 formalization audit: sorry/axiom scan, obligation audit, structured verdict | `scripts/verify_lean_project.py`, `assets/` templates |
@@ -263,6 +263,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.13.0` | 2026-08-30 | Inherits canonical formalization consumption: `consume/verify-consumption` writes one immutable sibling record after receipt `READY`, explicitly preserves mathematical and verification status, permits legitimate later Stage C destination-scaffold evolution, and uses exclusive creation to close overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | Inherits the cross-root Tier 0 formalization handoff: an immutable exact-copy receipt binds the Stage B scope, Stage C Lean project, proof/scaffold, and registration anchors; full requested packages remain unsupported, no FORMALLY_VERIFIED promotion occurs, and detailed Stage C rules load only on demand |
 | `1.11.0` | 2026-08-30 | Inherits the workflow scoped pipeline gate: a self-contained logical project validates independently, bindings and git checks stay inside the scope, and a scoped PASS is explicitly not a whole-project PASS; the DSH sync layer now supports independent rigorous/workflow semver |
 | `1.10.0` | 2026-08-30 | Inherits checkpoint recovery usability: `advance` versions bound whiteboard/closure files and creates a guarded draft; project-prefixed paths and seven-digit timestamps work; typed obligation lineage retires predecessor actions automatically |

@@ -43,7 +43,10 @@ not by the formalizer.
 Tier 0 scaffold registration. If Stage B and Stage C have different logical
 project roots, `formalization_handoff.py` must seal an exact-copy receipt that
 binds the source manifest/proof/scaffold to the destination scaffold and its
-registration anchors. Stage C verifies `READY` before consuming the copy.
+registration anchors. Stage C verifies `READY`, writes the single canonical
+consumption record, and only then changes the copy. The consumption event keeps
+mathematical and verification status unchanged; later destination evolution is
+tracked by Stage C rather than by mutating the receipt.
 
 ## 4. Parallelism
 

@@ -46,7 +46,7 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 
 | DSH skill | 角色 | 随包工具 |
 |---|---|---|
-| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, `assets/` 模板 |
+| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, 包含 exact-copy receipt 与 canonical consumption, `assets/` 模板 |
 | `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
 | `rigorous-open-math-research` | 求解层: 定理契约, 路线搜索, 对抗性审计, 校准式报告 | `references/`, `assets/` |
 | `lean-verify` | Lean 4 形式化审计: sorry/axiom 扫描, 义务级审计, 结构化裁决 | `scripts/verify_lean_project.py`, `assets/` 模板 |
@@ -239,6 +239,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.13.0` | 2026-08-30 | 继承 canonical formalization consumption: `consume/verify-consumption` 在 receipt `READY` 后生成唯一 immutable sibling record, 显式保持数学/验证状态不变, 允许 Stage C 合法演化目标 scaffold, 并以 exclusive-create 关闭 overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | 继承 cross-root Tier 0 formalization handoff: immutable exact-copy receipt 绑定 Stage B scope, Stage C Lean project, proof/scaffold 和 registration anchors; 完整 requested package 仍不支持, 不升级 FORMALLY_VERIFIED; Stage C 详细协议改为按需加载 |
 | `1.11.0` | 2026-08-30 | 继承 workflow scoped pipeline gate: 自包含逻辑项目可独立校验, 路径绑定与 git 检查限制在 scope 内, scoped PASS 明确不等于全仓 PASS; DSH 同步器支持 rigorous/workflow 独立 semver |
 | `1.10.0` | 2026-08-30 | 继承 checkpoint recovery usability: `advance` 版本化 bound whiteboard/closure 并生成 guarded draft; project-prefixed path 与 7 位 timestamp 兼容; typed obligation lineage 自动退休 predecessor action |

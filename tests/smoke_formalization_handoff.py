@@ -119,6 +119,90 @@ def main() -> int:
             print(verify.stderr)
             return 1
 
+        unbound_registration = run(
+            "consume",
+            "--project",
+            str(project),
+            "--handoff",
+            output,
+            "--stage-c-registration",
+            "lean-proof/STATUS.md::R-DEMO",
+        )
+        if (
+            unbound_registration.returncode == 0
+            or "must exactly match one handoff registration"
+            not in unbound_registration.stdout
+        ):
+            print("unbound Stage C registration was accepted")
+            print(unbound_registration.stdout)
+            return 1
+
+        consume_arguments = (
+            "consume",
+            "--project",
+            str(project),
+            "--handoff",
+            output,
+            "--stage-c-registration",
+            "lean-proof/STATUS.md::SL/Scaffold.lean",
+            "--consumed-at",
+            "2026-08-30T21:00:00.1234567+08:00",
+        )
+        consume = run(*consume_arguments)
+        consumption = "research/formalization-handoffs/FHC-20260830-demo.json"
+        if consume.returncode != 0 or "CONSUMED: FHC-20260830-demo" not in consume.stdout:
+            print("valid Stage C consumption did not record")
+            print(consume.stdout)
+            print(consume.stderr)
+            return 1
+        consumption_verify = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if (
+            consumption_verify.returncode != 0
+            or "CONSUMED_READY: FHC-20260830-demo" not in consumption_verify.stdout
+        ):
+            print("valid Stage C consumption did not verify")
+            print(consumption_verify.stdout)
+            return 1
+
+        write(destination_artifact, scaffold_text + "-- Stage C evolution\n")
+        evolved_destination_receipt = run(
+            "verify", "--project", str(project), "--handoff", output
+        )
+        if (
+            evolved_destination_receipt.returncode == 0
+            or "hash mismatch" not in evolved_destination_receipt.stdout
+        ):
+            print("evolved destination unexpectedly preserved pre-consumption READY")
+            print(evolved_destination_receipt.stdout)
+            return 1
+        evolved_destination_consumption = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if evolved_destination_consumption.returncode != 0:
+            print("legitimate Stage C evolution invalidated consumption history")
+            print(evolved_destination_consumption.stdout)
+            return 1
+        write(destination_artifact, scaffold_text)
+
+        duplicate_consumption = run(*consume_arguments)
+        if (
+            duplicate_consumption.returncode == 0
+            or "already exists" not in duplicate_consumption.stdout
+        ):
+            print("duplicate Stage C consumption was accepted")
+            print(duplicate_consumption.stdout)
+            return 1
+
         duplicate = run(*seal_arguments)
         if duplicate.returncode == 0 or "already exists" not in duplicate.stdout:
             print("immutable handoff output was overwritten")
@@ -146,6 +230,17 @@ def main() -> int:
             print("append-only registration evolution invalidated its durable anchor")
             print(evolved_index.stdout)
             return 1
+        evolved_consumption = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if evolved_consumption.returncode != 0:
+            print("append-only index evolution invalidated Stage C consumption")
+            print(evolved_consumption.stdout)
+            return 1
         write(status_path, "- unrelated later entry\n")
         missing_anchor = run(
             "verify", "--project", str(project), "--handoff", output
@@ -157,6 +252,42 @@ def main() -> int:
             print("missing destination registration anchor was not detected")
             print(missing_anchor.stdout)
             return 1
+        missing_consumption_anchor = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if (
+            missing_consumption_anchor.returncode == 0
+            or "required anchor is missing" not in missing_consumption_anchor.stdout
+        ):
+            print("missing Stage C consumption anchor was not detected")
+            print(missing_consumption_anchor.stdout)
+            return 1
+
+        write(
+            status_path,
+            "- `SL/Scaffold.lean` | RIGOROUS_PARTIAL_RESULT | R-DEMO\n",
+        )
+        consumption_path = project / consumption
+        consumption_record = json.loads(consumption_path.read_text(encoding="utf-8"))
+        original_consumption = json.dumps(consumption_record, indent=2) + "\n"
+        consumption_record["effects"]["verification_status"] = "FORMALLY_VERIFIED"
+        write(consumption_path, json.dumps(consumption_record, indent=2) + "\n")
+        promoted = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if promoted.returncode == 0 or "must leave" not in promoted.stdout:
+            print("consumption record promoted formal verification status")
+            print(promoted.stdout)
+            return 1
+        write(consumption_path, original_consumption)
 
         handoff_path = project / output
         record = json.loads(handoff_path.read_text(encoding="utf-8"))
@@ -168,6 +299,17 @@ def main() -> int:
         if escaped.returncode == 0 or "escapes its logical root" not in escaped.stdout:
             print("escaping logical root in the handoff record was not rejected")
             print(escaped.stdout)
+            return 1
+        stale_consumption = run(
+            "verify-consumption",
+            "--project",
+            str(project),
+            "--consumption",
+            consumption,
+        )
+        if stale_consumption.returncode == 0 or "hash mismatch" not in stale_consumption.stdout:
+            print("changed handoff did not invalidate its consumption record")
+            print(stale_consumption.stdout)
             return 1
 
     print("formalization handoff smoke passed")

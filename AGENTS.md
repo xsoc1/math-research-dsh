@@ -461,3 +461,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `sync-from-parent.py` 机械继承新 script, references, smoke 和 full-flow 文档;
   package bump 1.11.0 -> 1.12.0, upstream lock 110 文件 @ 299111d, README 中英版
   同步工具清单, 17 个 smoke 和版本历史.
+### 2026-08-30 会话: 继承 canonical formalization consumption (v1.13.0)
+- 上游 96df6de: workflow handoff script 新增 `consume/verify-consumption`, canonical
+  immutable sibling record, unchanged status effects, consumption 后 destination evolution
+  语义和 exclusive-create TOCTOU 防护; handoff smoke 扩展对抗覆盖.
+- `sync-from-parent.py` 机械继承 skills/tests/full-flow; package bump 1.12.0 ->
+  1.13.0, upstream lock 仍为 110 文件 @ 96df6de, README 中英版同步. smoke 文件总数
+  仍为 17, 新覆盖位于既有 formalization handoff smoke.

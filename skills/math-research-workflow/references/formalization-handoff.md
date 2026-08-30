@@ -55,7 +55,7 @@ All paths are relative and confined to their declared roots. Nested git roots,
 absolute paths, path escape, missing manifest artifact entries, hash mismatch,
 and a missing registration anchor are hard failures.
 
-## Verify
+## Verify before consumption
 
 Before Stage C consumes or edits the destination scaffold, run:
 
@@ -68,3 +68,43 @@ python scripts/formalization_handoff.py verify \
 Only `READY` permits consumption. Any failure means the copy, source package,
 logical project identity, or destination registration has drifted. Reconcile
 deterministically and seal a new handoff ID; never mutate the existing receipt.
+
+## Record consumption
+
+Immediately after `READY` and before changing the destination scaffold, record
+the single canonical Stage C consumption:
+
+```text
+python scripts/formalization_handoff.py consume \
+  --project <physical-repository-root> \
+  --handoff research/formalization-handoffs/FH-<stable-id>.json \
+  --stage-c-registration "<registered-index>::<exact-receipt-anchor>"
+```
+
+The selected registration must exactly match one registration already bound by
+the handoff. The command derives the immutable sibling output
+`FHC-<stable-id>.json`; it accepts no caller-selected output path and refuses a
+second consumption. Exclusive creation closes the check-then-write race for
+both handoff and consumption records.
+
+The consumption record binds the receipt path and hash, consumer logical root,
+formalization status, scaffold hash at consumption, Stage C registration, and
+the explicit effects `mathematical_status=UNCHANGED` and
+`verification_status=UNCHANGED`. Consumption is an operational event, not a
+proof or verification promotion.
+
+## Verify consumption history
+
+```text
+python scripts/formalization_handoff.py verify-consumption \
+  --project <physical-repository-root> \
+  --consumption research/formalization-handoffs/FHC-<stable-id>.json
+```
+
+`CONSUMED_READY` rechecks the immutable receipt file, the source run, proof and
+scaffold, the consumer project identity, the consumption-time artifact hash,
+and the durable registration anchor. After consumption, the destination
+scaffold may evolve during legitimate Stage C work; this does not erase the
+historical consumption. Source drift, receipt mutation, project-ID change,
+registration-anchor removal, record relocation, duplicate consumption, or any
+claimed mathematical or verification promotion remains a hard failure.

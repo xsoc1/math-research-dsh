@@ -161,6 +161,34 @@ source run manifest/proof/scaffold, the destination scaffold, and durable
 registration anchors. The output is immutable. It is not a Lean verification
 verdict and cannot promote a scaffold to `FORMALLY_VERIFIED`.
 
+Immediately after `READY`, record consumption before Stage C changes the copy:
+
+```text
+python formalization_handoff.py consume \
+  --project <physical-repository-root> \
+  --handoff research/formalization-handoffs/FH-<stable-id>.json \
+  --stage-c-registration "<registered-index>::<exact-receipt-anchor>"
+```
+
+The output is the canonical immutable sibling
+`research/formalization-handoffs/FHC-<stable-id>.json`. A second consumption,
+an unbound registration, or a caller-selected output path is not allowed.
+Consumption explicitly leaves mathematical and verification status unchanged.
+
+Replay the consumption history with:
+
+```text
+python formalization_handoff.py verify-consumption \
+  --project <physical-repository-root> \
+  --consumption research/formalization-handoffs/FHC-<stable-id>.json
+```
+
+`CONSUMED_READY` permits legitimate later evolution of the destination
+scaffold, while continuing to bind the immutable receipt, source package,
+consumer project identity, consumption-time scaffold hash, and durable Stage C
+registration. Receipt/source drift, anchor removal, duplicate consumption, or
+any mathematical or verification promotion fails closed.
+
 ## Fast-close certificate
 
 `closure_gate.md` 只保存人类可读摘要与两个 hash binding. `STOP` 的确定性依据在:
