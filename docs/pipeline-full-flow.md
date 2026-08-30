@@ -125,6 +125,42 @@ the logical root were not assessed. Therefore, a scoped PASS can certify one
 new experiment without claiming that legacy whole-project problems are fixed;
 the unscoped command remains the only whole-project verdict.
 
+## Cross-root Tier 0 scaffold handoff
+
+A scoped Stage B run can create a valid scaffold inside its own logical root,
+while the canonical Stage C Lean project lives elsewhere in the same physical
+repository. A scoped gate cannot validate the external copy without breaking
+scope confinement. After copying the scaffold and updating the destination
+registration indexes, seal a separate physical-repository receipt:
+
+```text
+python formalization_handoff.py seal \
+  --project <physical-repository-root> \
+  --handoff-id FH-<stable-id> \
+  --source-root <relative-source-logical-root> \
+  --source-manifest <path-within-source-root> \
+  --source-proof <path-within-source-root> \
+  --destination-root <relative-destination-logical-root> \
+  --destination-artifact <path-within-destination-root> \
+  --registration "<destination-index>::<durable-anchor>" \
+  --output research/formalization-handoffs/FH-<stable-id>.json
+```
+
+Before Stage C consumes the destination copy:
+
+```text
+python formalization_handoff.py verify \
+  --project <physical-repository-root> \
+  --handoff research/formalization-handoffs/FH-<stable-id>.json
+```
+
+Only `READY` permits consumption. The v1 receipt supports only
+`formalization=scaffold` with `copy_mode=exact`: source and destination Lean
+files must have identical hashes. It binds both project markers and IDs, the
+source run manifest/proof/scaffold, the destination scaffold, and durable
+registration anchors. The output is immutable. It is not a Lean verification
+verdict and cannot promote a scaffold to `FORMALLY_VERIFIED`.
+
 ## Fast-close certificate
 
 `closure_gate.md` 只保存人类可读摘要与两个 hash binding. `STOP` 的确定性依据在:

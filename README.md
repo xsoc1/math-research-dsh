@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-16): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 15 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 17 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -46,7 +46,7 @@ xsoc1/math-research-dsh                     本仓库 (DSH 适配, public)
 
 | DSH skill | 角色 | 随包工具 |
 |---|---|---|
-| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume}.py`, `assets/` 模板 |
+| `math-research-workflow` | 编排: 管理 -> 研究 -> 验证流水线, 阶段门禁, 中断交接协议 | `scripts/{validate_pipeline,checkpoint_resume,formalization_handoff}.py`, `assets/` 模板 |
 | `manage-math-research-program` | 项目管理: 项目初始化, 文献, 工具库, 任务包, 已接受知识流水线; Lean 验证后强制交付论文级 LaTeX 双语证明 (`papers/`, arXiv 规范) | `scripts/{init_project,validate_project,sync_remotes}.py`, `assets/` 模板, blueprint 工具 |
 | `rigorous-open-math-research` | 求解层: 定理契约, 路线搜索, 对抗性审计, 校准式报告 | `references/`, `assets/` |
 | `lean-verify` | Lean 4 形式化审计: sorry/axiom 扫描, 义务级审计, 结构化裁决 | `scripts/verify_lean_project.py`, `assets/` 模板 |
@@ -189,6 +189,7 @@ python scripts\check_version_bump.py --base HEAD^   # CI 版本 bump 门禁 (本
 cd tests
 python smoke_pipeline_gate.py         # 流水线门禁 fixtures
 python smoke_scoped_pipeline.py       # 自包含 scope 门禁与路径逃逸对抗回归
+python smoke_formalization_handoff.py # 跨逻辑根 Tier 0 scaffold 收据对抗回归
 python smoke_handoff.py               # 中断交接 fixtures
 python smoke_checkpoint_resume.py     # 配额 checkpoint/resume 对抗回归
 python smoke_lean_verify.py           # lean-verify 扫描 (无需 Lean 工具链)
@@ -238,6 +239,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.12.0` | 2026-08-30 | 继承 cross-root Tier 0 formalization handoff: immutable exact-copy receipt 绑定 Stage B scope, Stage C Lean project, proof/scaffold 和 registration anchors; 完整 requested package 仍不支持, 不升级 FORMALLY_VERIFIED; Stage C 详细协议改为按需加载 |
 | `1.11.0` | 2026-08-30 | 继承 workflow scoped pipeline gate: 自包含逻辑项目可独立校验, 路径绑定与 git 检查限制在 scope 内, scoped PASS 明确不等于全仓 PASS; DSH 同步器支持 rigorous/workflow 独立 semver |
 | `1.10.0` | 2026-08-30 | 继承 checkpoint recovery usability: `advance` 版本化 bound whiteboard/closure 并生成 guarded draft; project-prefixed path 与 7 位 timestamp 兼容; typed obligation lineage 自动退休 predecessor action |
 | `1.9.0` | 2026-08-29 | 继承配额安全恢复: immutable checkpoint, unique resume receipt, predecessor lineage, action-scoped 最小读取集, in-flight worker/session 对账, 计分累计量和全谱系新鲜审计证据门禁 |

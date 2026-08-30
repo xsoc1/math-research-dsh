@@ -30,7 +30,7 @@ fork_sync:    <parent repo -> child fork direction, if any>
 
 ## 3. Handoff contract B -> C (formalization gate)
 
-Only these labels enter stage C:
+Complete verification accepts these labels:
 
 - `已证` / `CANDIDATE_COMPLETE_PROOF` with all obligations closed;
 - `STRICT` results from source documents.
@@ -38,6 +38,12 @@ Only these labels enter stage C:
 Excluded: `数值证据`, `EVIDENCE`, `猜想`, `开放` (record them in STATUS.md
 as not formalized). The gate is checked by the manager at the stage boundary,
 not by the formalizer.
+
+`RIGOROUS_PARTIAL_RESULT` does not enter full verification, but it does enter
+Tier 0 scaffold registration. If Stage B and Stage C have different logical
+project roots, `formalization_handoff.py` must seal an exact-copy receipt that
+binds the source manifest/proof/scaffold to the destination scaffold and its
+registration anchors. Stage C verifies `READY` before consuming the copy.
 
 ## 4. Parallelism
 

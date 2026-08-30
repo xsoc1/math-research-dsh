@@ -1,5 +1,17 @@
 # Release history
 
+## Changelog (2026-08-30, v1.12.0)
+
+- Added `formalization_handoff.py seal/verify` for exact-copy Tier 0 scaffolds
+  moving from an isolated Stage B logical root into a different Stage C Lean
+  project. The immutable receipt binds both project identities, the source run
+  manifest/proof/scaffold, the destination scaffold, and durable registration
+  anchors.
+- The v1 handoff intentionally rejects full `formalization=requested` packages,
+  path escape, nested git roots, artifact or marker drift, missing manifest
+  entries, unequal copy hashes, output overwrite, and removed registration
+  anchors. It never upgrades a scaffold to `FORMALLY_VERIFIED`.
+
 ## Changelog (2026-08-30, v1.11.0)
 
 - Added `validate_pipeline.py --scope <relative-logical-root>` for a complete
