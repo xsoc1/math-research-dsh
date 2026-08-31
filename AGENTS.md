@@ -477,3 +477,12 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   布局. 同步器的 workflow doctor 锚点随上游步骤编号更新.
 - package.json bump 1.13.0 -> 1.14.0, upstream lock 111 文件 @ 968a1cd,
   README 中英版与 full-flow 文档同步; 新增 gateway smoke, 总数 18.
+
+### 2026-08-31 会话: 继承 checkpoint-current scoped validator 修复 (v1.14.1)
+- 上游 516037f: workflow validator 先验证最新 sealed checkpoint, 再从其 state
+  选择当前 versioned whiteboard/closure; 最新 checkpoint `STALE` 时 fail closed,
+  不回退不可变祖先.
+- `sync-from-parent.py` 机械继承 validator, quota reference, SKILL, full-flow 和扩展后的
+  checkpoint smoke; upstream lock 仍为 111 文件 @ 516037f.
+- package.json bump 1.14.0 -> 1.14.1, README 中英版同步. smoke 文件总数仍为 18,
+  新覆盖位于既有 checkpoint resume smoke.

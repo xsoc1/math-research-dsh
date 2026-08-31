@@ -18,8 +18,9 @@ Checks:
     quota handoffs bind a structured state and a checkpoint that verifies
     READY before any resumed model call;
   - stage B solver runs started on or after the whiteboard cutover date carry
-    runs/<run_id>/whiteboard.md, and every whiteboard found carries the
-    required fields/sections of the OpenProver-style solve-loop memory;
+    a current whiteboard with the required OpenProver-style fields/sections;
+    checkpointed runs first verify the latest sealed lineage and select the
+    whiteboard/closure paths bound by its state instead of immutable ancestors;
   - closure gates created after the fast-close cutover carry completion
     certificate fields; STOP requires a hash-bound frozen completion manifest,
     a distinct fresh independent structured PASS audit, closed root obligations,
@@ -83,6 +84,8 @@ LEAN_STATUS = "lean-proof/STATUS.md"
 WHITEBOARD_GLOB = "runs/**/whiteboard.md"
 WHITEBOARD_CUTOVER = 20260814
 CLOSURE_GATE_GLOB = "runs/**/closure_gate.md"
+CHECKPOINT_GLOB = "runs/**/interruption_checkpoint-*.json"
+CHECKPOINT_NAME_RE = re.compile(r"^interruption_checkpoint-(\d+)\.json$")
 FAST_CLOSE_CUTOVER = 20260829
 QUOTA_CHECKPOINT_CUTOVER = 20260829
 FORMALIZATION_SCAFFOLD_CUTOVER = 20260816
@@ -761,7 +764,92 @@ def run_start_date(run_dir: Path) -> int | None:
         return None
 
 
-def check_whiteboards(root: Path, report: Report) -> None:
+def select_checkpoint_current_artifacts(
+    root: Path,
+    report: Report,
+) -> dict[Path, dict[str, Path] | None]:
+    """Select current mutable run records from the latest sealed checkpoint.
+
+    Earlier whiteboard and closure-gate files are immutable lineage artifacts.
+    When a run has checkpoints, validate the latest checkpoint first and use
+    only the paths bound by its state. A stale latest checkpoint never falls
+    back to an ancestor record.
+    """
+    candidates: dict[Path, list[tuple[int, Path]]] = {}
+    for path in root.glob(CHECKPOINT_GLOB):
+        if is_in_nested_repo(root, path):
+            continue
+        match = CHECKPOINT_NAME_RE.fullmatch(path.name)
+        if match is None:
+            continue
+        candidates.setdefault(path.parent, []).append((int(match.group(1)), path))
+
+    selected: dict[Path, dict[str, Path] | None] = {}
+    for run_dir, numbered_paths in sorted(candidates.items()):
+        _sequence, checkpoint_path = max(numbered_paths, key=lambda item: item[0])
+        rel = checkpoint_path.relative_to(root)
+        try:
+            verification = verify_checkpoint(root, checkpoint_path)
+        except CheckpointError as exc:
+            report.bad(f"{rel}: latest interruption checkpoint is STALE: {exc}")
+            selected[run_dir] = None
+            continue
+        checkpoint = load_json(checkpoint_path, report)
+        if not isinstance(checkpoint, dict):
+            selected[run_dir] = None
+            continue
+        state_record = checkpoint.get("state")
+        if not isinstance(state_record, dict) or not isinstance(state_record.get("path"), str):
+            report.bad(f"{rel}: latest interruption checkpoint has no state path")
+            selected[run_dir] = None
+            continue
+        state_path = resolve_confined_path(root, state_record["path"])
+        if state_path is None or not state_path.is_file():
+            report.bad(f"{rel}: latest interruption checkpoint state path is invalid")
+            selected[run_dir] = None
+            continue
+        state = load_json(state_path, report)
+        if not isinstance(state, dict):
+            selected[run_dir] = None
+            continue
+
+        current: dict[str, Path] = {}
+        for key in ("whiteboard", "closure_gate"):
+            binding = state.get(key)
+            if binding is None:
+                continue
+            if not isinstance(binding, dict) or not isinstance(binding.get("path"), str):
+                report.bad(f"{state_path.relative_to(root)}: {key} binding is invalid")
+                selected[run_dir] = None
+                break
+            artifact = resolve_confined_path(root, binding["path"])
+            if artifact is None or not artifact.is_file():
+                report.bad(f"{state_path.relative_to(root)}: {key} path is invalid")
+                selected[run_dir] = None
+                break
+            if artifact.parent != run_dir:
+                report.bad(
+                    f"{state_path.relative_to(root)}: {key} must be a sibling of "
+                    "the checkpoint"
+                )
+                selected[run_dir] = None
+                break
+            current[key] = artifact
+        else:
+            selected[run_dir] = current
+            names = ", ".join(sorted(current)) or "no mutable records"
+            report.ok(
+                f"{rel}: checkpoint sequence {verification['checkpoint_sequence']} "
+                f"selects current {names}"
+            )
+    return selected
+
+
+def check_whiteboards(
+    root: Path,
+    report: Report,
+    checkpoint_artifacts: dict[Path, dict[str, Path] | None] | None = None,
+) -> None:
     """Validate the whiteboard memory protocol (OpenProver-style solve loop).
 
     Stage B solver runs (identified by research_ledger.md) that start on or
@@ -770,10 +858,21 @@ def check_whiteboards(root: Path, report: Report) -> None:
     required fields and sections so the solve-run lead and any successor can
     resume from it, and route lines should carry outcome markers.
     """
-    whiteboards = sorted(p for p in root.glob(WHITEBOARD_GLOB) if not is_in_nested_repo(root, p))
+    checkpoint_artifacts = checkpoint_artifacts or {}
+    whiteboards = [
+        path
+        for path in root.glob(WHITEBOARD_GLOB)
+        if not is_in_nested_repo(root, path) and path.parent not in checkpoint_artifacts
+    ]
+    for run_dir, current in checkpoint_artifacts.items():
+        if current is not None and "whiteboard" in current:
+            whiteboards.append(current["whiteboard"])
+        elif current is not None and (run_dir / "whiteboard.md").is_file():
+            whiteboards.append(run_dir / "whiteboard.md")
+    whiteboards = sorted(set(whiteboards))
     if whiteboards:
         report.ok(f"found {len(whiteboards)} run whiteboard(s)")
-    seen_dirs = {path.parent for path in whiteboards}
+    seen_dirs = {path.parent for path in whiteboards} | set(checkpoint_artifacts)
     for path in whiteboards:
         rel = path.relative_to(root)
         fields, headings, text = parse_packet(path)
@@ -1124,9 +1223,24 @@ def validate_frontier_upgrade(
     return None
 
 
-def check_closure_gates(root: Path, report: Report) -> None:
+def check_closure_gates(
+    root: Path,
+    report: Report,
+    checkpoint_artifacts: dict[Path, dict[str, Path] | None] | None = None,
+) -> None:
     """Validate deterministic completion certificates at the fast-close boundary."""
-    gates = sorted(p for p in root.glob(CLOSURE_GATE_GLOB) if not is_in_nested_repo(root, p))
+    checkpoint_artifacts = checkpoint_artifacts or {}
+    gates = [
+        path
+        for path in root.glob(CLOSURE_GATE_GLOB)
+        if not is_in_nested_repo(root, path) and path.parent not in checkpoint_artifacts
+    ]
+    for run_dir, current in checkpoint_artifacts.items():
+        if current is not None and "closure_gate" in current:
+            gates.append(current["closure_gate"])
+        elif current is not None and (run_dir / "closure_gate.md").is_file():
+            gates.append(run_dir / "closure_gate.md")
+    gates = sorted(set(gates))
     if gates:
         report.ok(f"found {len(gates)} closure gate(s)")
     upgrade_bases: dict[tuple[str, str], Path] = {}
@@ -1235,7 +1349,7 @@ def check_closure_gates(root: Path, report: Report) -> None:
                     else:
                         upgrade_bases[base] = frontier_path
 
-    seen_dirs = {path.parent for path in gates}
+    seen_dirs = {path.parent for path in gates} | set(checkpoint_artifacts)
     run_markers: set[Path] = set()
     for marker_name in (
         "research_ledger.md",
@@ -1402,8 +1516,9 @@ def main() -> int:
 
     check_status_declaration(root, report)
     check_interruption_handoffs(root, report)
-    check_whiteboards(root, report)
-    check_closure_gates(root, report)
+    checkpoint_artifacts = select_checkpoint_current_artifacts(root, report)
+    check_whiteboards(root, report, checkpoint_artifacts)
+    check_closure_gates(root, report, checkpoint_artifacts)
 
     claim_files = iter_claim_files(root)
     report.ok(f"found {len(claim_files)} claim-bearing markdown file(s)")

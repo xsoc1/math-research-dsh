@@ -1,5 +1,14 @@
 # Release history
 
+## Changelog (2026-08-31, v1.14.1)
+
+- Fixed scoped pipeline validation for versioned recovery artifacts. The gate
+  now verifies the latest sealed checkpoint and validates the whiteboard and
+  closure gate bound by its state, while preserving immutable ancestors.
+- A stale latest checkpoint fails closed without ancestor fallback. The
+  checkpoint smoke covers legacy sequence-00 records, compliant versioned
+  successors, and post-seal tampering.
+
 ## Changelog (2026-08-31, v1.14.0)
 
 - Stage A now treats `blueprint-project.json` as the physical-layout authority

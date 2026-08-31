@@ -442,6 +442,9 @@ agent writes an interruption handoff before returning control:
 `validate_pipeline.py` enforces the handoff and quota bindings. Full state
 schema, benchmark continuity, and replacement rules:
 `references/quota-interruption-recovery.md`.
+For checkpointed runs it verifies the latest sealed lineage and validates the
+whiteboard and closure gate bound by that state. It does not reinterpret an
+immutable ancestor as current or fall back after a stale latest checkpoint.
 
 ## Efficiency rules
 

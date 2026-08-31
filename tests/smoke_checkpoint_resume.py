@@ -1110,7 +1110,28 @@ def main() -> None:
 
 	with tempfile.TemporaryDirectory() as temp:
 		project, state_path, checkpoint_path = fixture(Path(temp))
+		legacy_whiteboard = state_path.parent / "whiteboard.md"
+		legacy_closure = state_path.parent / "closure_gate.md"
+		legacy_whiteboard.write_text(
+			"# Immutable legacy whiteboard ancestor\n",
+			encoding="utf-8",
+			newline="\n",
+		)
+		legacy_closure.write_text(
+			"# Immutable legacy closure ancestor\n",
+			encoding="utf-8",
+			newline="\n",
+		)
+		initial_state = json.loads(state_path.read_text(encoding="utf-8"))
+		legacy_whiteboard_binding = binding(project, legacy_whiteboard)
+		initial_state["whiteboard"] = legacy_whiteboard_binding
+		initial_state["closure_gate"] = binding(project, legacy_closure)
+		for index, item in enumerate(initial_state["resume"]["minimal_read_set"]):
+			if item["path"].endswith("whiteboard.md"):
+				initial_state["resume"]["minimal_read_set"][index] = legacy_whiteboard_binding
+		write_json(state_path, initial_state)
 		original_whiteboard_hash = sha256(state_path.parent / "whiteboard.md")
+		original_closure_hash = sha256(state_path.parent / "closure_gate.md")
 		receipt_path = seal_and_resume(project, state_path, checkpoint_path)
 		next_state_path = state_path.with_name("interruption_state-01.json")
 		advanced = run(
@@ -1132,10 +1153,15 @@ def main() -> None:
 		if advance_result["verdict"] != "ADVANCE_DRAFT_READY":
 			raise AssertionError("advance did not return the draft-ready verdict")
 		versioned_whiteboard = state_path.parent / "whiteboard-01.md"
+		versioned_closure = state_path.parent / "closure_gate-01.md"
 		if not versioned_whiteboard.is_file():
 			raise AssertionError("advance did not version the mutable whiteboard")
+		if not versioned_closure.is_file():
+			raise AssertionError("advance did not version the mutable closure gate")
 		if sha256(versioned_whiteboard) != original_whiteboard_hash:
 			raise AssertionError("advance changed the copied whiteboard bytes")
+		if sha256(versioned_closure) != original_closure_hash:
+			raise AssertionError("advance changed the copied closure-gate bytes")
 		if sha256(state_path.parent / "whiteboard.md") != original_whiteboard_hash:
 			raise AssertionError("advance changed the checkpoint-bound whiteboard")
 		if run(
@@ -1155,7 +1181,45 @@ def main() -> None:
 			"advance draft must be finalized",
 		)
 		versioned_whiteboard.write_text(
-			"# Whiteboard\n\nSegment 01 update.\n",
+			"""# Whiteboard sequence 01
+
+- **Run ID:** `R-20260829T120000Z-quota`
+- **Task packet ID:** `Q-checkpoint-smoke`
+
+## Current plan
+
+Continue O2 after resume.
+
+## Route history
+
+- route-a `[PARTIAL]`: O1 closed, O2 remains.
+
+## Ideas to return to
+
+None.
+
+## Open obligations
+
+- O2.
+
+## Key artifacts
+
+- partial_proof.md.
+""",
+			encoding="utf-8",
+			newline="\n",
+		)
+		versioned_closure.write_text(
+			"""# Closure gate sequence 01
+
+- Gate decision: OPEN_EXACT_GAP
+- Root obligations: OPEN
+- Completion manifest: none
+- Fresh package audit: pending
+- Load-bearing gaps: 1
+- Fast-close decision: CONTINUE_REQUIRED
+- Frontier upgrade: none
+""",
 			encoding="utf-8",
 			newline="\n",
 		)
@@ -1163,6 +1227,7 @@ def main() -> None:
 		next_state_value.pop("advance_draft")
 		new_whiteboard_binding = binding(project, versioned_whiteboard)
 		next_state_value["whiteboard"] = new_whiteboard_binding
+		next_state_value["closure_gate"] = binding(project, versioned_closure)
 		for index, item in enumerate(next_state_value["resume"]["minimal_read_set"]):
 			if item["path"].endswith("whiteboard-01.md"):
 				next_state_value["resume"]["minimal_read_set"][index] = new_whiteboard_binding
@@ -1180,6 +1245,29 @@ def main() -> None:
 			raise AssertionError(
 				f"finalized advance state did not seal:\n{sealed_next.stdout}"
 			)
+		pipeline = run_pipeline(project)
+		if pipeline.returncode != 0:
+			raise AssertionError(
+				"pipeline did not select the latest checkpoint-bound records:\n"
+				f"{pipeline.stdout}\n{pipeline.stderr}"
+			)
+		if "selects current closure_gate, whiteboard" not in pipeline.stdout:
+			raise AssertionError("pipeline did not disclose checkpoint-current selection")
+		mislabeled_checkpoint = checkpoint_path.with_name("interruption_checkpoint-99.json")
+		mislabeled_checkpoint.write_bytes(
+			checkpoint_path.with_name("interruption_checkpoint-01.json").read_bytes()
+		)
+		expect_failure(run_pipeline(project), "checkpoint must be named")
+		mislabeled_checkpoint.unlink()
+		versioned_whiteboard.write_text(
+			"tampered after seal\n",
+			encoding="utf-8",
+			newline="\n",
+		)
+		expect_failure(
+			run_pipeline(project),
+			"latest interruption checkpoint is STALE",
+		)
 
 	with tempfile.TemporaryDirectory() as temp:
 		project, state_path, checkpoint_path = fixture(Path(temp))

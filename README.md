@@ -243,6 +243,7 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
+| `1.14.1` | 2026-08-31 | 继承 checkpoint-current scoped validator 修复: 先验证最新 sealed checkpoint, 再校验 state 绑定的版本化 whiteboard/closure; 不误读不可变祖先, `STALE` 时禁止回退 |
 | `1.14.0` | 2026-08-31 | 继承 Blueprint v2.2 active runtime gateway: manage bundle 携带 `runtime/blueprintctl.py`, ensure-once 绑定 layout/config/runtime, canonical validate/query/proposal/integrate 只走插件代码, 支持跨根 artifact 并拒绝 project-local 工具注入 |
 | `1.13.0` | 2026-08-30 | 继承 canonical formalization consumption: `consume/verify-consumption` 在 receipt `READY` 后生成唯一 immutable sibling record, 显式保持数学/验证状态不变, 允许 Stage C 合法演化目标 scaffold, 并以 exclusive-create 关闭 overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | 继承 cross-root Tier 0 formalization handoff: immutable exact-copy receipt 绑定 Stage B scope, Stage C Lean project, proof/scaffold 和 registration anchors; 完整 requested package 仍不支持, 不升级 FORMALLY_VERIFIED; Stage C 详细协议改为按需加载 |

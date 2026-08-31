@@ -267,6 +267,7 @@ install.ps1                       junction install into $DSH_HOME/skills
 
 | Version | Date | Summary |
 | --- | --- | --- |
+| `1.14.1` | 2026-08-31 | Inherits the checkpoint-current scoped validator fix: verify the latest sealed checkpoint, then validate its state-bound versioned whiteboard/closure records; immutable ancestors are not misread and `STALE` never falls back |
 | `1.14.0` | 2026-08-31 | Inherits the Blueprint v2.2 active runtime gateway: the manage bundle carries `runtime/blueprintctl.py`, ensure-once binds layout/config/runtime, canonical validation/query/proposal/integration use plugin-owned code, cross-root artifacts resolve correctly, and project-local tool injection is rejected |
 | `1.13.0` | 2026-08-30 | Inherits canonical formalization consumption: `consume/verify-consumption` writes one immutable sibling record after receipt `READY`, explicitly preserves mathematical and verification status, permits legitimate later Stage C destination-scaffold evolution, and uses exclusive creation to close overwrite TOCTOU |
 | `1.12.0` | 2026-08-30 | Inherits the cross-root Tier 0 formalization handoff: an immutable exact-copy receipt binds the Stage B scope, Stage C Lean project, proof/scaffold, and registration anchors; full requested packages remain unsupported, no FORMALLY_VERIFIED promotion occurs, and detailed Stage C rules load only on demand |

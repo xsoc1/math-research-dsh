@@ -114,6 +114,14 @@ the numbered artifacts and semantic delta, then remove the draft flag before
 sealing. The sealer rejects unfinished advance drafts and differing existing
 versioned files.
 
+At a pipeline boundary, `validate_pipeline.py` verifies the latest sealed
+checkpoint and validates the whiteboard and closure gate selected by that
+checkpoint's state. Earlier unnumbered or numbered records remain immutable
+lineage artifacts and are not reinterpreted as the current run state. A stale
+latest checkpoint is a hard failure; the validator never falls back to an
+older record. Before sealing an advance draft, bring the new numbered records
+up to the current whiteboard and closure-gate schemas.
+
 The successor reads only the receipt's `minimal_read_set` and executes exactly
 its `first_action`. Unresolved in-flight work forces
 `RECONCILE_INFLIGHT`; no new worker can be dispatched first. A completed or

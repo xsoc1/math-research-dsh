@@ -262,6 +262,12 @@ mathematical verdict:
   and writes `interruption_state-(NN+1).json` with `advance_draft=true`.
   The draft cannot seal until its semantic delta is finalized and the flag is
   removed. This prevents an edit from invalidating an earlier checkpoint.
+- Before sealing the draft, the numbered whiteboard and closure gate must meet
+  the current schemas. At validation time, `validate_pipeline.py` verifies the
+  latest sealed checkpoint and validates exactly the whiteboard and closure
+  paths selected by its state. Sequence-00 and other predecessor records stay
+  immutable and are not treated as current. If the latest checkpoint is
+  `STALE`, validation fails without falling back to an ancestor.
 - Segment `00` is the trust root. Every later state binds the immediately
   previous checkpoint and its unique canonical receipt. The gate rejects a
   broken sequence, duplicate receipt path, resume time before seal, lost
@@ -276,6 +282,14 @@ mathematical verdict:
   tool/token/cost counters. Counters are finite and non-decreasing. Resume never resets counters or silently mixes an
   infrastructure-replacement run. Local checkpoint overhead is separate and
   unscored unless preregistration says otherwise.
+
+Live regression on 2026-08-31 used the BVE KP-DET scoped run. The v1.14.0 gate
+misread immutable sequence-00 records and reported 11 format problems. The
+checkpoint-current selector then correctly exposed 12 schema defects in the
+actual sequence-02 records. A deterministic `advance` created and sealed
+compliant sequence-03 records without changing sequences 00-02; the final
+scoped gate reported 0 hard problems and 1 expected partial-status warning.
+This is a scoped validation result, not a whole-project PASS.
 
 After sealing, the interrupted segment makes no further research-model call.
 Unresolved child sessions are the first resume action; completed obligations,
