@@ -1,84 +1,91 @@
 # Performance Observability and Alerts
 
-## Purpose
+Use recorded costs to detect candidate regressions. Keep mathematical quality,
+resource cost and infrastructure failures as separate observations.
 
-Detect and surface performance regressions during research runs. The goal is
-not to replace human judgement but to alert the user early when a change
-(staged protocol, new skill text, new retry logic, plugin version) makes runs
-more expensive without a compensating benefit.
+## Metrics and unknown values
 
-## Metrics
-
-When available, every material run should record a `performance.json`:
+Record a `performance.json` with the observed metric scope and provenance:
 
 ```json
 {
   "run_id": "...",
   "variant": "...",
-  "problem_class": "...",
-  "steps": 0,
-  "tool_calls": 0,
-  "uncached_input_tokens": 0,
-  "cache_read_tokens": 0,
-  "output_tokens": 0,
-  "wall_ms": 0,
-  "artifact_count": 0,
-  "reused_item_count": 0,
-  "duplicate_work_count": 0
+  "model_responses": null,
+  "tool_calls": null,
+  "uncached_input_tokens": null,
+  "cached_input_tokens": null,
+  "output_tokens": null,
+  "root_active_wall_seconds": null,
+  "metric_scope": "root-and-children-tokens; root-active-wall",
+  "task_sha256": "...",
+  "prompt_sha256": "...",
+  "model": "observed-model",
+  "reasoning_effort": "observed-effort",
+  "cli_sha256": "...",
+  "harness_sha256": "...",
+  "source_sha256": "...",
+  "network_policy": "frozen-policy-id",
+  "budget_policy": "frozen-policy-id",
+  "artifact_profile": "frozen-required-profile"
 }
 ```
 
-Metric sources may be DSH session stats, run logs, `performance_log.md`,
-`reuse_summary.md`, and the run artifact directory.
+Replace placeholders with actual observations; never use them as matched
+identities. `source_sha256` binds the frozen mathematical input bundle, while
+plugin versions and hashes identify the compared variants separately.
+Record CLI version, operating system, provider and raw-log paths alongside the
+fingerprints. Do not infer the actual model or effort from the user's default.
 
-## Baselines
+Omitted values, JSON null and `unknown` remain unknown. Zero means measured
+zero. The normalizer rejects negative, Boolean, non-finite and conflicting
+alias values. Supported aliases are `steps` for `model_responses`,
+`cache_read_tokens` for `cached_input_tokens`, and `wall_seconds`/`wall_ms` for
+`root_active_wall_seconds` (milliseconds are converted). Use these aliases
+only if the raw producer has that meaning; planner steps and full pipeline
+elapsed time are not automatically model responses and active root wall time.
+Output tokens count as resource consumption, not as a quality score.
 
-A baseline is a previous `performance.json` from a comparable run:
+Keep root/child IDs and cumulative segments in the raw manifest. Across quota
+resumes, use the existing checkpoint experiment-integrity rules for cumulative
+counters and active time; do not sum cumulative snapshots twice or fabricate
+missing child usage. Shared account percentages are operational limits, not
+per-run tokens or cost. Report direct monetary cost only from observed billing
+or an explicitly dated rate table, with cached/uncached/output pricing separate.
 
-- same problem class, or
-- same task type and similar difficulty, or
-- a configured plugin baseline.
+## Matched comparisons
 
-Keep multiple baselines. A single baseline on an easy problem is not enough to
-judge a hard problem.
+`performance_alert.py --strict` requires matching nonempty task, prompt,
+model, effort, CLI, harness, source, network-policy, budget-policy, artifact-profile
+and metric-scope identities. A known mismatch is `INCOMPARABLE`, even without
+strict mode. Missing identities are `INCOMPARABLE` under strict mode and
+`ADVISORY_UNMATCHED` otherwise. A zero or missing baseline has no percentage
+delta. Missing identities never prove that two runs are comparable.
 
-## Alert levels
+A same-class historical run can provide context, but does not establish a
+causal plugin speedup. Freeze conditions before a scored A/B run, keep held-out
+inputs and auditors separate, and report repeated paired outcomes and uncertainty.
+Change plugin behavior and model/effort in separate experiments. Keep invalid
+infrastructure runs and post-hoc repairs outside scored arm metrics.
 
-- `INFO` -- changed but no clear regression.
-- `WARN` -- one or more cost metrics increased materially while output/artifacts
-  did not improve.
-- `ALERT` -- cost increased materially AND documentation/reuse quality
-  decreased (e.g. missing minimum artifacts, high duplicate work).
+## Quality and alerts
 
-Alerts are **candidates**, not verdicts. A single run may be misleading (this
-is exactly what happened in the reuse-gate experiments: an easy problem showed
-overhead, while a hard problem showed a different trade-off). Therefore every
-alert must include:
+The helper emits `WARN` when any known comparable cost rises at least 50%,
+`INFO` otherwise, and `INCOMPARABLE` when identities fail. These are cost
+signals only. Missing metrics are shown as unknown. It does not infer proof
+quality, completeness or documentation loss from file count or output length.
+Use an independent audit and the preregistered artifact profile for those
+judgments, including exact remaining mathematical gaps.
 
-- which metrics changed;
-- how much they changed;
-- whether the run's output/artifacts improved or degraded;
-- the problem class and difficulty context;
-- one or more suggested next checks (e.g. run the same variant on a different
-  problem class, or rerun with a second agent).
+Write the generated report to the run directory and connect any warning to
+its raw metrics, quality audit and likely mechanism. One run is insufficient
+for a broad regression claim. Do not launch another costly benchmark merely
+because the advisory says WARN; use the remaining quota and the declared
+experiment plan to decide the next discriminating check.
 
-## Alert writing
+```text
+python performance_alert.py --metrics performance.json --baseline baseline.json --output performance_alert.md --strict
+```
 
-When an alert is produced, write `performance_alert.md` in the run root using
-`assets/performance-alert.template.md`, and if the run has a `final_report.md`,
-add a short "Performance alert" section summarizing the candidate issue and the
-proposed next checks.
-
-Do not claim a protocol change is bad based on one run alone. Confirmation
-requires at least one of:
-
-- a repeat run in the same class;
-- a run in a different class with a meaningful baseline;
-- a documented mechanism explaining why the metric change is expected and
-  acceptable.
-
-## Tooling
-
-`scripts/performance_alert.py` compares a run's `performance.json` against a
-baseline and writes the alert record. It is advisory and never blocks a run by
-default.
+Default mode is advisory. `--strict` exits nonzero for incomparable records;
+`--fail-on-alert` additionally exits nonzero for a non-INFO cost signal.

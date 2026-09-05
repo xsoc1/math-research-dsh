@@ -15,7 +15,7 @@ lean-verify) 以原生 DSH skill 形式发布, 脚本与模板随 bundle 分发.
   bundle (目录 + SKILL.md frontmatter), 内容与上游保持同步.
 - 当前状态 (2026-08-31): 4 个 skill 全部适配完毕; 本机已通过 install.ps1 以 junction
   安装到 `$DSH_HOME/skills`; 安装后 DSH 会话技能目录即时可见 (watcher 跟随 junction);
-  仓库校验与 18 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
+  仓库校验与 22 个冒烟全绿; GitHub Actions 已接入; 仓库根已打包为官方 bundle 技能包
   (社区一键安装 + 收录申请已提交).
 
 ## 仓库间关系
@@ -274,3 +274,14 @@ install.ps1                       junction 安装到 $DSH_HOME/skills
 6. 提交后按 project.json 的 git_sync.push_order 推送 (当前只有 origin).
 
 版权: MIT (与父仓库一致).
+
+## 2026-09-05 maintenance runtime, v1.15.0
+
+Inherits source capture/reading, candidate tool annotations/pointers, quota recovery and comparable metrics from the parent. No new mathematical benchmark was run.
+
+Additional offline smoke commands:
+
+    python tests/smoke_research_library.py
+    python tests/smoke_recovery_status.py
+    python tests/smoke_performance_metrics.py
+    python tests/smoke_skill_sources.py

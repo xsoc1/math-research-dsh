@@ -293,6 +293,9 @@ WORKFLOW_DOCTOR_STEP_OLD = """3. Run the environment preflight (`scripts/doctor.
    apply the printed repair command (usually `codex plugin add
    math-research-workflow@math-research`) before any dispatch; the desktop app
    may rewrite `config.toml` and drop plugin-enable entries between sessions.
+   If same-name skill copies are suspected, add `--source-inventory --json`.
+   Resolve the loaded `SKILL.md` path; inventory hashes do not identify which
+   copy the model loaded and do not authorize deleting another installation.
 """
 
 WORKFLOW_DOCTOR_STEP_NEW = """3. Run the DSH environment preflight (`scripts/dsh-doctor.py` in the
@@ -305,7 +308,8 @@ WORKFLOW_DOCTOR_STEP_NEW = """3. Run the DSH environment preflight (`scripts/dsh
 """
 
 WORKFLOW_REFERENCE_OLD = """- `scripts/doctor.py` -- environment preflight for the plugin, its dependency
-  skills, the marketplace, and the `config.toml` enable entry.
+  skills, the marketplace, the `config.toml` enable entry and optional physical
+  skill-source hashes (`--source-inventory`).
 """
 
 WORKFLOW_REFERENCE_NEW = """- Repository-level `scripts/dsh-doctor.py` -- DSH environment preflight: the
@@ -678,6 +682,12 @@ def rewrite_smoke_paths(text: str) -> str:
     path expressions; smoke_doctor.py is not synced (replaced by the DSH
     doctor smoke for scripts/dsh-doctor.py).
     """
+    for upstream_path, bundled_path in (
+        ("plugins/manage-math-research-program/skills/manage-math-research-program", "skills/manage-math-research-program"),
+        ("plugins/math-research-workflow/skills/math-research-workflow", "skills/math-research-workflow"),
+        ("plugins/math-research-workflow/scripts", "skills/math-research-workflow/scripts"),
+    ):
+        text = text.replace(upstream_path, bundled_path)
     text = re.sub(
         r'"plugins"\s*/\s*"manage-math-research-program"\s*/\s*"runtime"',
         '"skills" / "manage-math-research-program" / "runtime"',

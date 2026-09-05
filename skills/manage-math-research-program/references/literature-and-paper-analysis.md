@@ -1,5 +1,10 @@
 # Literature Tracking and Paper Analysis
 
+For cached source discovery, actual retrieved-byte capture and bounded reading,
+use `references/library-runtime.md`. Preserve source versions and exact original
+page/theorem locators while extracting reusable cards and candidate annotations.
+The helper stores evidence; it does not certify source claims or search the web.
+
 ## Search objective
 
 A literature cycle should answer a dated project question, such as:

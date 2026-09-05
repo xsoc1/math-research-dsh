@@ -186,8 +186,9 @@ Do not rely on:
 
 ```text
 Use the rigorous-open-math-research skill on the following problem.
-First build and audit the theorem contract, then run a diverse research portfolio,
-maintain an obligation graph and route ledger, use computation or formalization where
+First build and audit the theorem contract, then apply the closure-first gate.
+Open a diverse portfolio only for its recorded unresolved targets. Maintain an
+obligation graph and route ledger, use computation or formalization where
 appropriate, and subject every candidate proof to adversarial verification.
 Return the strongest rigorously supported result with an exact status label, remaining
 gaps, provenance, and reproducibility information. Do not invent unpublished run data.

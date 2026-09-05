@@ -1,5 +1,12 @@
 # Release history
 
+## Changelog (2026-09-05, v1.12.0)
+
+- Aligned the minimal invocation and verifier scheduling with closure-first
+  operation and concrete audit targets, retaining fresh completion review.
+- Routed actual source capture, bounded reading and candidate tool annotations
+  to the installed management runtime without creating a second proof workflow.
+
 ## Changelog (2026-08-31, v1.11.0)
 
 - Blueprint snapshot retrieval now resolves the active manage plugin's

@@ -122,13 +122,14 @@ Read only the references needed for the current operation:
 - `references/project-repository-spec.md` — directory ownership, IDs, deduplication, and project indexes.
 - `references/literature-and-paper-analysis.md` — search, paper versioning, relations, and structured TeX analyses.
 - `references/tool-library-spec.md` — reusable mathematical tool entries and promotion rules.
+- `references/library-runtime.md` - source capture, bounded reading, agent annotations and reproducible tool pointers. Read when finding literature or maintaining tools.
 - `references/delegation-and-ingestion.md` — task packets, the upstream invocation contract, and result ingestion.
 - `references/state-checkpoints-and-reports.md` — project states, effective-time budgets, checkpoints, recovery, and summaries.
 - `references/boundary-checklist.md` — mandatory non-overlap check before dispatch and before stage closure.
 - `references/accepted-knowledge-pipeline.md` — hash-bound submission, validation, review, and integration of accepted knowledge.
 - `references/git-sync.md` — automatic git status check, commit, push, and proxy-bypass commands.
 
-Use templates from `assets/`. Use scripts only for deterministic repository initialization or validation.
+Use templates from `assets/`. Use scripts for deterministic initialization, validation and retrieval-library maintenance; mathematical interpretation remains with the researcher.
 
 ## Blueprint v2.2 runtime boundary
 

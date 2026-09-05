@@ -1,5 +1,14 @@
 # Release history
 
+## Changelog (2026-09-05, v1.8.0)
+
+- Added immutable actual-source capture, version lookup, bounded passage reads
+  with continuation offsets, hash-bound candidate annotations and tool pointers.
+- Preserved legacy cards, custom index metadata, applicability/retirement and
+  human README content. Stale cards/notes cannot silently become current hits.
+- Added runtime guidance for retrieval, original citation locators, interrupted
+  writes and the boundary between retrieval aids and accepted mathematical facts.
+
 ## Changelog (2026-08-31, v1.7.0)
 
 - Added the plugin-owned `runtime/blueprintctl.py` gateway for Blueprint v2.2

@@ -197,8 +197,10 @@ replace the theorem contract, B0 gate, or evidence discipline.
    `assets/whiteboard.template.md`). It holds the current plan, the route
    history with `[FAILED|BLOCKED|PARTIAL|SUCCEEDED]` outcome markers, deferred
    ideas, open obligations, and the key-artifact index (slug + one-line
-   summary + sha256). The solve-run lead rewrites it after every planner step
-   and reads it at every step; old plans are replaced, not appended. The
+   summary + sha256). The solve-run lead updates it after a material decision,
+   result, failure, dispatch change or budget boundary. Re-read after resuming
+   or detecting an external change; unchanged in-memory context needs no file
+   rewrite. Old plans are replaced, with their outcomes kept in the ledger. The
    interruption handoff is a frozen snapshot of this record plus recovery
    context. The stage gate hard-requires the whiteboard for runs started on or
    after 2026-08-14 and validates its fields and sections.
@@ -234,13 +236,14 @@ replace the theorem contract, B0 gate, or evidence discipline.
      namespace openings, definitions, proven sub-lemmas) to
      `runs/<run_id>/lean_scratch/context.lean`, which is prepended to later
      `lean_verify` calls in that run.
-5b. **Intermediate Lean checkpoints (mandatory).** When a Worker produces a
-   load-bearing lemma, a structural claim, or a reusable reduction, run
-   `lean_verify` on that snippet before letting the route depend on it. A
-   machine-checked intermediate result is a checkpoint: it catches errors
-   early, prevents a route from silently building on a false step, and gives
-   the next agent a verified stepping stone even if the final theorem is still
-   open.
+5b. **Intermediate Lean checkpoints (tier-scoped).** For a formalized dependency,
+   run `lean_verify` before storing it as verified or relying on its machine
+   status. Informal load-bearing claims still require independent proof review;
+   record their verification tier and exact formalization gaps. A Tier 0 scaffold
+   is a handoff, not a machine-verified theorem. Apply the Stage C and
+   `$lean-verify` tier gates, including full verification when required by the
+   result status or user, rather than attempting complete formalization after
+   every exploratory step.
 6. **Loop control.** The Planner iterates: direct attempt -> optional Worker dispatch -> collect outputs ->
    independent review -> update whiteboard and repository -> next plan step,
    until `CANDIDATE_COMPLETE_PROOF`, an exact gap report, or the compute
@@ -338,9 +341,11 @@ follow `references/openprover-absorption.md`. In short:
 - At route boundaries or before context compaction, reconstruct from the
   whiteboard, repository index, and exact artifact paths instead of replaying
   the transcript. Record the current open obligations and next action first.
-- On budget exhaustion, seal an immutable checkpoint and mark `PAUSED_BUDGET`.
-  Resume only after `READY`, use the receipt's minimal read set, reconcile
-  unresolved workers, and run `checkpoint_resume.py advance` before editing
+- Save material decisions immediately, and seal before a known quota boundary
+  or expensive wave. A hard cutoff cannot execute a final save. Use
+  `recovery_status.py inspect` and `prepare-resume` to verify the latest state
+  and create or reuse its canonical receipt. Use the minimal read set, reconcile
+  unresolved workers and existing drafts, then run `checkpoint_resume.py advance` before editing
   bound mutable artifacts. Scored metrics stay cumulative. Full protocol:
   `references/quota-interruption-recovery.md`.
 
@@ -493,6 +498,8 @@ immutable ancestor as current or fall back after a stale latest checkpoint.
   and git gate checks for stage boundaries.
 - `scripts/checkpoint_resume.py` -- checkpoint seal/verify/resume, timestamp,
   and next-segment artifact versioning.
+- `scripts/recovery_status.py` -- compact latest-state inspection, idempotent
+  receipt preparation and fresh account-quota checks; never dispatches workers.
 - `scripts/formalization_handoff.py` -- immutable cross-root Tier 0 scaffold
   receipt; full contract in `references/formalization-handoff.md`.
 - `references/stage-c-formalization.md` -- complete Stage C decision states,

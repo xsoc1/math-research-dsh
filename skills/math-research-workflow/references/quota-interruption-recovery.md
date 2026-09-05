@@ -5,6 +5,52 @@ when the service interrupts a model call, or when a scored experiment must
 continue across sessions. The protocol preserves mathematical and experimental
 state without replaying the transcript.
 
+## Compact entry and quota observations
+
+Resolve `<workflow-plugin>/scripts/recovery_status.py` from the loaded plugin.
+Its `inspect` command verifies the numerically latest sealed checkpoint and
+the existing lineage using `checkpoint_resume.py`, then emits only the exact
+next action, minimal read set, budget, in-flight work and do-not-repeat IDs.
+A stale latest checkpoint is an error; it never falls back to an older one.
+
+```text
+python recovery_status.py inspect --project PROJECT --run-root RUN
+python recovery_status.py prepare-resume --project PROJECT --run-root RUN
+```
+
+`prepare-resume` creates the canonical receipt once, or validates and reuses
+the existing bytes. It performs no worker dispatch. `PENDING_DRAFT` means a
+newer unsealed state exists: reconcile that draft and actual runtime/action
+status, rather than repeating the older receipt's first action. `STATE_CHANGED`
+means another writer advanced the lineage during preparation; inspect again.
+Even `RESUME_RECEIPT_REUSED` requires runtime reconciliation before continuing.
+After reconciliation, use `checkpoint_resume.py advance` only if no successor
+draft already exists, then work in the new mutable files as described below.
+
+At run start, before a new expensive wave, and at a material stage boundary,
+read the host's account usage tool when available. Save its actual structured
+payload with `observed_at` (UTC); do not fill missing values with zero.
+Check a configured reserve, for example:
+
+```text
+python recovery_status.py quota --snapshot quota.json --min-remaining 10
+```
+
+The reserve is an explicit run policy, not an estimated token allowance.
+The helper uses the most constrained available primary/secondary window in
+the selected `codex` bucket. `HEADROOM_LOW` means save state before more work;
+`UNKNOWN` means refresh the observation or preserve state first. Snapshots
+older than 300 seconds, future observations and passed reset boundaries are
+unknown. Account percentages are shared across tasks and do not measure this
+run's usage. The helper does not poll, schedule wakeups or redeem reset credits.
+
+A hard service cutoff cannot execute a final save. Persist each completed
+worker artifact and material decision as it happens; seal before an expensive
+wave or a known boundary. After a sudden cutoff, resume from the latest valid
+snapshot and reconcile later artifacts by hash and action ID. Work that never
+reached disk stays `NO_RETURN`/unknown, not completed. Restoring quota does not
+by itself authorize replay or reset the original research/experiment budget.
+
 ## Artifact contract
 
 For checkpoint segment `NN`, keep three immutable files in the run directory:

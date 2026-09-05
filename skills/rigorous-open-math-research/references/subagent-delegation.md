@@ -63,7 +63,10 @@ Every spawned sub-agent receives a packet with these fields (template in
 4. Collect results as they arrive; do not wait on correlated duplicates.
 5. Re-delegate only after a sub-agent returns a precise mechanism-level failure and a materially
    new idea exists; otherwise record and move on.
-6. Keep an adversarial verifier active throughout, not only at the end.
+6. Keep adversarial checking as a responsibility throughout. Dispatch a fresh verifier for a
+   concrete candidate proposed as a load-bearing dependency or reusable result, and for the
+   final frozen candidate. Do not keep an idle verifier running or repeatedly review unchanged
+   artifacts. Empty or duplicate returns use the coordinator's deterministic rejection gate.
 7. Require a `decision_delta` from every worker. A return that only restates context or reproduces
    an existing partial bound does not justify another round.
 

@@ -486,3 +486,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   checkpoint smoke; upstream lock 仍为 111 文件 @ 516037f.
 - package.json bump 1.14.0 -> 1.14.1, README 中英版同步. smoke 文件总数仍为 18,
   新覆盖位于既有 checkpoint resume smoke.
+
+### 2026-09-05: quota recovery and literature runtime
+
+- User approved the parent optimization and requested annotatable tool pointers plus quota interruption recovery. Synced parent release batch workflow 1.15.0 / rigorous 1.12.0 / manage 1.8.0; package 1.15.0. Adapted doctor text and new smoke paths through sync-from-parent.py only. Tests now total 22. Validation and push results are recorded after execution.
+
+- Release verification: 51 checks, all 22 smoke scripts, BUNDLE OK and parent sync --check passed with PYTHONUTF8=1. No mathematical benchmark executed. Parent source commit de540c0622aae34891998b29670aeef10637fbfb.

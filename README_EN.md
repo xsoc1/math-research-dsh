@@ -301,3 +301,14 @@ The former 0.1.x history is consolidated here; date/0.1.x numbers are no longer 
    the parent moved.
 
 License: MIT (same as the parent repository).
+
+## 2026-09-05 maintenance runtime, v1.15.0
+
+Inherits source capture/reading, candidate tool annotations/pointers, quota recovery and comparable metrics from the parent. No new mathematical benchmark was run.
+
+Additional offline smoke commands:
+
+    python tests/smoke_research_library.py
+    python tests/smoke_recovery_status.py
+    python tests/smoke_performance_metrics.py
+    python tests/smoke_skill_sources.py

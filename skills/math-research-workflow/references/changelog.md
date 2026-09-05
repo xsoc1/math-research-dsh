@@ -1,5 +1,16 @@
 # Release history
 
+## Changelog (2026-09-05, v1.15.0)
+
+- Added compact latest-checkpoint inspection, idempotent receipt preparation,
+  draft/concurrent-state blocking and fresh account-quota observations.
+- Added opt-in physical skill-source diagnostics. Metric comparison now
+  preserves unknown values, normalizes aliases and rejects mismatched designs.
+- Whiteboard writes follow material decisions. Intermediate Lean verification
+  follows the declared tier while preserving independent proof and final gates.
+- Deterministic fixtures and scoped independent review cover library/recovery
+  behavior. No new end-to-end mathematical speedup is claimed.
+
 ## Changelog (2026-08-31, v1.14.1)
 
 - Fixed scoped pipeline validation for versioned recovery artifacts. The gate

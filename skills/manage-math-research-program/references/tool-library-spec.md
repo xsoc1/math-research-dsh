@@ -173,4 +173,10 @@ The task packet must say explicitly that the tool is a lead and that `$rigorous-
 
 ## Relationship to paper analyses and maps
 
+Use `references/library-runtime.md` to capture actual source bytes, append
+hash-bound candidate annotations, and regenerate `index/tools.json` with the
+optional managed section in the existing tools README. Read the matching card
+and its current annotations by pointer before reuse. An annotation never
+promotes a result or changes its accepted proof status.
+
 Paper analyses explain where a tool came from. Tool entries explain how it can be retrieved and where it may apply. Paper maps explain how works and directions relate. Do not duplicate the full paper analysis in the tool entry.

@@ -84,6 +84,15 @@ https://github.com/MicroHEROX/dsh-exa-mcp.)
 
 ### Coverage dimensions and gaps
 
+When the manager's installed runtime is available, use its
+`references/library-runtime.md` and `scripts/research_library.py` for cached
+source discovery, bounded passage reads and tool pointers. Resolve that helper
+from the loaded management skill path, without invoking another proof workflow.
+Capture only actually retrieved bytes, annotate exact card hashes and original
+source locations, then refresh pointers. Candidate annotations remain unverified
+leads. Read current cards and annotations before deciding applicability; stale
+bindings require a fresh read and never promote themselves into premises.
+
 Enumerate the information dimensions the search must span (methods, classes, regimes, notations, literature lineages) and map every route and subproblem to at least one dimension. Record `coverage_gaps` for dimensions nothing currently covers, and treat each declared gap as a target for directed reconnaissance, not as silently accepted territory. A controller that sees fewer dimensions than the domain has is guaranteed blind spots. (Inspired by dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research.)
 
 Represent the desired result as a dependency graph.
