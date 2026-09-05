@@ -492,3 +492,5 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - User approved the parent optimization and requested annotatable tool pointers plus quota interruption recovery. Synced parent release batch workflow 1.15.0 / rigorous 1.12.0 / manage 1.8.0; package 1.15.0. Adapted doctor text and new smoke paths through sync-from-parent.py only. Tests now total 22. Validation and push results are recorded after execution.
 
 - Release verification: 51 checks, all 22 smoke scripts, BUNDLE OK and parent sync --check passed with PYTHONUTF8=1. No mathematical benchmark executed. Parent source commit de540c0622aae34891998b29670aeef10637fbfb.
+
+- Corrected copied pipeline links and doctor instructions through the DSH sync layer. Revalidated 51 checks and clean sync. SSH authentication works; HTTPS interactive credential path was unavailable.

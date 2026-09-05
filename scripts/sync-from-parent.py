@@ -781,7 +781,14 @@ def sync_tests(upstream: Path) -> None:
 
 def expected_docs(upstream: Path) -> dict[str, str]:
     source = upstream / "docs" / "pipeline-full-flow.md"
-    return {"docs/pipeline-full-flow.md": read_norm(source)}
+    text = read_norm(source)
+    for name in ("manage-math-research-program", "math-research-workflow"):
+        text = text.replace(f"../plugins/{name}/skills/{name}/", f"../skills/{name}/")
+    text = text.replace(
+        "Same-name skill copies can be diagnosed with `doctor.py --source-inventory\n--json`; resolve the loaded path before executing helpers.",
+        "For DSH installation diagnostics use repository `scripts/dsh-doctor.py`;\nresolve the loaded skill path before executing helpers.",
+    )
+    return {"docs/pipeline-full-flow.md": text}
 
 
 def sync_docs(upstream: Path) -> None:

@@ -8,7 +8,7 @@ all major branches and terminal states.
 ## Overview
 
 At literature retrieval, use the management skill's
-[library runtime](../plugins/manage-math-research-program/skills/manage-math-research-program/references/library-runtime.md):
+[library runtime](../skills/manage-math-research-program/references/library-runtime.md):
 query cached versions, capture actual retrieved bytes, read bounded passages,
 write scoped tool cards and candidate annotations, then regenerate pointers.
 Only selected current cards enter a task packet, with applicability rechecked.
@@ -18,9 +18,9 @@ and `prepare-resume`. Inspect the latest verified lineage, reconcile in-flight
 workers and successor drafts, and continue from canonical receipt pointers.
 Persist material results before expensive work because a hard cutoff cannot
 save retrospectively. See the
-[recovery protocol](../plugins/math-research-workflow/skills/math-research-workflow/references/quota-interruption-recovery.md).
-Same-name skill copies can be diagnosed with `doctor.py --source-inventory
---json`; resolve the loaded path before executing helpers.
+[recovery protocol](../skills/math-research-workflow/references/quota-interruption-recovery.md).
+For DSH installation diagnostics use repository `scripts/dsh-doctor.py`;
+resolve the loaded skill path before executing helpers.
 
 ```mermaid
 flowchart LR
