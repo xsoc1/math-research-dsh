@@ -56,3 +56,5 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 功能与验证证据见父仓库 docs/optimization-20260905-results.md; 本地适配版本 1.15.1, 父提交以 upstream.lock.json 为准. 每次维护在本节追加简短结果, 长证据放专门报告.
 
 - 2026-09-05 发布 1.15.1: 从父提交 0af2461 同步 manage 1.8.1 修复, 测试版本断言改用本包版本. 51 项校验, library 7 项, closure-first, bundle 和 sync 检查通过. 当前完整旧记录仍可从 AGENTS_HISTORY.md 查阅.
+
+- 2026-09-06: 1.15.1 发布 CI 通过 (2b80ea4). 上游仅补发布文档后将 lock 前移至 6d6d739, skill 内容和版本不变; canonical clone 与父仓库远端一致.
