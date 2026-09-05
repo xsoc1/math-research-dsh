@@ -8,7 +8,7 @@
     "lean-verify/references/changelog.md": "a1690858e88b1cfaed428798a03c796db0321bb9be7c547860ca057a0045bb35",
     "lean-verify/scripts/lake_build_guard.py": "785a601d3c2cd6922acc5a3b58b1e07373026ead66897710e43734c813d02ccd",
     "lean-verify/scripts/verify_lean_project.py": "99b0d6b9cf4ae90b2e95a0dddee1202abfb9b4acdee80d94db02de24ab8f144c",
-    "manage-math-research-program/MANIFEST.sha256": "88ec5c2bbc24826f1586e83fe94acc712d8cd4449ddc97bb5790c624c96b4fdc",
+    "manage-math-research-program/MANIFEST.sha256": "2b5a6ea0a7c1b20e9fd5b38b0f4d4ceeab83af0d62a1974165a96c24579323ad",
     "manage-math-research-program/SKILL.md": "b7e33404044ce9ded09382ac70842cd7807db8099fd440a9af0c10bda203e7b4",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/.blueprint/config.json": "43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163",
     "manage-math-research-program/assets/blueprint-accepted-knowledge/README.md": "49a69cfb446e00c37e42c06c5f91534b4c66573b3abf1d499c2a3709be48f49b",
@@ -48,11 +48,11 @@
     "manage-math-research-program/examples/02-delegated-open-problem.md": "44fa0e7823155c3279ea04712630eee7e4bc4073d6e9e98940b4d00e166dfc7a",
     "manage-math-research-program/references/accepted-knowledge-pipeline.md": "aadfa8cef6866a6a2d94e68ad54d72fd9881cbf7d67137f675d41afaa96154a4",
     "manage-math-research-program/references/boundary-checklist.md": "54fe75dcfeccc47c2d42716a660f42c5512b9261b9df86de67a69fd5b08ce027",
-    "manage-math-research-program/references/changelog.md": "c1bc1e074e05c6945c54668c31fb79cc165d06e9af02594dab7b6ddea4761bca",
+    "manage-math-research-program/references/changelog.md": "a32b6dd0143221139b7afd016689d23d4eba2bef574fda34475918c82e484d62",
     "manage-math-research-program/references/delegation-and-ingestion.md": "e677b4bac672f77eb41f885835fa763b3c50308a2f13923e881e76e421872c1e",
     "manage-math-research-program/references/dsh-optional-capabilities.md": "f12b97669e3370d40301c1934fe35ace9d93375c1ff727f30e087783ebc8ec95",
     "manage-math-research-program/references/git-sync.md": "6546f9f45d72c72ad61d96284bc1356c457b0490f36281095bad4440c6e72c9c",
-    "manage-math-research-program/references/library-runtime.md": "a0d553e474d8ac634d3f03d1cf019f53d30e624d557f2700ac671cc8e7d03870",
+    "manage-math-research-program/references/library-runtime.md": "1b070b73c0120d311a4efe859437b41da47dc1d41f70ad649a031ea7121b1f0d",
     "manage-math-research-program/references/literature-and-paper-analysis.md": "82a7969794f813d20db6ce2e130090916e7ba56cf07e5efe0414c280808ca20d",
     "manage-math-research-program/references/project-repository-spec.md": "731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f",
     "manage-math-research-program/references/state-checkpoints-and-reports.md": "9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051",
@@ -61,7 +61,7 @@
     "manage-math-research-program/scripts/index_lean_lemmas.py": "cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580",
     "manage-math-research-program/scripts/init_project.py": "30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0",
     "manage-math-research-program/scripts/manage_tool_lifecycle.py": "172149cff5a378b3b4c1059a039ba9992a3fd0f1ba08ff8585154464cc2aa2e3",
-    "manage-math-research-program/scripts/research_library.py": "8862a5f360f02b7e18fbc1aae11ca02bb642078b1e0f720b79fbb1aa3ef272f9",
+    "manage-math-research-program/scripts/research_library.py": "4b73ff5c0f3ff4c257bc5d9a1847276359854e7e5756450262c9fd268cffa7f8",
     "manage-math-research-program/scripts/scaffold_result.py": "2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7",
     "manage-math-research-program/scripts/sync_remotes.py": "5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324",
     "manage-math-research-program/scripts/update_research_map.py": "5c53d3acdfc30634507ba214555075a38f96997ff4368954ce1762438191acc4",
@@ -117,5 +117,5 @@
     "rigorous-open-math-research/references/rigorous-mathematical-research.v1-zh-CN.md": "e0d40ccecf704e0125d1299010c6a7566224b6103e940dfc94479dc0c01f5399",
     "rigorous-open-math-research/references/subagent-delegation.md": "4f87fb0a017234ed03143803ce03569ac26bc0b16afdb9d50469070b6bab2843"
   },
-  "upstream_commit": "de540c0622aae34891998b29670aeef10637fbfb"
+  "upstream_commit": "0af24619ccb57170d3d53f8477ee163cb5cc6604"
 }

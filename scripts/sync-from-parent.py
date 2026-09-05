@@ -682,6 +682,7 @@ def rewrite_smoke_paths(text: str) -> str:
     path expressions; smoke_doctor.py is not synced (replaced by the DSH
     doctor smoke for scripts/dsh-doctor.py).
     """
+    bundle_version = json.loads((REPO / "package.json").read_text(encoding="utf-8"))["version"]
     for upstream_path, bundled_path in (
         ("plugins/manage-math-research-program/skills/manage-math-research-program", "skills/manage-math-research-program"),
         ("plugins/math-research-workflow/skills/math-research-workflow", "skills/math-research-workflow"),
@@ -729,8 +730,8 @@ def rewrite_smoke_paths(text: str) -> str:
             r'\t\t\traise AssertionError\(f"\{manifest\[\'name\'\]\} version is not (?P=version)"\)',
             lambda match: (
                 '\tpackage = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))\n'
-                f'\tif package["version"] != "{match.group("version")}":\n'
-                f'\t\traise AssertionError("DSH package version is not {match.group("version")}")'
+                f'\tif package["version"] != "{bundle_version}":\n'
+                f'\t\traise AssertionError("DSH package version is not {bundle_version}")'
             ),
             text,
         )
@@ -744,8 +745,8 @@ def rewrite_smoke_paths(text: str) -> str:
             r'\t\t\t\)',
             lambda match: (
                 '\tpackage = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))\n'
-                f'\tif package["version"] != "{match.group("version")}":\n'
-                f'\t\traise AssertionError("DSH package version is not {match.group("version")}")'
+                f'\tif package["version"] != "{bundle_version}":\n'
+                f'\t\traise AssertionError("DSH package version is not {bundle_version}")'
             ),
             text,
         )

@@ -1,5 +1,14 @@
 # Release history
 
+## Changelog (2026-09-05, v1.8.1)
+
+- Actual BVE card replay exposed malformed legacy YAML. Preserve these cards
+  as explicit unparseable-metadata pointers, exclude them from default results,
+  and allow explicit inspection without dropping old retirement restrictions.
+- Healthy cards remain indexable. No source card or accepted fact is rewritten.
+- Accept legacy UTF-8 BOM, CRLF and a closing header at EOF without changing
+  the hash-bound raw bytes. Keep PDF page-break extraction line numbers consistent.
+
 ## Changelog (2026-09-05, v1.8.0)
 
 - Added immutable actual-source capture, version lookup, bounded passage reads

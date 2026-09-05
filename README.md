@@ -285,3 +285,7 @@ Additional offline smoke commands:
     python tests/smoke_recovery_status.py
     python tests/smoke_performance_metrics.py
     python tests/smoke_skill_sources.py
+
+## 2026-09-05 maintenance patch, v1.15.1
+
+继承 manage 1.8.1 的旧工具卡 YAML/BOM 兼容性和 PDF 分段行号修复. 版本断言按本适配包版本生成. AGENTS 旧记录完整归档到 AGENTS_HISTORY.md, 当前工作方法保留. 51 项校验, 7 项 library 回归, closure-first, bundle 和 sync 检查通过; 未运行新数学 A/B.

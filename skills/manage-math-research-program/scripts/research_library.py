@@ -9,6 +9,7 @@ Feed it actual browser retrievals or extracted text with the raw source attached
 from __future__ import annotations
 
 import argparse
+from bisect import bisect_right
 from contextlib import contextmanager
 import datetime as dt
 import hashlib
@@ -19,7 +20,7 @@ import re
 import tempfile
 from urllib.parse import urlsplit
 
-from manage_tool_lifecycle import read_tool, derived_status
+from manage_tool_lifecycle import derived_status, yaml
 
 START = "<!-- research-tool-pointers:v1:start -->"
 END = "<!-- research-tool-pointers:v1:end -->"
@@ -171,8 +172,12 @@ def read_source(project, SourceId, StartLine=1, MaxLines=80, StartOffset=None):
 		raise ValueError("start-offset is outside the extracted text")
 	Passage = "".join(Text[Offset:].splitlines(keepends=True)[:MaxLines])[:12000]
 	EndOffset = Offset + len(Passage)
-	StartLine = Text[:Offset].count("\n") + 1
-	EndLine = Text[:max(Offset, EndOffset - 1)].count("\n") + 1
+	LineStarts, Position = [], 0
+	for Line in Lines:
+		LineStarts.append(Position)
+		Position += len(Line)
+	StartLine = bisect_right(LineStarts, Offset)
+	EndLine = bisect_right(LineStarts, max(Offset, EndOffset - 1))
 	return dict(source_id=SourceId, metadata=Record, start_line=StartLine,
 		end_line=EndLine, start_offset=Offset, next_offset=EndOffset if EndOffset < len(Text) else None,
 		passage_sha256=digest(Passage.encode("utf-8")), content=Passage,
@@ -212,6 +217,8 @@ def annotate(project, ToolPath, ExpectedHash, author, kind, locator, text, Sourc
 
 
 def make_index(project, ToolRoots, IndexPath="index/tools.json", ReadmePath=None):
+	if(yaml is None):
+		raise RuntimeError("PyYAML is required for indexing")
 	Root = Path(project).resolve()
 	Index = inside(Root, IndexPath)
 	Roots = [inside(Root, path) for path in ToolRoots]
@@ -236,10 +243,27 @@ def make_index(project, ToolRoots, IndexPath="index/tools.json", ReadmePath=None
 					continue
 				SeenPaths.add(path)
 				Raw = path.read_bytes()
-				Front, Body = read_tool(path)
+				MetadataError = None
+				try:
+					Text = Raw.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+					Header = re.match(r"\A---[ \t]*\n(.*?)^---[ \t]*(?:\n|\Z)(.*)\Z", Text, re.M | re.S)
+					Front, Body = None, None
+					if(Header):
+						Front, Body = yaml.safe_load(Header[1]), Header[2]
+						if(Front is None):
+							Front = dict()
+				except yaml.YAMLError as Error:
+					Front, Body = None, None
+					MetadataError = str(Error)
+				if(Body is None and re.match(r"^\ufeff?---[ \t]*(?:\r?\n|\r|$)", Raw.decode("utf-8"))):
+					MetadataError = MetadataError or "opening YAML header could not be parsed; inspect its closing delimiter"
+				MetadataStatus = "ABSENT" if Front is None else "VALID"
+				if(Front is not None and not isinstance(Front, dict)):
+					MetadataError = "tool frontmatter must be a mapping"
+				if(MetadataError):
+					Front = None
+					MetadataStatus = "UNPARSEABLE"
 				Front = Front or dict()
-				if(not isinstance(Front, dict)):
-					raise ValueError(f"tool frontmatter must be a mapping: {path}")
 				Body = Body if Body is not None else Raw.decode("utf-8")
 				Location = relative(Root, path)
 				Old = ByPath.pop(Location, dict())
@@ -255,6 +279,7 @@ def make_index(project, ToolRoots, IndexPath="index/tools.json", ReadmePath=None
 					Lifecycle = Old.get("lifecycle", Lifecycle)
 				Row = dict(Old)
 				Row.update(tool_id=ToolId, location=Location, sha256=digest(Raw),
+					metadata_status=MetadataStatus, metadata_error=MetadataError,
 					title=str(Front.get("title") or Old.get("title") or (Headings[0] if Headings else ToolId)),
 					summary=str(Summary)[:500], aliases=Front.get("aliases", Old.get("aliases", [])),
 					kind=Front.get("kind", Old.get("kind", "unknown")),
@@ -298,10 +323,11 @@ def make_index(project, ToolRoots, IndexPath="index/tools.json", ReadmePath=None
 		if(ReadmeBytes is not None):
 			atomic_write(Readme, ReadmeBytes)
 	return dict(index=relative(Root, Index), indexed=sum(Row.get("pointer_state") == "CURRENT" for Row in Rows),
+		needs_metadata_review=[Row["location"] for Row in Rows if Row.get("metadata_status") == "UNPARSEABLE"],
 		retained_unscanned=sum(Row.get("pointer_state") == "UNSCANNED" for Row in Rows))
 
 
-def query_tools(project, query, IndexPath="index/tools.json", limit=8, IncludeArchived=False):
+def query_tools(project, query, IndexPath="index/tools.json", limit=8, IncludeArchived=False, IncludeUnreviewed=False):
 	if(not query.strip() or not 1 <= limit <= 50):
 		raise ValueError("query is required and limit must be in 1..50")
 	Index = read_json(inside(project, IndexPath))
@@ -328,6 +354,8 @@ def query_tools(project, query, IndexPath="index/tools.json", limit=8, IncludeAr
 			continue
 		if(not IncludeArchived and Row.get("lifecycle") == "archived"):
 			continue
+		if(not IncludeUnreviewed and Row.get("metadata_status") == "UNPARSEABLE"):
+			continue
 		ToolNotes = [dict(Note, state="CURRENT" if Note["tool_sha256"] == Row["sha256"] else "STALE")
 			for Note in Notes if Note["tool_path"] == Row["location"]]
 		SearchText = json.dumps([Row["tool_id"], Row["title"], Row["summary"], Row["aliases"], Row["kind"],
@@ -335,6 +363,7 @@ def query_tools(project, query, IndexPath="index/tools.json", limit=8, IncludeAr
 		Score = sum(Term in SearchText for Term in Terms)
 		if(Score):
 			Hits.append(dict(score=Score, tool_id=Row["tool_id"], title=Row["title"],
+				metadata_status=Row.get("metadata_status", "UNKNOWN"),
 				location=Row["location"], sha256=Row["sha256"], summary=Row["summary"],
 				trust=Row["trust"], annotations=[dict(path=Note["path"], sha256=Note["sha256"],
 					kind=Note["kind"], state=Note["state"]) for Note in ToolNotes]))
@@ -378,6 +407,7 @@ def main():
 	Query.add_argument("--index", default="index/tools.json")
 	Query.add_argument("--limit", type=int, default=8)
 	Query.add_argument("--include-archived", action="store_true")
+	Query.add_argument("--include-unreviewed", action="store_true")
 	Args = Parser.parse_args()
 	try:
 		if(Args.command == "capture-source"):
@@ -392,7 +422,7 @@ def main():
 		elif(Args.command == "index"):
 			Result = make_index(Args.project, Args.tool_root, Args.index, Args.readme)
 		else:
-			Result = query_tools(Args.project, Args.query, Args.index, Args.limit, Args.include_archived)
+			Result = query_tools(Args.project, Args.query, Args.index, Args.limit, Args.include_archived, Args.include_unreviewed)
 		print(json.dumps(Result, ensure_ascii=False))
 		return 1 if Result.get("verdict") == "STALE_INDEX" else 0
 	except (OSError, ValueError, TypeError, KeyError, RuntimeError) as Error:

@@ -53,6 +53,14 @@ original locator, upstream proof/audit references, and provenance maturity.
 Legacy Markdown cards need no bulk migration. Indexing preserves custom index
 metadata and legacy applicability/lifecycle data when absent from the card.
 
+Malformed legacy YAML is kept as raw card bytes with `metadata_status:
+UNPARSEABLE` and reported in `needs_metadata_review`. It does not block indexing
+healthy cards. Default queries exclude it; `--include-unreviewed` exposes its
+pointer for explicit inspection, still requiring `--include-archived` when the
+old index records retirement. Repair syntax only with the card's actual content
+in view, then reindex. The helper never guesses missing hypotheses or strips
+failure restrictions to make an invalid header parse.
+
 ```text
 python LIBRARY index --project PROJECT --tool-root tools --readme tools/README.md
 python LIBRARY query --project PROJECT --query "boundary comparison" --limit 8

@@ -312,3 +312,7 @@ Additional offline smoke commands:
     python tests/smoke_recovery_status.py
     python tests/smoke_performance_metrics.py
     python tests/smoke_skill_sources.py
+
+## 2026-09-05 maintenance patch, v1.15.1
+
+Inherits manage 1.8.1 legacy YAML/BOM compatibility and PDF passage line-number fixes. Release assertions use the adapter package version. Complete AGENTS history is archived in AGENTS_HISTORY.md while current rules remain loaded. Passed 51 checks, 7 library tests, closure-first, bundle and sync checks; no new mathematical A/B run.
