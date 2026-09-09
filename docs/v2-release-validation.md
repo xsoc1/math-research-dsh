@@ -109,8 +109,10 @@ new path. This release runs local actual compiler tests against the live DSH
 code and retains their disposable projects at their original external paths.
 
 After local checks, review the final diff, ensure the package version and both
-README release statements agree, and commit/push to origin. Verify the DSH CI
-run for that exact commit, including sync-check, version-bump, structure/smoke,
-Windows/Linux portable controls and the dedicated real Lean job. The external
+README release statements agree, and commit/push a candidate branch to origin.
+Complete local real Lean acceptance and verify candidate CI before advancing
+main with a fast-forward. Verify the exact commit's sync-check, version-bump,
+structure/smoke, Windows/Linux portable controls and dedicated real Lean job.
+Confirm the resulting main CI as well. The external
 `dsh-prep-report.md` records the DSH commit, CI link and final validation counts;
 historical dirty-source previews are not release evidence.

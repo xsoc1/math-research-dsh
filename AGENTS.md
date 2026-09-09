@@ -48,6 +48,8 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - 以后尚未发布的父候选只用 `--preview <new-external-directory>` 进行迁移检查,
   以 PREVIEW.json 标记未发布源码. 正式同步必须核对已发布 main 的完整 SHA.
 - 保留现有 bundle/junction 安装状态. 本轮不启动子 agent, 不重启 DSH, 不修改 auth/profile.
+- 发布顺序: 源码和文档先提交到候选分支并推送. 原生实际测试及候选 CI 通过后,
+  才 fast-forward main 并核对实际 main CI. 不为 Git 元数据或无关 CI 文本重跑相同原生测试.
 - 先核对遗留 diff, 再修改适配器, 然后在外部预览执行 README 索引和 CI 所列测试.
   比较实际安装文件前后哈希, 报告实际通过与 SKIP, 冻结后重跑最终同步与发布验证.
 - Q9 直接继承父测试的祖先目录发现和缺原件 SKIP; 不改写 REPO_ROOT 或虚构外部数据.
@@ -122,3 +124,9 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   1 项缺可选 Q9 原件 SKIP, 两平台 Lean portable 各 12 项通过. 固定父源 Q9 回放通过.
   原生实际 Lean 15 项验收与发布 CI 的日志和最终状态保存在外部 dsh-prep-report.md;
   证明 receipt 留在原位测试项目, 不作路径重绑定. index/patch/install 内容哈希保持原值.
+- 2026-09-09 发布顺序修正: 080a83e 已按先前授权推送 main 时, 用户新增候选分支门禁.
+  已如实告知时序, 现保留 release/v2.0.0-candidate, 后续修复先经原生测试与候选 CI.
+  首次 CI 34338243007 未启动任何 job: job.env 不支持 runner.temp 上下文.
+  修复仅将临时目录变量移到对应 Lean portable step.env; 运行时代码和测试内容不变.
+  继续保留原生驱动 60228 / 测试 6408 和原位日志. 原始输入清单保持不变,
+  对 CI 文件变化单独核对适用行为范围, 不将复制的证明 receipt 当作当前证据.
