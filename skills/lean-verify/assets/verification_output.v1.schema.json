@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LeanVerificationOutput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["verdict", "machine", "statement_fidelity", "critical_errors", "gaps", "repair_hints"],
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["FORMALLY_VERIFIED", "MACHINE_ACCEPTED_PENDING_AUDIT", "CANDIDATE_VERIFIED", "REPAIRABLE_GAP", "FATAL_GAP", "VERIFICATION_INCOMPLETE"]
+    },
+    "machine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lean_version", "build_passed", "sorry_axiom_hits"],
+      "properties": {
+        "lean_version": { "type": "string" },
+        "build_passed": { "type": "boolean" },
+        "sorry_axiom_hits": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["file", "line", "kind"],
+            "properties": {
+              "file": { "type": "string" },
+              "line": { "type": "integer" },
+              "kind": { "type": "string", "enum": ["sorry", "admit", "axiom"] }
+            }
+          }
+        }
+      }
+    },
+    "statement_fidelity": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["obligation", "result"],
+        "properties": {
+          "obligation": { "type": "string" },
+          "result": { "type": "string", "enum": ["FAITHFUL", "MINOR_PARAPHRASE", "UNFAITHFUL"] },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "critical_errors": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "gaps": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "repair_hints": { "type": "string" },
+    "first_error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "issue", "category"],
+      "properties": {
+        "location": { "type": "string" },
+        "issue": { "type": "string" },
+        "category": { "type": "string", "enum": ["statement", "proof", "dependency", "boundary-convention"] }
+      }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["location", "issue"],
+      "properties": {
+        "location": { "type": "string", "minLength": 1 },
+        "issue": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string" },
+        "evidence": { "type": "string" }
+      }
+    }
+  }
+}

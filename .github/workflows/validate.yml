@@ -4,6 +4,13 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
+env:
+  PYTHONUTF8: "1"
+  PYTHONDONTWRITEBYTECODE: "1"
+
 jobs:
   validate:
     runs-on: ubuntu-latest
@@ -20,11 +27,88 @@ jobs:
         run: python scripts/dsh-check-bundle.py
       - name: Smoke tests
         run: |
-          cd tests
-          for t in smoke_*.py; do
-            echo "== $t =="
-            python "$t" || exit 1
+          for SmokePath in tests/smoke_*.py; do
+            python "$SmokePath" || exit 1
           done
+
+  portable-runtime:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      LEAN_VERIFY_TEST_TMPDIR: ${{ runner.temp }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install portable test dependencies
+        run: python -m pip install pyyaml jsonschema
+      - name: Test DSH synchronization and layout controls
+        run: python tests/test_sync_from_parent.py -v
+      - name: Test durable 2.0 continuity
+        run: python tests/test_research_state.py -v
+      - name: Test source reading and annotation integrity
+        run: python tests/smoke_research_library.py
+      - name: Test recovery status compatibility
+        run: python tests/smoke_recovery_status.py
+      - name: Test metric comparisons
+        run: python tests/smoke_performance_metrics.py
+      - name: Test skill source diagnostics
+        run: python tests/smoke_skill_sources.py
+      - name: Test bundled library and experience; report optional Q9 skip
+        run: python -m unittest discover -s skills/manage-math-research-program/scripts/tests -p "test_*.py" -v
+      - name: Test portable Lean controls; report unconfigured compiler skip
+        run: python -m unittest discover -s skills/lean-verify/scripts/tests -p "test_*.py" -v
+
+  lean-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install schema test dependency
+        run: python -m pip install jsonschema
+      - name: Check pinned Lean fixture package
+        working-directory: tests/fixtures/lean-v2-runtime
+        run: |
+          test -s lean-toolchain
+          test -s lakefile.toml
+          python -m json.tool lake-manifest.json > /dev/null
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: tests/fixtures/lean-v2-runtime
+          auto-config: "false"
+          build: "false"
+          test: "false"
+          lint: "false"
+          use-mathlib-cache: "false"
+          use-github-cache: "false"
+      - name: Verify real Lean 4.31.0 targets and interactive feedback
+        working-directory: tests/fixtures/lean-v2-runtime
+        env:
+          LEAN_VERIFY_REAL_LEAN: lean
+          LEAN_VERIFY_REAL_LAKE: lake
+          LEAN_VERIFY_TEST_TMPDIR: ${{ runner.temp }}
+          LEAN_VERIFY_TEST_REPORT: ${{ runner.temp }}/lean-controls.json
+          LEAN_VERIFY_KEEP_TEST_ARTIFACTS: "1"
+        run: python -m unittest discover -s "${{ github.workspace }}/skills/lean-verify/scripts/tests" -p "test_v2_lean_real.py" -v
+      - name: Retain actual compiler evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-controls
+          path: |
+            ${{ runner.temp }}/lean-controls.json
+            ${{ runner.temp }}/real-*
 
   version-bump:
     runs-on: ubuntu-latest
@@ -47,14 +131,29 @@ jobs:
 
   sync-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: xsoc1/rigorous-open-math-research
-          path: _upstream
       - uses: actions/setup-python@v5
         with:
           python-version: "3.10"
+      - name: Read frozen parent commit
+        id: parent
+        run: python -c "import json; print('commit=' + json.load(open('upstream.lock.json'))['upstream_commit'])" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          repository: xsoc1/rigorous-open-math-research
+          ref: ${{ steps.parent.outputs.commit }}
+          path: _upstream
       - name: Parent drift check
-        run: python scripts/sync-from-parent.py --upstream _upstream --check
+        run: python scripts/sync-from-parent.py --upstream _upstream --expect-commit "${{ steps.parent.outputs.commit }}" --check
+      - name: Install library dependency
+        run: python -m pip install pyyaml
+      - name: Replay optional Q9 evidence from the frozen source; require fixture
+        run: python _upstream/plugins/manage-math-research-program/skills/manage-math-research-program/scripts/tests/test_library_q9_reuse.py --output "${{ runner.temp }}/q9-replay"
+      - name: Retain Q9 replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: q9-source-replay
+          path: ${{ runner.temp }}/q9-replay

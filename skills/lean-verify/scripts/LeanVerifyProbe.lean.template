@@ -1,0 +1,169 @@
+import Lean
+
+open Lean Elab Command Meta
+
+namespace LeanVerifyV2
+
+def names_json (Names : Array Name) : Json :=
+	toJson (Names.qsort Name.lt |>.map Name.toString)
+
+partial def expr_json (Term : Expr) : Json :=
+	match Term with
+	| .bvar Index => toJson ("bvar", Index)
+	| .fvar Id => toJson ("fvar", Id.name.toString)
+	| .mvar Id => toJson ("mvar", Id.name.toString)
+	| .sort Level => toJson ("sort", reprStr Level)
+	| .const Name Levels => toJson ("const", Name.toString, Levels.map reprStr)
+	| .app Function Argument => Json.arr #[toJson "app", expr_json Function, expr_json Argument]
+	| .lam _ TermType Body Binder => Json.arr #[toJson "lam", toJson (reprStr Binder), expr_json TermType, expr_json Body]
+	| .forallE _ TermType Body Binder => Json.arr #[toJson "forall", toJson (reprStr Binder), expr_json TermType, expr_json Body]
+	| .letE _ TermType Value Body NonDependent => Json.arr #[toJson "let", expr_json TermType, expr_json Value, expr_json Body, toJson NonDependent]
+	| .lit Literal => toJson ("literal", reprStr Literal)
+	| .mdata _ Body => expr_json Body
+	| .proj Name Index Body => Json.arr #[toJson "projection", toJson Name.toString, toJson Index, expr_json Body]
+
+def kind_name (Info : ConstantInfo) : String :=
+	match Info with
+	| .axiomInfo _ => "axiom"
+	| .thmInfo _ => "theorem"
+	| .defnInfo _ => "definition"
+	| .opaqueInfo _ => "opaque"
+	| .inductInfo _ => "inductive"
+	| .ctorInfo _ => "constructor"
+	| .recInfo _ => "recursor"
+	| .quotInfo _ => "quotient_primitive"
+
+def body_dependencies (Info : ConstantInfo) : Array Name :=
+	let Body := Info.value? (allowOpaque := true) |>.map Expr.getUsedConstants |>.getD #[]
+	match Info with
+	| .inductInfo Value => Body ++ Value.ctors.toArray
+	| _ => Body
+
+partial def dependency_closure (Environment : Environment) (Pending : List Name)
+	(Seen : NameSet := {}) : NameSet :=
+	match Pending with
+	| [] => Seen
+	| Name :: Rest =>
+		if Seen.contains Name then dependency_closure Environment Rest Seen
+		else
+			let Seen := Seen.insert Name
+			match Environment.checked.get.find? Name with
+			| none => dependency_closure Environment Rest Seen
+			| some Info => dependency_closure Environment
+				(Info.type.getUsedConstants.toList ++ (body_dependencies Info).toList ++ Rest) Seen
+
+partial def semantic_closure (Environment : Environment) (Pending : List Name)
+	(Seen : NameSet := {}) : NameSet :=
+	match Pending with
+	| [] => Seen
+	| Name :: Rest =>
+		if Seen.contains Name then semantic_closure Environment Rest Seen
+		else
+			let Seen := Seen.insert Name
+			match Environment.checked.get.find? Name with
+			| none => semantic_closure Environment Rest Seen
+			| some Info =>
+				let Body := if Info.isTheorem then #[] else body_dependencies Info
+				semantic_closure Environment (Info.type.getUsedConstants.toList ++ Body.toList ++ Rest) Seen
+
+def node_json (Environment : Environment) (Name : Name) (Semantic : Bool) : Json := Id.run do
+	let some Info := Environment.checked.get.find? Name
+		| return Json.mkObj [("name", toJson Name.toString), ("missing", toJson true)]
+	let mut Fields := [
+		("name", toJson Name.toString),
+		("kind", toJson (kind_name Info)),
+		("universes", toJson (Info.levelParams.map Lean.Name.toString)),
+		("unsafe", toJson Info.isUnsafe),
+		("type_dependencies", names_json Info.type.getUsedConstants),
+		("body_dependencies", names_json (body_dependencies Info))]
+	if Semantic then
+		Fields := Fields ++ [("type_expression", expr_json Info.type)]
+		if !Info.isTheorem then
+			if let some Value := Info.value? (allowOpaque := true) then
+				Fields := Fields ++ [("value_expression", expr_json Value)]
+	return Json.mkObj Fields
+
+partial def binder_kinds (TermType : Expr) : List String :=
+	match TermType with
+	| .forallE _ _ Body Binder => reprStr Binder :: binder_kinds Body
+	| _ => []
+
+def modules_for_names (Environment : Environment) (Names : NameSet) : NameSet := Id.run do
+	let mut Modules : NameSet := {}
+	for Name in Names.toArray do
+		if let some Index := Environment.getModuleIdxFor? Name then
+			if let some ModuleName := Environment.header.moduleNames[Index.toNat]? then
+				Modules := Modules.insert ModuleName
+	return Modules
+
+def inspect_declaration (ActualName : Name) (ExpectedName : Option Name) : CommandElabM Json := do
+	let Environment := (← getEnv).setExporting false
+	let some Info := Environment.checked.get.find? ActualName
+		| throwError "Exact root declaration not found: {ActualName}"
+	let Axioms ← collectAxioms ActualName
+	let Used := dependency_closure Environment [ActualName]
+	let SemanticUsed := semantic_closure Environment Info.type.getUsedConstants.toList
+	let FullType ← liftTermElabM <| withOptions
+		(fun Options => Options.setBool `pp.all true |>.setBool `pp.universes true |>.setBool `pp.explicit true)
+		(do return (← ppExpr Info.type).pretty)
+	let mut Comparison := Json.mkObj [("status", toJson "not_requested")]
+	let mut ExpectedStatement := Json.null
+	if let some ExpectedName := ExpectedName then
+		let some Expected := Environment.checked.get.find? ExpectedName
+			| throwError "Expected declaration not found: {ExpectedName}"
+		let Levels := Info.levelParams.map Level.param
+		let SameUniverses := Info.levelParams.length == Expected.levelParams.length
+		let ExpectedType := Expected.type.instantiateLevelParams Expected.levelParams Levels
+		let SameType ← liftTermElabM <| withTransparency .all <| isDefEq Info.type ExpectedType
+		let SameBinders := binder_kinds Info.type == binder_kinds ExpectedType
+		let ExpectedUsed := dependency_closure Environment Expected.type.getUsedConstants.toList
+		let ExpectedSemantic := semantic_closure Environment Expected.type.getUsedConstants.toList
+		let mut ExpectedAxioms : NameSet := {}
+		for Name in Expected.type.getUsedConstants do
+			for Axiom in (← collectAxioms Name) do
+				ExpectedAxioms := ExpectedAxioms.insert Axiom
+		let ExpectedNodes := ExpectedUsed.toArray.qsort Name.lt |>.map fun Name => node_json Environment Name (ExpectedSemantic.contains Name)
+		ExpectedStatement := Json.mkObj [
+			("type_expression", expr_json Expected.type),
+			("universes", toJson (Expected.levelParams.map Name.toString)),
+			("binder_kinds", toJson (binder_kinds Expected.type)),
+			("axioms", names_json ExpectedAxioms.toArray),
+			("dependencies", Json.arr ExpectedNodes),
+			("semantic_dependencies", names_json ExpectedSemantic.toArray),
+			("semantic_modules", names_json (modules_for_names Environment ExpectedSemantic).toArray)]
+		Comparison := Json.mkObj [
+			("status", toJson (if SameUniverses && SameType && SameBinders then "matched" else "mismatched")),
+			("definitionally_equal", toJson SameType),
+			("universe_parameters_match", toJson SameUniverses),
+			("binder_kinds_match", toJson SameBinders),
+			("expected_type_expression", expr_json Expected.type),
+			("expected_universes", toJson (Expected.levelParams.map Name.toString))]
+	let mut Modules := #[]
+	let SemanticModules := modules_for_names Environment SemanticUsed
+	for ModuleName in Environment.header.moduleNames.qsort Name.lt do
+		let ModulePath ← findOLean ModuleName
+		Modules := Modules.push <| Json.mkObj [("module", toJson ModuleName.toString), ("olean", toJson ModulePath.toString)]
+	let Nodes := Used.toArray.qsort Name.lt |>.map fun Name => node_json Environment Name (SemanticUsed.contains Name)
+	return Json.mkObj [
+		("declaration", toJson ActualName.toString),
+		("kind", toJson (kind_name Info)),
+		("actual_type", toJson FullType),
+		("type_expression", expr_json Info.type),
+		("universes", toJson (Info.levelParams.map Lean.Name.toString)),
+		("binder_kinds", toJson (binder_kinds Info.type)),
+		("axioms", names_json Axioms),
+		("comparison", Comparison),
+		("expected_statement", ExpectedStatement),
+		("semantic_dependencies", names_json SemanticUsed.toArray),
+		("semantic_modules", names_json SemanticModules.toArray),
+		("dependencies", Json.arr Nodes),
+		("loaded_module_count", toJson Environment.header.moduleNames.size),
+		("module_inventory_scope", toJson "loaded_environment"),
+		("imported_modules", Json.arr Modules)]
+
+elab "#lean_verify_v2 " Actual:ident " expected " Expected:ident " output " Output:str : command => do
+	let ExpectedName := if Expected.getId == `LeanVerifyV2.no_expected then none else some Expected.getId
+	let Result ← inspect_declaration Actual.getId ExpectedName
+	IO.FS.writeFile Output.getString (Result.compress ++ "\n")
+
+end LeanVerifyV2

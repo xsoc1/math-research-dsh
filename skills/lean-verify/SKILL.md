@@ -1,388 +1,63 @@
 ---
 name: lean-verify
-description: >-
-  Verify a Lean 4 formalization of a mathematical theorem with a strict, reproducible audit:
-  pin the Lean environment, check statement fidelity against the informal contract, run machine
-  checks (lake build, sorry/admit/axiom scan), independently audit every proof obligation, and
-  emit a structured verdict plus a hash-bound run manifest. Use when asked to verify, audit, or
-  certify a Lean 4 proof, or to check that a formalization faithfully represents a stated theorem.
-  中文触发: 适用于 Lean 4 形式化验证, 证明审计, 陈述保真检查, 义务级独立审计,
-  sorry/axiom 泄漏检查, 可复现验证报告, 形式化-非形式化一致性核对.
+description: Use Lean 4 compiler feedback during research and verify a precise formal target against its intended mathematical statement. Check execution, target identity, transitive axioms and semantic scope, preserving reproducible evidence and reusable reviews.
 ---
 
 ## DSH runtime notes (DSH adaptation)
 
-This bundle is the DSH adaptation of the Codex plugin `lean-verify`. In this
-runtime, every reference written as `$skill-name` means: load the skill named
-`skill-name` with the `skill` tool using its exact name (a user message whose
-first line is `/skill-name` also loads it). The sibling skills
-`manage-math-research-program`, `math-research-workflow`, and
-`rigorous-open-math-research` ship beside this bundle under the same skill roots.
-
-- `scripts/verify_lean_project.py` and the `assets/` templates live inside this
-  bundle; run them with a local Python interpreter via the shell using the
-  `resourceBase` directory path reported by the skill load result, with
-  `PYTHONUTF8=1` on Windows. The Lean toolchain (`lake` from Lean 4) must be
-  available when a build is requested.
-- The DSH adaptation keeps every upstream file byte-identical except this block
-  and the DSH changelog append; the synced upstream commit is recorded in the
-  repository `upstream.lock.json`.
-
-### DSH execution patterns (performance)
-
-- `lake build` and project scans run as background shell jobs, collected with
-  job_output; do not block a turn on them.
-- Verification runs as a fresh `subagent` (spawn) so the verifier shares no
-  chain of thought with the formalizer.
-- Long outputs go through the repository wrapper scripts/dsh_run.py so the
-  verdict survives DSH result truncation; the full log stays on disk.
-
-# Lean Verify
-
-## 中文使用说明 (摘要)
-
-本 Skill 用于对一个数学定理的 Lean 4 形式化做严格、可复现的验证. 它把验证拆成
-机器可执行的部分 (环境固定, lake build, sorry/admit/axiom 扫描) 与需要独立判断的
-部分 (陈述保真审计, 义务级独立审计, 引用核验), 最终产出结构化裁决与 hash 绑定的
-运行清单.
-
-- 触发场景: Lean 证明验证, 证明审计, 陈述保真检查, 义务级独立审计, 形式化一致性核对.
-- 机器验证与独立审计分离: 机器检查证明 "Lean 接受", 独立审计检查 "形式化忠实于原问题".
-- 输出必须按 "Output protocol" 的状态标签开头, 未闭合的义务不得标为完成.
-- 本 Skill 是验证执行层; 长期项目管理与已接受知识入库由 `$manage-math-research-program` 负责.
-
-## Purpose
-
-Use this skill to certify a Lean 4 formalization of a mathematical statement, or to audit one.
-The goal is a verdict that separates four distinct questions that are usually collapsed:
-
-- Does the Lean code compile with a pinned environment and no leaked `sorry`/`admit`/`axiom`?
-- Does the Lean statement faithfully represent the informal theorem contract (no silent
-  quantifier, hypothesis, definition, or boundary-case change)?
-- Is each proof obligation independently supported by a correct argument (not just accepted on
-  the authority of the draft author)?
-- Is the result reproducible from the recorded inputs, versions, and commands?
-
-Never claim "formally verified" when only some of these hold. Machine acceptance proves the
-formal statement, not its fidelity to the original problem, and not its novelty.
-
-## Inputs
-
-- A Lean 4 project directory (`lakefile.*`, `lean-toolchain`) and/or one or more `.lean` files.
-- The informal theorem contract: original problem statement, target theorem, hypotheses,
-  boundary cases, and completion criteria. When absent, the contract must be reconstructed and
-  audited before verification.
-- Optional: an obligation list (O1..On) mapping the theorem to its sub-claims; when absent,
-  derive one and record the derivation.
-- Optional: cited-source files or links for every external result used by the proof.
-
-## Hard rules
-
-1. Machine verification and independent audit are separate passes. A single pass may not
-   certify both compilation and fidelity.
-2. No `sorry`, `admit`, or undeclared `axiom` in the final artifact. Axioms outside an explicit
-   whitelist are failures; each whitelisted axiom must be justified.
-3. The Lean statement must be checked line by line against the informal contract. A proof of a
-   different statement is not progress.
-4. Cited literature must be real and linked. Never fabricate a paper, a citation, a theorem, a
-   conclusion, or a compile result. Any claim about what a source proves must be checked against
-   the actual source and version.
-5. Numerical evidence is evidence, not proof. Label it and separate it from proof-level claims.
-6. Record every input, version, command, and hash. A verification that cannot be replayed is
-   incomplete.
-7. Do not invent run counts, model settings, tool traces, or human interventions. Mark unknown
-   fields as unknown.
-8. At a resource boundary, report the strongest verified status and the exact remaining gaps.
-   Only the completion label is withheld until verification actually closes.
-
-## Scaffold mode
-
-When the input result is partial/structural (e.g. `RIGOROUS_PARTIAL_RESULT`)
-or a new result that is not yet a complete proof, the formalizer should create
-a **scaffold** rather than run full verification:
-
-1. Write a `.lean` file under `lean-proof/` that states the new declarations
-   and open proof obligations. Mark unfinished proof blocks with `sorry` and a
-   header comment:
-   `-- SCAFFOLD: <result slug> <status> <open obligations>`.
-2. If a build is available, run `lake build` and record whether the skeleton
-   compiles; a scaffold may contain `sorry`, so a clean build is not required.
-3. Do **not** run the full independent audit as if the result were final.
-   Record the scaffold in `lean-proof/STATUS.md` / `README.md` /
-   `formalization_progress.md` with status `SCAFFOLDED`.
-4. A scaffold must never be reported as `FORMALLY_VERIFIED`; only a later full
-   verification pass may upgrade it.
-
-## Intermediate verification and supersession
-
-Lean verification is also a research-time instrument, not only a final
-certificate. Verify load-bearing intermediate lemmas as soon as they are
-stable; a machine-checked intermediate result is a valid checkpoint that helps
-the research avoid detours. It may be reported as `MACHINE_ACCEPTED_PENDING_AUDIT`
-or `SCAFFOLDED` when the final theorem is still open.
-
-When a later, more advanced result covers an earlier scaffold/partial/verified
-result, record the earlier entry as `superseded` with a pointer to the newer
-result. Keep the old files and verdicts in history; do not delete them, and do
-not present a superseded result as the current state.
-
-## Verification tiers
-
-Use the cheapest tier that answers the current question:
-
-- **Tier 0 - Statement scaffold**: write the declarations with `sorry` proof
-  holes and confirm the skeleton parses/compiles. Use this for every new
-  result before investing in a full proof.
-- **Tier 1 - Machine-checked lemma**: run `lean_verify` on a load-bearing
-  lemma or snippet and record a clean machine check for that snippet. Use this
-  for intermediate research checkpoints.
-- **Tier 2 - Full verification**: complete `lake build`, zero sorry/axiom,
-  statement fidelity audit, and independent per-obligation audit. This is
-  required only for completion labels (`FORMALLY_VERIFIED`).
-
-## Submission audit
-
-When this skill is used as part of the proof submission audit pipeline
-(manage workflow 8e), the output must support an acceptance decision:
-
-1. After machine verification and independent audit, state whether the
-   submission is acceptable as `FORMALLY_VERIFIED`, acceptable only as a
-   scaffold (`SCAFFOLDED`), or not acceptable (`REPAIRABLE_GAP` /
-   `FATAL_GAP` / `VERIFICATION_INCOMPLETE`).
-2. Check consistency with the repository state (existing declarations,
-   STATUS.md entries, superseded records) and report any duplicate or
-   conflicting formalization.
-3. Record the audit trail in the submission audit record so the manager can
-   apply the "add by rules" stage.
-
-## Coexistence with informal audit
-
-Lean verification is the machine track; it does not replace the informal
-(Danus-style) natural-language audit. For a complete delivery, both must pass:
-
-- The informal audit checks semantics, definitions, external citations, and
-  proof flow.
-- Lean checks the machine-checkable formal statement and proof.
-- Conflict rule: an informal gap trumps a passing Lean check; a Lean failure
-  trumps a passing informal check; a paper-level failure trumps both.
-
-Record both tracks in the verification matrix of the submission audit
-(see `references/dual-track-audit.md` in the rigorous skill).
-
-## Build loop guard
-
-Long-running sessions can get stuck repeatedly running `lake build` and
-re-cloning mathlib4, saturating network and CPU. The plugin now guards builds:
-
-- `verify_lean_project.py --build` calls `scripts/lake_build_guard.py --check`
-  before starting `lake build` and `--release` afterwards.
-- The guard refuses to start a build when:
-  - a fresh `.lake/build_guard.lock` exists (a build may already be running),
-  - too many build attempts occurred recently
-    (default max 5 in 10 minutes).
-- If mathlib4 is declared but not present under `.lake/packages/mathlib4`, the
-  guard warns to prefer `lake exe cache get` / a single `lake update` over
-  repeated cloning.
-- If the guard refuses, do NOT bypass it blindly. Stop the runaway session,
-  inspect `.lake/build_attempts.log`, use the mathlib cache, and then retry.
-
-## Build robustness
-
-Full `lake build` is heavy and can time out or fail for environmental reasons.
-Prefer the cheapest sufficient build:
-
-- Tier 0/1 checks: use `lake env lean <file>` on the specific file instead of
-  full `lake build`. `verify_lean_project.py --build --build-targets FILE.lean`
-  does exactly that.
-- Before building, fetch the mathlib cache once:
-  `verify_lean_project.py --build --use-cache` runs `lake exe cache get`.
-- Set a realistic timeout with `--build-timeout SECONDS` (default 3600); a
-  timeout is recorded as a build failure, never as a success.
-- The build guard wraps all of these: it refuses runaway repeated attempts and
-  releases its lock after the build (even on failure).
-
-## Workflow
-
-### Phase 0 - Environment and input inventory
-
-1. Record `lean --version`, `lake --version`, the `lean-toolchain` content, and the `lakefile`
-   dependencies before any check.
-2. Inventory every input: contract file, Lean files, imports, external sources, scripts, and
-   their sha256 hashes. Record which inputs are untrusted or unverified.
-3. When the run workspace is a git repository, record the commit hash and dirty files.
-4. If `lean`/`lake` is not installed, record that machine verification cannot run and continue
-   with the static checks and the independent audit; never pretend a build ran.
-
-### Phase 1 - Contract and obligation mapping
-
-1. Normalize the informal contract: objects, definitions, hypotheses, target conclusion,
-   quantifiers, boundary and degenerate cases, permitted outcomes, completion criteria.
-2. Audit the contract against its source; a proof of the wrong contract is not verification.
-3. Map every obligation O1..On to the Lean declarations that discharge it (`theorem`,
-   `lemma`, `def`, or `structure` instance). Record the mapping table; obligations without a
-   mapping are open obligations.
-
-### Phase 2 - Statement fidelity audit
-
-For each Lean declaration mapped to an obligation:
-
-1. Compare the Lean statement with the contract text: objects, hypotheses, quantifier order,
-   constants and their dependencies, definitions, and boundary cases.
-2. Flag silent strengthening, weakening, or redefinition. Two definitions that look alike but
-   differ in a formula, notation, or hypothesis are different definitions; say so explicitly.
-3. Check that imported names refer to the intended objects (same-name collisions across
-   libraries).
-4. Record the fidelity result per obligation: `FAITHFUL` | `MINOR_PARAPHRASE` | `UNFAITHFUL`.
-
-### Phase 3 - Machine verification
-
-1. Scan all `.lean` files for `sorry`, `admit`, and `axiom` outside the declared whitelist;
-   report file and line for each hit.
-2. Run the build (typically `lake build`) with the pinned environment; capture the full log and
-   the exit code. `#check`/`#eval` probes for the mapped declarations may be added only in a
-   scratch file that is excluded from the final artifact.
-3. If the build fails, record the first error and its location; the artifact cannot be
-   `FORMALLY_VERIFIED` until the build passes.
-4. Record the machine results exactly as observed: exit code, error text, scan hits. Do not
-   summarize away failures.
-
-**Single structured judgment (gate protocol).** Every machine check emits one
-structured judgment - `build_passed`, `sorry_axiom_hits`, `first_error`
-(location + error layer) - in the machine-readable verdict; free-text parsing
-of build logs is never acceptable as evidence. The judgment separates the two
-branches explicitly: a clean build is the *proved* branch, a build failure is
-localized counter-evidence (first error + smallest failing claim), never a
-vague "did not compile". (Distilled from forge-gates:
-https://github.com/jinguanghai/deepseek-harness-forge-plugins.)
-
-**Atomic, bounded, stateless checks.** Run each check in a request-scoped
-temporary directory against the pinned environment; the check retains no
-proof-state session and no source beyond its own inputs. A check result is a
-typed value consumed by the obligation map, so the same check can be composed
-into later stages. (Distilled from jacobian lean.check:
-https://github.com/morluto/jacobian.)
-
-### Four gates and semantic review
-
-Any edited declaration proposed for acceptance must pass four gates: (1) compile check,
-(2) sorry/admit scan, (3) axiom-set check, and (4) a guard that protected statement
-signatures did not change since the last approval. After the gates, a human semantic review
-confirms the Lean statement still means what the source means; this last check cannot be
-delegated to the same LLM that wrote the statement. Any change to an already-approved
-statement requires a fresh statement re-audit and a new guard snapshot before proof work
-resumes.
-
-### Repair strategy (when the artifact is incomplete)
-
-When the build fails or obligations remain open, repair instead of regenerating from scratch:
-
-- **Statement freeze**: keep the statement signatures fixed while repairing proofs; a statement change is a new audit, not a repair.
-- **Sorrifier decomposition**: replace the failing proof block with `sorry`, re-check that the remaining skeleton compiles, extract the failing block as a clean subproblem, and solve it recursively.
-- **Error taxonomy first**: classify each failure (statement layer / proof layer / dependency layer / boundary-convention) before fixing; diagnose in the order 判定 -> 分类 -> 定位 -> 修正.
-- **Same-gap convergence**: when the same obligation is blocked by the same gap for three
-  consecutive repair rounds, stop repairing; record the strongest derivation reached plus the
-  exact gap (and the counterexample when one exists) and downgrade the verdict accordingly.
-  Infinite repair loops are worse than an honest `REPAIRABLE_GAP`.
-- Track every `sorry`; the final artifact must contain none.
-
-### Phase 4 - Independent audit
-
-Perform this pass as a separate role/pass from the formalizer. For each obligation:
-
-1. Re-derive the argument independently; do not accept any step on the authority of the draft,
-   a previous audit, or a repair list.
-2. Check logical validity, theorem application, missing assumptions, unjustified jumps, and
-   whether the Lean proof actually proves the Lean statement.
-3. Check every external citation: the source exists, states the needed result, hypotheses match,
-   and the result was not used under another name. Unverifiable citations are failures.
-4. Check non-circularity: no obligation is discharged by a statement equivalent in strength to
-   the target without a new proof.
-5. Classify findings and return a verdict from the structured taxonomy (see Output protocol).
-6. When a localized defect is found, specify the smallest failing claim and a concrete repair;
-   after repair, re-run the affected checks from the changed point onward. The auditor cannot
-   self-certify closure of its own repair.
-
-7. Localize the **first** erroneous step (step index or smallest failing claim) for every
-   finding and classify its error layer (statement / proof / dependency /
-   boundary-convention); do not give vague comments.
-
-### Phase 5 - Structured output and status label
-
-Write three artifacts:
-
-- `verification.json`: the structured verdict (schema in `assets/verification_output.schema.json`).
-- `audit_report.md`: the full audit report (template in `assets/lean-audit-report.template.md`).
-- `run-manifest.json`: input hashes, environment, commands, observed machine results, and status.
-
-Status labels (first line of any report):
-
-- `SCAFFOLDED` - a Lean scaffold exists for a new/partial result; it may contain
-  `sorry` and is not a verified artifact.
-- `FORMALLY_VERIFIED` - build passes, no leaked sorry/axiom, statement fidelity audited, and an
-  independent audit closes every obligation.
-- `MACHINE_ACCEPTED_PENDING_AUDIT` - build passes with no sorry/axiom leak, but fidelity or
-  independent audit is not complete.
-- `CANDIDATE_VERIFIED` - independent audit passes but machine verification is unavailable or
-  incomplete.
-- `REPAIRABLE_GAP` - localized defect found and specified, conclusion unaffected.
-- `FATAL_GAP` - a required obligation is false, unsupported, or unfaithful.
-- `VERIFICATION_INCOMPLETE` - any required check is missing; report what remains.
-
-Falsification-first verdict rule: one obligation refuted by a verified
-counterexample or contradiction vetoes the whole verdict (no partial
-`FORMALLY_VERIFIED` around a refuted obligation), and obligations whose status
-is uncertain never count as passed - all-uncertain means the verdict is not
-`FORMALLY_VERIFIED`. (Distilled from Vibe-Mathematics:
-https://github.com/ChongCyrus/Vibe-Mathematics.)
-
-Do not present `MACHINE_ACCEPTED_PENDING_AUDIT` as `FORMALLY_VERIFIED`. Do not bury a fatal gap
-in a footnote.
-
-## Output protocol
-
-Structured verdict JSON (schema enforced by `assets/verification_output.schema.json`):
-
-```json
-{
-  "verdict": "SCAFFOLDED | FORMALLY_VERIFIED | MACHINE_ACCEPTED_PENDING_AUDIT | CANDIDATE_VERIFIED | REPAIRABLE_GAP | FATAL_GAP | VERIFICATION_INCOMPLETE",
-  "machine": {
-    "lean_version": "...",
-    "build_passed": true,
-    "sorry_axiom_hits": []
-  },
-  "statement_fidelity": [
-    {"obligation": "O1", "result": "FAITHFUL", "notes": "..."}
-  ],
-  "critical_errors": [{"location": "...", "issue": "..."}],
-  "gaps": [{"location": "...", "issue": "..."}],
-  "repair_hints": "...",
-  "first_error": {"location": "...", "issue": "...", "category": "statement | proof | dependency | boundary-convention"}  // optional field
-}
-```
-
-Strict rule: a finding list is empty only when the corresponding check found nothing. Any
-non-complete verdict must include non-empty `repair_hints`. Aggregate without dropping issues.
-
-## Artifacts
-
-- `problem_contract.md` - normalized contract and completion criteria.
-- `obligation_map.md` - obligations to Lean declarations, with fidelity results.
-- `machine_check.log` - build log and scan output (raw).
-- `verification.json` - structured verdict.
-- `audit_report.md` - independent audit with provenance and findings log.
-- `run-manifest.json` - hashes, environment, commands, status.
-
-## Anti-patterns
-
-- Claiming "verified" from a passing build alone.
-- Trusting `#check` of the theorem name without reading the statement.
-- Accepting a citation without checking it exists and states the needed result.
-- Treating a Lean proof as settling fidelity or novelty.
-- Reporting a repair as independently verified by the same pass that made it.
-- Deleting failed checks or build errors from the record.
-
-## History
-
-Release history, method provenance, and source links live in
-`references/changelog.md`. Read it only when auditing provenance or preparing
-a release.
+Load a relevant `$skill-name` with DSH's `skill` tool using its exact name.
+Resolve bundled files from the returned `resourceBase`. Run Python helpers
+with a local interpreter (`PYTHONUTF8=1` on Windows).
+
+Plugin-level Lean helpers, templates and tests live in this bundle's
+`scripts/` and `assets/`. Resolve the Lean toolchain for the actual project.
+
+[DSH execution options](references/dsh-execution.md).
+
+# Lean verification
+
+Use Lean where it helps the mathematics: test a local lemma, formalize a bridge,
+inspect a goal or verify a root theorem. A small target needs no node ledger.
+For commands and result formats, read [the verification tools](references/v2-verification.md).
+
+Distinguish four questions:
+
+1. What actually ran, in which Lean and dependency environment, and did it finish?
+2. What exact declaration, implicit hypotheses, universes and definitions does
+   Lean elaborate, and does that mean the intended mathematical statement?
+3. Is the target's actual dependency closure free of unproved or unaccepted
+   assumptions, including assumptions hidden in imported declarations or defs?
+4. Which source, environment and evidence hashes does this result describe?
+
+A build result applies to its actual checked scope. File scans are diagnostics;
+root validation needs the exact declaration and transitive axiom inspection.
+Missing targets, unavailable tools, failed builds and timeouts are not success.
+A proved implication `H -> T` is a conditional result when the desired target is
+`T`. Allowed foundational axioms are a policy about the actual closure, not a
+requirement that every proof use all of them.
+
+Read back important target statements, definitions and conversion lemmas in
+mathematical language. Inspect hidden or impossible assumptions, empty domains,
+boundary cases and specialized parameters where relevant. Compare this with the
+user's intended theorem; restating the intended theorem is not a semantic audit.
+A machine match to a saved contract does not establish that the contract itself
+means the right thing.
+
+Use incremental compiler feedback and warm environments while developing a
+proof. Typed open leaves and alternative routes can make a large construction
+manageable: all dependencies of the selected route must close, while an unused
+failed route need not. A cycle cannot justify itself. Final success requires a
+materialized root proof, not a graph's completion flags.
+
+Reuse semantic review when its target, relevant definitions and environment
+remain unchanged; proof-body changes still need fresh machine checking. Changed
+inputs invalidate the affected evidence. Full compiler logs and explicit job
+identities support interrupted work. LSP state and build caches are replaceable
+acceleration, never the sole record of a verification result.
+
+Present machine results, semantic review, root closure and evidence scope
+separately. State any remaining leaves and assumptions. Independent review or an
+additional checker can add evidence where useful; neither cloud platforms nor
+per-obligation LLM re-proving is required for every proof.
+
+[Release history](references/changelog.md).

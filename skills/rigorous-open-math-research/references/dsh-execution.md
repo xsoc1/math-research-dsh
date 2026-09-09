@@ -1,106 +1,47 @@
-# DSH execution playbook
+# DSH execution options
 
-How the math-research skills use DeepSeek Harness execution features for
-throughput and context economy. This file is DSH-layer-owned (it is not synced
-from the Codex parent).
+This reference describes runtime tools. Choose them when they help the current
+work. The parent skill and the user's project determine research and review.
 
-## 1. Long computations run in background jobs
+## Files and long-running work
 
-Anything that may exceed one turn (numerical scans, transfer-matrix or
-finite-element sweeps, big exact-arithmetic checks, `lake build`) runs through
-the shell tool with `run_in_background: true`. The call returns a job id
-immediately; collect output with job_output (wait: true only when the next
-step truly depends on the result) and stop obsolete jobs with job_kill. Never
-busy-poll or sleep on a job.
+Load a skill by its exact name with `skill`; use the returned `resourceBase`
+for its references and helpers. The four skills can be used independently.
+Plugin-level helpers are merged into the corresponding DSH skill's `scripts/`;
+the manage Blueprint gateway is `<resourceBase>/runtime/blueprintctl.py`.
 
-## 2. Independent agents are fresh, continuations are forked
+For long shell work, DSH can return a background job ID with
+`run_in_background: true`. Keep the actual job ID and input identity with the
+project's current progress. Collect results with `job_output`; `job_kill` can
+stop a job when authorized. Reconcile a job of unknown status before
+redispatching that action. Process completion alone is not mathematical proof.
+The workflow skill's `references/v2-continuity.md` documents durable helpers.
 
-- Adversarial audit, verifier, and literature-audit roles run as `subagent`
-  (spawn provider): the child starts from the prompt alone and sees none of
-  the solver's conversation, which is exactly the isolation the upstream
-  protocol requires (no shared chain of thought; only artifacts exchanged).
-- `subagent_fork` seeds a child with this conversation: use it for
-  context-heavy continuation (resuming a proof with full history), not for
-  independence.
-- Delegations run in the background by default and the runtime reports
-  completion. Follow-up turns go through send_message; interrupt a stuck child
-  with interrupt_agent; recall durable children with list_agents.
-- Sub-agent return contract, graded by task type (distilled from
-  dsh-multiagent-modes: https://github.com/y08lin4/dsh-multiagent-modes):
-  aggregation/synthesis -> JSON; reading/analysis -> structured markdown;
-  single verdicts -> 1-3 line conclusion + key basis + risks. Concretely:
-  solve returns status + artifact paths/sha256 + open obligations; audit
-  returns PASS or F-xxx one-liners + report path; verify returns the verdict
-  summary + manifest path. Full reports always live in files; replies stay
-  under ~20 lines.
+For truncated output, save full logs and read the relevant ranges. A repository
+checkout additionally provides `scripts/dsh_run.py` for complete logs and a
+compact verdict, `scripts/dsh-doctor.py` for installation diagnostics and
+`scripts/context-audit.py` for inspecting context size. These checkout helpers
+are optional and are not included in the npm skill bundle.
 
-## 3. Fan-out with the workflow tool
+## Optional collaboration
 
-For many independent packets (batch solve/audit/formalize), use the `workflow`
-tool with the template `assets/dsh-solve-audit-workflow.js` in the
-math-research-workflow bundle: solve and audit run in parallel per packet,
-then only qualified results enter the verify stage. The workflow script runs
-in the harness with no filesystem or network access - the agents do the work.
-For one or two delegations, plain subagents are cheaper than a workflow
-script.
+When collaboration is useful and authorized, `subagent` starts from the supplied
+prompt; `subagent_fork` carries the conversation. Supply the relevant artifacts
+and describe the scope of the review or task. Choose the number of agents and
+result format for the work at hand. A fresh agent adds a separate perspective;
+its verdict still needs identifiable evidence.
 
-Template v2 extras:
+For a batch of independent tasks, the workflow bundle retains
+`assets/dsh-solve-audit-workflow.js` as a compatibility filename. Its 2.0 body
+runs explicit task prompts with optional dependencies. It assigns no research
+roles, infers no proof status and creates no subsequent verification stage.
+Dependent tasks run after their dependencies finish; cycles and missing task
+IDs are rejected before dispatch. A completion is an execution result, not an
+accepted mathematical claim.
 
-- **Dependencies** (distilled from dsh-agent-teams:
-  https://github.com/NanmiCoder/dsh-agent-teams): tasks may declare
-  `deps: [titles]`; the template executes them wave by wave (topological
-  layering, with a logged cycle fallback). Cross-task data flows through
-  files under the run roots, never through the workflow script.
-- **Roster** (distilled from the team-captain roster pattern:
-  https://github.com/MoreChanger/dsh-agent-presets): pass role texts through
-  `args.roles` (the orchestration agent reads them from
-  assets/dsh-solve-audit-workflow.js defaults or a project role file); the
-  template falls back to built-in prompts, so extending roles does not
-  require editing the template.
-- **Model tiering** (verified in this deployment: the workflow agent() hook
-  accepts provider/model overrides): set `args.modelStrong` /
-  `args.modelCheap`, or per-role `args.roles.<role>.model`. Planner,
-  synthesizer, audit, and verify on the strong model; bulk research,
-  retrieval, and candidate scanning on the cheap model. Roles default to the
-  main agent's model when no tier is configured (distilled from
-  dsh-deep-research: https://github.com/omdsh-dev/dsh-deep-research and
-  dsh-multiagent-modes).
+## Source reading
 
-## 4. Long-running objectives use goal tools
-
-A multi-round research objective (prove X, close a gap list) is tracked with
-create_goal, read with get_goal, and updated with update_goal
-(complete / blocked / edit). Do not re-derive the objective every round.
-
-## 5. Output-pruning-aware scripts
-
-DSH truncates tool results (default ~8K chars, head 4096 + tail 1024): the
-middle of long output disappears. Consequences:
-
-- Bundled scripts print their verdict near the END of stdout so it survives.
-- For long outputs, run the script through the repository-level wrapper
-  `scripts/dsh_run.py` (checkout at `$DSH_HOME/math-research-dsh`): it prints
-  `VERDICT: exit=N | log: <path>` first, then the extracted FAIL/warn lines,
-  then repeats the verdict last, and tees the complete output to the log file
-  on disk for the read tool.
-- Never depend on middle-of-output lines; re-run with dsh_run or read the log.
-
-## 6. Context economy
-
-- Load each skill once per session; read `references/` and `assets/` on demand
-  through `resourceBase`, never bulk-load.
-- Read project artifacts tail-first: latest handoff, then research_ledger.md /
-  approach_registry.md from the end, then key artifacts. Long changelogs live
-  outside the SKILL bodies in references/changelog.md for the same reason.
-- Keep numerical tables in files, not in the conversation; cite paths and
-  hashes instead of pasting rows.
-
-## 7. Context audit
-
-`scripts/context-audit.py` (repository checkout) estimates the per-request
-injection cost: the AGENTS.md instruction chain (with the 65536-byte
-truncation threshold flagged), skill catalog entries, skill bodies and
-references, exact-duplicate paragraphs across files, and skill-name shadowing
-across roots. Run it before long sessions and after adding skills; treat its
-top consumers as pruning candidates. (Distilled from dsh-context-doctor:
-https://github.com/Zhenyu98/dsh-context-doctor.)
+Use bounded source reads and keep raw input, version and locators. A parser or
+vision tool can help transcribe a difficult page; compare mathematical content
+with the original before relying on it. Optional capabilities are described in
+`dsh-optional-capabilities.md` in the rigorous and manage bundles.

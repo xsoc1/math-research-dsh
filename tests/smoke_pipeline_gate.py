@@ -18,7 +18,7 @@ GATE_NO_EVIDENCE = ROOT / "tests" / "fixtures" / "pipeline-gate-noevidence"
 
 def run(target: Path) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
-        [sys.executable, str(SCRIPT), "--project", str(target)],
+        [sys.executable, str(SCRIPT), "--legacy-v1", "--project", str(target)],
         capture_output=True,
         text=True,
     )

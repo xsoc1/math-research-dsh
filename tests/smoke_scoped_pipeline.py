@@ -49,7 +49,7 @@ def packet(source_path: str = "baseline.txt", source_hash: str = "") -> str:
 
 
 def run(project: Path, scope: str | None = None) -> subprocess.CompletedProcess[str]:
-    command = [sys.executable, str(SCRIPT), "--project", str(project)]
+    command = [sys.executable, str(SCRIPT), "--legacy-v1", "--project", str(project)]
     if scope is not None:
         command.extend(["--scope", scope])
     return subprocess.run(command, capture_output=True, text=True)

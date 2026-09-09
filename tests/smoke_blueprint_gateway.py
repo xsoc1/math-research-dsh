@@ -14,7 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GATEWAY = (
     ROOT
-    / "skills" / "manage-math-research-program" / "runtime"
+    / "skills" / "manage-math-research-program"
+    / "runtime"
     / "blueprintctl.py"
 )
 ASSET_ROOT = (

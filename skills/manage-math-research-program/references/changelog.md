@@ -1,5 +1,9 @@
 # Release history
 
+## 2.0.0
+
+Concise, independent research guidance; reusable experience from successful and failed routes; versioned literature and annotations; current-state continuity; exact Lean target verification and reusable local feedback. Legacy immutable evidence stays readable. See the repository 2.0 implementation report for tested scope.
+
 ## Changelog (2026-09-05, v1.8.1)
 
 - Actual BVE card replay exposed malformed legacy YAML. Preserve these cards
@@ -113,14 +117,11 @@
   重复工作、仍未避免的重复、新工具、成本评估; 用于工具晋升/退休, 不重造历史.
 - 与 workflow 轻量 reuse 协议配套 (见 workflow `references/reuse-protocol.md`).
 
-## Changelog (2026-08-14, DSH adaptation)
+## Changelog (2026-09-09, DSH 2.0 adaptation)
 
-- Added the DSH runtime notes block and moved the changelog sections into this
-  reference file; all upstream content is byte-identical otherwise (see
-  `upstream.lock.json`). This bundle is the DSH counterpart of the Codex
-  plugin `manage-math-research-program` in the math-research marketplace
-  repository (https://github.com/xsoc1/rigorous-open-math-research).
-## Changelog (2026-08-14, DSH performance adaptation)
-
-- Runtime notes extended with DSH execution patterns (background jobs,
-  subagent delegation, workflow fan-out, goal tools, prune-aware output).
+- Short runtime notes describe skill loading and bundled paths. Research
+  choices remain with the parent 2.0 guidance and the user's project.
+- Background jobs and task fan-out are optional execution tools; the layer
+  adds no prescribed research roles, stage sequence or quota procedure.
+- Sync carries root smoke/unit tests, plugin-level helpers and v2 guides.
+  Only declared layout rewrites and DSH-owned files differ from the parent.

@@ -5,56 +5,43 @@ from __future__ import annotations
 
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
 WRAPPER = ROOT / "scripts" / "dsh_run.py"
-GATE = ROOT / "skills" / "math-research-workflow" / "scripts" / "validate_pipeline.py"
-BAD = ROOT / "tests" / "fixtures" / "pipeline-bad"
 
 
 def main() -> int:
-    proc = subprocess.run(
-        [sys.executable, str(WRAPPER), str(GATE), "--project", str(BAD)],
-        capture_output=True,
-        text=True,
-    )
-    if proc.returncode == 0:
-        print("bad fixture unexpectedly passed through the wrapper")
-        return 1
-    lines = proc.stdout.splitlines()
-    if not lines or not lines[0].startswith("VERDICT: exit="):
-        print("wrapper did not print the verdict first")
-        print(proc.stdout)
-        return 1
-    if not lines[-1].startswith("VERDICT: exit="):
-        print("wrapper did not repeat the verdict last")
-        print(proc.stdout)
-        return 1
-    log_path = Path(lines[0].split("| log: ", 1)[1])
-    if not log_path.is_file():
-        print("wrapper log missing:", log_path)
-        return 1
-    if len(log_path.read_text(encoding="utf-8")) == 0:
-        print("wrapper log is empty")
-        return 1
-
-    # a passing run must exit 0 through the wrapper as well
-    good = ROOT / "tests" / "fixtures" / "pipeline-good"
-    ok = subprocess.run(
-        [sys.executable, str(WRAPPER), str(GATE), "--project", str(good)],
-        capture_output=True,
-        text=True,
-    )
-    if ok.returncode != 0:
-        print("good fixture unexpectedly failed through the wrapper")
-        print(ok.stdout)
-        return 1
-
-    print("dsh_run smoke passed")
-    return 0
+	with tempfile.TemporaryDirectory(prefix="dsh wrapper ") as Folder:
+		Target = Path(Folder) / "output fixture.py"
+		Target.write_text(
+			"import sys\nprint('begin')\nprint('x' * 20000)\n"
+			"print('FAIL: controlled child failure' if int(sys.argv[1]) else 'child completed')\n"
+			"print('stderr tail', file=sys.stderr)\nraise SystemExit(int(sys.argv[1]))\n",
+			encoding="utf-8",
+		)
+		for ExitCode in (7, 0):
+			Result = subprocess.run(
+				[sys.executable, str(WRAPPER), str(Target), str(ExitCode)],
+				capture_output=True, text=True,
+			)
+			assert Result.returncode == ExitCode, (Result.stdout, Result.stderr)
+			Lines = Result.stdout.splitlines()
+			assert Lines[0].startswith(f"VERDICT: exit={ExitCode} | log: "), Result.stdout
+			assert Lines[0] == Lines[-1], "wrapper must repeat the verdict last"
+			LogPath = Path(Lines[0].split("| log: ", 1)[1])
+			assert LogPath.parent == Target.parent, "log must stay beside the disposable fixture"
+			LogText = LogPath.read_text(encoding="utf-8")
+			assert 'x' * 20000 in LogText, "complete child output must survive report truncation"
+			assert LogText.endswith("stderr tail\n"), "stderr must survive in the full log"
+			assert len(Result.stdout) < 1500, "wrapper report must remain compact"
+			if(ExitCode):
+				assert "FAIL: controlled child failure" in Result.stdout
+	print("dsh_run smoke passed")
+	return 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+if(__name__ == "__main__"):
+	sys.exit(main())

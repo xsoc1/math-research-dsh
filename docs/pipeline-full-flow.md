@@ -1,3 +1,7 @@
+> Historical 1.x protocol reference. Its fixed phases, roles and record requirements
+> apply only when explicitly operating that legacy protocol. For ordinary 2.0
+> research use the current SKILL.md and v2 guides. Immutable old evidence is unchanged.
+
 # Pipeline full flow: from a math problem to a verified result
 
 This document describes one full run of the math-research workflow pipeline
@@ -310,7 +314,7 @@ After sealing, the interrupted segment makes no further research-model call.
 Unresolved child sessions are the first resume action; completed obligations,
 completed arms, audits, and audited-failed routes are not repeated because the
 quota reset. The detailed protocol is
-`plugins/math-research-workflow/skills/math-research-workflow/references/quota-interruption-recovery.md`.
+`skills/math-research-workflow/references/quota-interruption-recovery.md`.
 
 ## Terminal states
 

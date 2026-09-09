@@ -1,5 +1,9 @@
 # Release history
 
+## 2.0.0
+
+Concise, independent research guidance; reusable experience from successful and failed routes; versioned literature and annotations; current-state continuity; exact Lean target verification and reusable local feedback. Legacy immutable evidence stays readable. See the repository 2.0 implementation report for tested scope.
+
 ## Changelog (2026-09-05, v1.15.0)
 
 - Added compact latest-checkpoint inspection, idempotent receipt preparation,
@@ -249,16 +253,11 @@
 - 新增 `references/performance-observability.md` 与
   `assets/performance-alert.template.md`.
 
-## Changelog (2026-08-14, DSH adaptation)
+## Changelog (2026-09-09, DSH 2.0 adaptation)
 
-- DSH adaptation layer: this bundle now ships as a DeepSeek Harness skill.
-  Added the DSH runtime notes block; the Codex environment preflight
-  (`scripts/doctor.py`) is replaced by the repository-level `scripts/dsh-doctor.py`
-  (DSH skill roots, Python interpreter, Lean toolchain); Stage A step 2 and the
-  reference-file list were rewritten accordingly. Upstream content is otherwise
-  byte-identical (see `upstream.lock.json`).
-## Changelog (2026-08-14, DSH performance adaptation)
-
-- Added references/dsh-execution.md and assets/dsh-solve-audit-workflow.js
-  (parallel solve+audit per packet via the DSH workflow tool, verify stage for
-  qualified results only).
+- Short runtime notes describe skill loading and bundled paths. Research
+  choices remain with the parent 2.0 guidance and the user's project.
+- Background jobs and task fan-out are optional execution tools; the layer
+  adds no prescribed research roles, stage sequence or quota procedure.
+- Sync carries root smoke/unit tests, plugin-level helpers and v2 guides.
+  Only declared layout rewrites and DSH-owned files differ from the parent.

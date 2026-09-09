@@ -1,3 +1,7 @@
+> Historical 1.x protocol reference. Its fixed phases, roles and record requirements
+> apply only when explicitly operating that legacy protocol. For ordinary 2.0
+> research use the current SKILL.md and v2 guides. Immutable old evidence is unchanged.
+
 # Sub-agent delegation
 
 Conventions for splitting a rigorous mathematics run into parallel, well-bounded sub-agents

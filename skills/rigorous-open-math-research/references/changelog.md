@@ -1,5 +1,9 @@
 # Release history
 
+## 2.0.0
+
+Concise, independent research guidance; reusable experience from successful and failed routes; versioned literature and annotations; current-state continuity; exact Lean target verification and reusable local feedback. Legacy immutable evidence stays readable. See the repository 2.0 implementation report for tested scope.
+
 ## Changelog (2026-09-05, v1.12.0)
 
 - Aligned the minimal invocation and verifier scheduling with closure-first
@@ -145,15 +149,11 @@
 - 默认工件新增 `reuse_summary.md` (配合 workflow 轻量 reuse 协议): 记录实际
   复用、避免/仍未避免的重复工作、新方法、成本评价.
 
-## Changelog (2026-08-14, DSH adaptation)
+## Changelog (2026-09-09, DSH 2.0 adaptation)
 
-- Added the DSH runtime notes block and moved the changelog sections into this
-  reference file (keeps DSH skill loads light); all upstream workflow content
-  is byte-identical otherwise (see `upstream.lock.json`). This bundle is the
-  DSH counterpart of the Codex plugin `rigorous-open-math-research` in the
-  math-research marketplace repository
-  (https://github.com/xsoc1/rigorous-open-math-research).
-## Changelog (2026-08-14, DSH performance adaptation)
-
-- Added references/dsh-execution.md (background jobs, spawn/fork subagent
-  isolation, workflow fan-out, goal tools, prune-aware script output).
+- Short runtime notes describe skill loading and bundled paths. Research
+  choices remain with the parent 2.0 guidance and the user's project.
+- Background jobs and task fan-out are optional execution tools; the layer
+  adds no prescribed research roles, stage sequence or quota procedure.
+- Sync carries root smoke/unit tests, plugin-level helpers and v2 guides.
+  Only declared layout rewrites and DSH-owned files differ from the parent.

@@ -1,7 +1,7 @@
 {
   "name": "math-research-dsh",
-  "version": "1.15.1",
-  "description": "Rigorous open mathematics research suite for DeepSeek Harness: four agent skills (rigorous-open-math-research, manage-math-research-program, math-research-workflow, lean-verify) with CI-verified tests, mechanical upstream sync, and a DSH environment doctor.",
+  "version": "2.0.0",
+  "description": "Long-term mathematics research guidance for DeepSeek Harness: literature and annotatable tools, reusable research experience, session continuity, and optional Lean verification, synced from four parent plugins.",
   "type": "module",
   "main": "./index.mjs",
   "exports": {

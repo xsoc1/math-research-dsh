@@ -1,123 +1,141 @@
 #!/usr/bin/env python3
-"""Guard against runaway `lake build` loops and repeated mathlib4 cloning.
-
-Problem fixed: a long-running research session can get stuck repeatedly running
-`lake build` / cloning mathlib4, saturating network and CPU. This guard makes a
-build start only when the project is not already building and not repeatedly
-attempting builds within a short window.
-
-Usage (called by verify_lean_project.py before/after a build):
-  python lake_build_guard.py --project DIR --check
-  python lake_build_guard.py --project DIR --release
-
-State files (inside .lake/):
-  .lake/build_guard.lock        - created on --check, removed on --release
-  .lake/build_attempts.log      - timestamp lines for loop detection
-"""
+"""Protect concurrent builds using ownership and process identity, not attempt caps."""
 
 from __future__ import annotations
 
 import argparse
-import datetime
-import pathlib
+import json
+import os
 import sys
+import uuid
+from contextlib import contextmanager
+from pathlib import Path
 
-DEFAULT_MAX_ATTEMPTS = 5
+from lean_runtime import now_iso, process_identity
+
+DEFAULT_MAX_ATTEMPTS = 0
 DEFAULT_WINDOW_MINUTES = 10
 DEFAULT_LOCK_MINUTES = 30
 
 
-def now_iso() -> str:
-    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+@contextmanager
+def control_lock(StateDir):
+	"""Serialize stale-lock replacement and release without stale lock-file races."""
+	with (StateDir / "build_guard.control").open("a+b") as Stream:
+		if(os.name == "nt"):
+			import msvcrt
+			Stream.seek(0)
+			if(not Stream.read(1)):
+				Stream.write(b"0")
+				Stream.flush()
+			Stream.seek(0)
+			msvcrt.locking(Stream.fileno(), msvcrt.LK_LOCK, 1)
+		else:
+			import fcntl
+			fcntl.flock(Stream.fileno(), fcntl.LOCK_EX)
+		try:
+			yield
+		finally:
+			if(os.name == "nt"):
+				Stream.seek(0)
+				msvcrt.locking(Stream.fileno(), msvcrt.LK_UNLCK, 1)
+			else:
+				fcntl.flock(Stream.fileno(), fcntl.LOCK_UN)
 
 
-def recent_attempts(log_path: pathlib.Path, window: datetime.timedelta) -> int:
-    if not log_path.is_file():
-        return 0
-    cutoff = datetime.datetime.now(datetime.timezone.utc) - window
-    count = 0
-    for line in log_path.read_text(encoding="utf-8", errors="replace").splitlines():
-        try:
-            ts = datetime.datetime.fromisoformat(line.strip())
-        except ValueError:
-            continue
-        if ts >= cutoff:
-            count += 1
-    return count
+def acquire(Root, InputHash="unspecified", StateDir=None, OwnerPid=None):
+	StateDir = Path(StateDir) if StateDir else Path(Root) / ".lake"
+	StateDir.mkdir(parents=True, exist_ok=True)
+	with control_lock(StateDir):
+		return acquire_locked(Root, InputHash, StateDir, OwnerPid)
 
 
-def check(root: pathlib.Path, max_attempts: int, window_minutes: int, lock_minutes: int) -> int:
-    lake_dir = root / ".lake"
-    lake_dir.mkdir(parents=True, exist_ok=True)
-    lock = lake_dir / "build_guard.lock"
-    log = lake_dir / "build_attempts.log"
-
-    if lock.is_file():
-        try:
-            mtime = datetime.datetime.fromtimestamp(lock.stat().st_mtime, datetime.timezone.utc)
-            age = datetime.datetime.now(datetime.timezone.utc) - mtime
-            if age < datetime.timedelta(minutes=lock_minutes):
-                print(f"FAIL: build guard lock is fresh ({age.total_seconds():.0f}s old). "
-                      "A lake build may already be running or a loop is occurring. "
-                      "Remove .lake/build_guard.lock only if no build is running.")
-                return 1
-        except OSError:
-            pass
-
-    attempts = recent_attempts(log, datetime.timedelta(minutes=window_minutes))
-    if attempts >= max_attempts:
-        print(f"FAIL: {attempts} lake build attempts within the last {window_minutes} minutes "
-              f"(max {max_attempts}). Refusing to start another build. "
-              "Check for a runaway session; use `lake exe cache get` instead of repeated "
-              "cloning mathlib4, and remove .lake/build_attempts.log only after confirming "
-              "the session is stopped.")
-        return 1
-
-    # Warn about missing mathlib4 cache without failing.
-    lakefile = root / "lakefile.lean"
-    if lakefile.is_file() and "mathlib" in lakefile.read_text(encoding="utf-8", errors="replace"):
-        mathlib = lake_dir / "packages" / "mathlib4"
-        if not mathlib.is_dir():
-            print("WARN: mathlib4 package dir not found under .lake/packages. "
-                  "Prefer `lake exe cache get` (or a single `lake update`) over repeated cloning.")
-
-    lock.write_text(now_iso() + "\n", encoding="utf-8")
-    with open(log, "a", encoding="utf-8") as fh:
-        fh.write(now_iso() + "\n")
-    print("OK: build guard acquired.")
-    return 0
+def acquire_locked(Root, InputHash="unspecified", StateDir=None, OwnerPid=None):
+	StateDir = Path(StateDir) if StateDir else Path(Root) / ".lake"
+	StateDir.mkdir(parents=True, exist_ok=True)
+	Lock = StateDir / "build_guard.lock"
+	OwnerPid = OwnerPid or os.getpid()
+	Record = {"token": uuid.uuid4().hex, "owner_pid": OwnerPid, "process_identity": process_identity(OwnerPid), "input_sha256": InputHash, "started_at": now_iso()}
+	for Attempt in range(2):
+		try:
+			Descriptor = os.open(Lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+			with os.fdopen(Descriptor, "w", encoding="utf-8") as Stream:
+				json.dump(Record, Stream, indent="\t")
+				Stream.write("\n")
+			return {"status": "acquired", "lock": str(Lock), **Record}
+		except FileExistsError:
+			try:
+				Previous = json.loads(Lock.read_text(encoding="utf-8"))
+				Identity = process_identity(int(Previous["owner_pid"]))
+				if(Identity == "unknown" or Previous.get("process_identity") in (None, "unknown")):
+					return {"status": "conflict", "reason": "owner identity cannot be established", "lock": str(Lock)}
+				if(Identity is not None and Identity == Previous["process_identity"]):
+					return {"status": "conflict", "reason": "owner process is still active", "owner": Previous}
+				# Recheck the bytes before retiring a lock from a dead or reused PID.
+				if(json.loads(Lock.read_text(encoding="utf-8")) != Previous):
+					continue
+				Retired = StateDir / ("build_guard.stale." + uuid.uuid4().hex + ".json")
+				os.rename(Lock, Retired)
+			except (OSError, ValueError, KeyError, TypeError):
+				return {"status": "conflict", "reason": "unrecognized or concurrently changing lock; inspect its owner", "lock": str(Lock)}
+	return {"status": "conflict", "reason": "concurrent acquisition", "lock": str(Lock)}
 
 
-def release(root: pathlib.Path) -> int:
-    lock = root / ".lake" / "build_guard.lock"
-    if lock.is_file():
-        lock.unlink()
-        print("OK: build guard released.")
-    else:
-        print("OK: build guard already released.")
-    return 0
+def release(Root, Token=None, StateDir=None, OwnerPid=None):
+	StateDir = Path(StateDir) if StateDir else Path(Root) / ".lake"
+	if(not StateDir.is_dir()):
+		return {"status": "released", "already_absent": True}
+	with control_lock(StateDir):
+		return release_locked(Root, Token, StateDir, OwnerPid)
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--project", default=".", help="Lean project root directory")
-    ap.add_argument("--max-attempts", type=int, default=DEFAULT_MAX_ATTEMPTS)
-    ap.add_argument("--window-minutes", type=int, default=DEFAULT_WINDOW_MINUTES)
-    ap.add_argument("--lock-minutes", type=int, default=DEFAULT_LOCK_MINUTES)
-    mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument("--check", action="store_true", help="pre-build guard check")
-    mode.add_argument("--release", action="store_true", help="post-build lock release")
-    args = ap.parse_args()
-
-    root = pathlib.Path(args.project).resolve()
-    if not root.is_dir():
-        print(f"FAIL: project directory not found: {root}")
-        return 2
-
-    if args.check:
-        return check(root, args.max_attempts, args.window_minutes, args.lock_minutes)
-    return release(root)
+def release_locked(Root, Token=None, StateDir=None, OwnerPid=None):
+	StateDir = Path(StateDir) if StateDir else Path(Root) / ".lake"
+	Lock = StateDir / "build_guard.lock"
+	if(not Lock.is_file()):
+		return {"status": "released", "already_absent": True}
+	try:
+		Record = json.loads(Lock.read_text(encoding="utf-8"))
+		OwnerPid = OwnerPid or os.getpid()
+		Owned = Record.get("owner_pid") == OwnerPid and Record.get("process_identity") == process_identity(OwnerPid)
+		if((Token is not None and Token != Record.get("token")) or (Token is None and not Owned)):
+			return {"status": "conflict", "reason": "release requires the acquisition token or the same live owner"}
+		Lock.unlink()
+		return {"status": "released"}
+	except (OSError, ValueError):
+		return {"status": "conflict", "reason": "cannot establish lock ownership"}
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+def check(Root, MaxAttempts=0, WindowMinutes=10, LockMinutes=30):
+	Result = acquire(Root, OwnerPid=os.getppid())
+	print(json.dumps(Result))
+	return 0 if Result["status"] == "acquired" else 1
+
+
+def main():
+	Parser = argparse.ArgumentParser(description=__doc__)
+	Parser.add_argument("--project", default=".")
+	Parser.add_argument("--state-dir")
+	Parser.add_argument("--input-hash", default="unspecified")
+	Parser.add_argument("--token")
+	Parser.add_argument("--max-attempts", type=int, default=0, help="legacy option; attempts no longer prohibit valid iteration")
+	Parser.add_argument("--window-minutes", type=int, default=10, help="legacy compatibility option")
+	Parser.add_argument("--lock-minutes", type=int, default=30, help="legacy compatibility option; live locks never expire by age")
+	Mode = Parser.add_mutually_exclusive_group(required=True)
+	Mode.add_argument("--check", action="store_true")
+	Mode.add_argument("--release", action="store_true")
+	Arguments = Parser.parse_args()
+	Root = Path(Arguments.project).resolve()
+	if(not Root.is_dir()):
+		print(json.dumps({"status": "missing", "reason": "project directory not found"}))
+		return 2
+	if(Arguments.check):
+		Result = acquire(Root, Arguments.input_hash, Arguments.state_dir, os.getppid())
+	else:
+		Result = release(Root, Arguments.token, Arguments.state_dir, os.getppid())
+	print(json.dumps(Result, indent="\t"))
+	return 0 if Result["status"] in ("acquired", "released") else 1
+
+
+if(__name__ == "__main__"):
+	sys.exit(main())

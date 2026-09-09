@@ -50,7 +50,7 @@ def main() -> int:
         write(bad_handoff, "# Interruption handoff record\n(no fields)\n")
 
         proc = subprocess.run(
-            [sys.executable, str(SCRIPT), "--project", str(proj)],
+            [sys.executable, str(SCRIPT), "--legacy-v1", "--project", str(proj)],
             capture_output=True,
             text=True,
         )

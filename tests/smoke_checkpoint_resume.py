@@ -57,7 +57,7 @@ def run_from(cwd: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 def run_pipeline(project: Path) -> subprocess.CompletedProcess[str]:
 	return subprocess.run(
-		[sys.executable, str(PIPELINE), "--project", str(project)],
+		[sys.executable, str(PIPELINE), "--legacy-v1", "--project", str(project)],
 		capture_output=True,
 		text=True,
 	)
@@ -315,15 +315,6 @@ Verify the checkpoint, then continue O2.
 
 
 def main() -> None:
-	require_markers(
-		WORKFLOW_SKILL / "SKILL.md",
-		(
-			"checkpoint_resume.py",
-			"quota-interruption-recovery.md",
-			"minimal_read_set",
-			"checkpoint_resume.py advance",
-		),
-	)
 	require_markers(
 		WORKFLOW_SKILL / "references" / "quota-interruption-recovery.md",
 		(

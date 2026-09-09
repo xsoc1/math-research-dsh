@@ -26,7 +26,7 @@ def require(path: Path, markers: tuple[str, ...]) -> None:
 
 def validate_fixture(path: Path) -> subprocess.CompletedProcess[str]:
 	return subprocess.run(
-		[sys.executable, str(PIPELINE_VALIDATOR), "--project", str(path)],
+		[sys.executable, str(PIPELINE_VALIDATOR), "--legacy-v1", "--project", str(path)],
 		capture_output=True,
 		text=True,
 	)
@@ -104,24 +104,13 @@ def main() -> None:
 		),
 	)
 	require(
-		rigorous_skill / "SKILL.md",
-		("references/closure-first-protocol.md", "closure_gate.md"),
-	)
-	require(
 		rigorous_skill / "assets" / "subtask-packet.template.md",
 		("Decision to change", "decision_delta"),
-	)
-	require(
-		workflow_skill / "SKILL.md",
-		("Closure-first gate", "no-`decision_delta` returns", "Fast-close exit"),
 	)
 	require(
 		FULL_FLOW,
 		("completion_manifest.json", "Fast-close STOP", "frontier_upgrade.json"),
 	)
-	package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
-	if package["version"] != "1.15.1":
-		raise AssertionError("DSH package version is not 1.15.1")
 
 	good = validate_fixture(FAST_CLOSE_GOOD)
 	if good.returncode != 0:

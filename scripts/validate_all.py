@@ -51,7 +51,7 @@ RUNTIME_NOTES_MARKER = "## DSH runtime notes (DSH adaptation)"
 CHANGELOG_POINTER_MARKER = "Release history, method provenance, and source links live in"
 
 TEXT_SUFFIXES = frozenset(
-    {".md", ".json", ".yaml", ".yml", ".txt", ".tex", ".lean", ".py", ".csv", ".svg", ".mmd"}
+    {".md", ".json", ".yaml", ".yml", ".txt", ".tex", ".lean", ".py", ".csv", ".svg", ".mmd", ".js", ".mjs", ".template"}
 )
 TEMPLATE_TOKEN_RE = re.compile(r"\{\{[^{}]+\}\}")
 
@@ -128,7 +128,7 @@ class Validator:
             )
             body_lines = "\n".join(lines)
             self.check(
-                CHANGELOG_POINTER_MARKER in body_lines,
+                "references/changelog.md" in body_lines,
                 f"skill '{name}' SKILL.md points to the relocated changelog",
             )
             self.check(
@@ -274,7 +274,7 @@ class Validator:
         if not tests_dir.is_dir():
             self.bad("tests/ directory missing; cannot check README smoke parity")
             return
-        smoke_files = sorted(p.name for p in tests_dir.glob("smoke_*.py"))
+        smoke_files = sorted({p.name for Pattern in ("smoke_*.py", "test_*.py") for p in tests_dir.glob(Pattern)})
         for readme_name in ("README.md", "README_EN.md"):
             readme = self.root / readme_name
             if not readme.is_file():
@@ -284,7 +284,7 @@ class Validator:
             missing = [name for name in smoke_files if name not in text]
             self.check(
                 not missing,
-                f"{readme_name} lists every smoke test"
+                f"{readme_name} lists every root smoke and unit test"
                 + (f" (missing: {', '.join(missing)})" if missing else ""),
             )
 

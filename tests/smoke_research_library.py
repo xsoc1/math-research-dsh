@@ -91,8 +91,10 @@ class LibraryTests(unittest.TestCase):
 		Note = library.annotate(self.Root, "tools/lemma.md", Hash, "a", "correction", "line 1", "candidate only")
 		Stored = library.library_root(self.Root) / "annotations" / (Note["annotation_id"] + ".json")
 		Stored.write_text("{}", encoding="utf-8")
-		with self.assertRaises(ValueError):
-			library.query_tools(self.Root, "lemma")
+		Result = library.query_tools(self.Root, "lemma")
+		self.assertEqual(len(Result["hits"]), 1)
+		self.assertTrue(any(Item["path"] == str(Stored) for Item in Result["issues"]))
+		self.assertEqual(Result["hits"][0]["annotations"], [])
 
 	def test_legacy_retirement_and_malformed_index_preserve_records(self):
 		Index = self.Root / "index/tools.json"
