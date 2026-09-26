@@ -148,3 +148,10 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   `docs/dsh-store-issue-1185-evidence.md` 及 JSON; 自动低风险许可仍会因真实能力信号
   受阻, 不能称 STORE 已批准. 本轮未推送分支或修改真实 Profile; 后续需候选 CI
   和用户对外发布授权, 再按候选先于 main 的本仓库方法交付.
+
+- 2026-09-26 #1185 推送续接: 用户明确原话“推送”, 授权按上一轮说明推候选分支、
+  核查 CI 后推进默认分支. 候选 `8892bf0` 已先推至 origin/codex/store-issue-1185,
+  对应 Actions 36249116650. 首次新增 Profile job 在官方 DSH `plugin add` 时
+  返回 127; 真实原因是 runner 缺 `pnpm` (DSH CLI 将 plugin 管理转交 pnpm),
+  其它已完成 job 通过, Lean 当时仍运行. 现仅修 CI 预装固定 pnpm 11.22.0,
+  测试驱动增加前置检查; 保留首次失败, 在候选分支重新验证后再决定 main.

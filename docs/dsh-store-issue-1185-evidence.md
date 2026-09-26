@@ -45,6 +45,12 @@ The test driver is [test_store_disposable_profile.py](../tests/test_store_dispos
 It creates a temporary `DSH_HOME`, uses the official CLI for package changes,
 and emits no Web token in its report. The added CI job is configured to run it
 against the same fixed DSH release and retain its sanitized JSON artifact.
+The first candidate CI run (36249116650) exposed a missing runner prerequisite:
+the official DSH `plugin add` forwards to `pnpm`, which was absent from PATH
+and returned exit 127 before installing the candidate. The CI job now pins
+`pnpm@11.22.0`, the version used in the local acceptance, and the driver checks
+for the command before starting disposable Profiles. The original failed run
+remains visible; its later candidate rerun must be judged separately.
 A local replay returned
 `STORE_PROFILE_OK` with the tarball hash above.
 

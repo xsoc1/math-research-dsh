@@ -78,6 +78,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24.17.0"
+      - name: Install the pinned pnpm CLI required by DSH plugin commands
+        run: |
+          npm install --global --no-audit --no-fund pnpm@11.22.0
+          pnpm --version
       - name: Install the fixed official DSH CLI in runner temp
         run: npm install --prefix "$RUNNER_TEMP/dsh-cli" --no-audit --no-fund @deepseek-ai/dsh@0.1.7-rc.2
       - name: Pack the candidate Bundle

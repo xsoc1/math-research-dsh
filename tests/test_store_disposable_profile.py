@@ -12,6 +12,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import tempfile
@@ -109,6 +110,8 @@ def main() -> int:
 		raise RuntimeError(f"Expected one math-research-dsh tarball, found {len(Tarballs)}")
 	PackagePath = Tarballs[0]
 	PackageHash = hashlib.sha256(PackagePath.read_bytes()).hexdigest()
+	if(shutil.which("pnpm") is None):
+		raise RuntimeError("DSH plugin commands require pnpm on PATH")
 	NodeVersion = subprocess.run(["node", "--version"], capture_output=True, text=True, check=True).stdout.strip()
 	with tempfile.TemporaryDirectory(prefix="math-research-dsh-store-") as Temporary:
 		WorkDir = Path(Temporary)
