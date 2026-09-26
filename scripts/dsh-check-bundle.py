@@ -8,8 +8,8 @@ Checks that the repo root is a valid DSH bundle skill pack:
 2. cordis.patch.yml is a YAML insert array whose single entry's `id`
    equals `export const name` in index.mjs and whose `name` equals the
    package name;
-3. index.mjs imports @deepseek-ai/dsh-skill-filesystem, registers a
-   provider, and every directory in its SKILL_DIRS list exists under
+3. index.mjs uses the injected public skills service, and every directory
+   in its SkillDirs list exists under
    skills/ with a SKILL.md whose frontmatter `name` equals the directory
    name;
 4. package.json exports and files cover the entry and the patch;
@@ -100,8 +100,8 @@ def main():
     m = re.search(r"export const name = '([^']+)'", entry_src)
     entry_name = m.group(1) if m else None
     check(entry_name is not None, "index.mjs must export const name")
-    check("FileSystemSkillProvider" in entry_src, "index.mjs must import FileSystemSkillProvider")
-    check("registerProvider" in entry_src, "index.mjs must call ctx.skills.registerProvider")
+    check("ctx.skills.register(Skill)" in entry_src, "index.mjs must register bundled skills through ctx.skills.register")
+    check("from '@deepseek-ai/dsh-skill-filesystem'" not in entry_src, "index.mjs must not import the optional filesystem provider")
     if entry is not None:
         check(
             entry.get("id") == entry_name,
@@ -109,8 +109,9 @@ def main():
         )
         check(entry.get("name") == name, f"cordis.patch.yml name {entry.get('name')!r} must equal package name {name!r}")
 
-    skill_dirs = re.findall(r"'([a-z0-9-]+)'", re.search(r"SKILL_DIRS = \[(.*?)\]", entry_src, re.S).group(1)) if re.search(r"SKILL_DIRS = \[(.*?)\]", entry_src, re.S) else []
-    check(len(skill_dirs) >= 1, "index.mjs SKILL_DIRS must list at least one skill directory")
+    skill_dirs_match = re.search(r"SkillDirs = \[(.*?)\]", entry_src, re.S)
+    skill_dirs = re.findall(r"'([a-z0-9-]+)'", skill_dirs_match.group(1)) if skill_dirs_match else []
+    check(len(skill_dirs) == 4, "index.mjs SkillDirs must list the four bundled skill directories")
     for skill in skill_dirs:
         skill_md = ROOT / "skills" / skill / "SKILL.md"
         check(skill_md.is_file(), f"skills/{skill}/SKILL.md missing")

@@ -14,7 +14,7 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 - `scripts/sync-from-parent.py` -- 父仓库同步 + DSH 层重放 + upstream.lock.json
 - `scripts/validate_all.py` -- 仓库校验 (结构/MANIFEST/lock/UTF-8+LF/py_compile/JSON+YAML)
 - `scripts/dsh-doctor.py` -- DSH 环境自检 (skill 挂载/python/lake)
-- `tests/` -- fixtures + 21 个 smoke + DSH 同步与 2.0 续接 unit tests
+- `tests/` -- fixtures + 21 个 smoke + DSH 同步与 2.0 续接 unit tests + 一次性 STORE Profile 验收
 - `package.json` / `index.mjs` / `cordis.patch.yml` -- 官方 bundle 技能包 (社区一键安装)
 - `scripts/dsh-check-bundle.py` -- bundle 打包门禁 (package.json/patch/index.mjs/skills)
 - `upstream.lock.json` -- 父仓库 commit + 逐文件哈希
@@ -130,3 +130,21 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   修复仅将临时目录变量移到对应 Lean portable step.env; 运行时代码和测试内容不变.
   继续保留原生驱动 60228 / 测试 6408 和原位日志. 原始输入清单保持不变,
   对 CI 文件变化单独核对适用行为范围, 不将复制的证明 receipt 当作当前证据.
+
+- 2026-09-26 DSH STORE #1185: 用户提供 bot issue 全文, 其固定 Commit 检查将
+  `xsoc1/math-research-dsh` 2.0.0 标记为 `catalog-blocked`, 原因是缺 DSH/Node
+  显式兼容声明及运行源码的 files/network/commands 权限信号; 建议一次性 Profile
+  安装/启动/卸载证据并说明依赖和失败边界. 本轮从干净默认分支
+  `4f750265875ea1e0ba3f7abc67e26d31fd830409` 建独立候选分支, 阅读本仓库约定、
+  STORE 当前 schema/自动策略和 build-dsh-plugin 方法, 不改真实 `~/.dsh` 或 STORE.
+  首轮一次性安装虽成功且 Patch 合成, 冷启动却警告入口导入失败: 入口直接依赖未进入
+  干净 Profile 依赖闭包的官方 filesystem provider. 改用公开注入的
+  `ctx.skills.register` 注册四项固定技能, 保留正文及 resourceBase; 包版本提升 2.0.1,
+  声明 Node/DSH 范围与逐版本结果, README 双语和打包门禁同步. 源技能及父 lock 原字节不改.
+  固定 DSH 0.1.7-rc.2、Node 24.17.0 的 Linux 一次性 tarball 验收完成
+  headless/web 安装、配置、启动、卸载和恢复; Web 仅本地监听且无令牌请求返回 401,
+  独立回滚周期的配置、Profile manifest 和 lockfile 字节相等. 另有 51 项仓库校验、
+  Bundle gate 与根 unit 36 项 (2 skip). 精确范围、tarball SHA 和未测试项见
+  `docs/dsh-store-issue-1185-evidence.md` 及 JSON; 自动低风险许可仍会因真实能力信号
+  受阻, 不能称 STORE 已批准. 本轮未推送分支或修改真实 Profile; 后续需候选 CI
+  和用户对外发布授权, 再按候选先于 main 的本仓库方法交付.

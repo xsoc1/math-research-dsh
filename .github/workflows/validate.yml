@@ -67,6 +67,36 @@ jobs:
           LEAN_VERIFY_TEST_TMPDIR: ${{ runner.temp }}
         run: python -m unittest discover -s skills/lean-verify/scripts/tests -p "test_*.py" -v
 
+  store-disposable-profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24.17.0"
+      - name: Install the fixed official DSH CLI in runner temp
+        run: npm install --prefix "$RUNNER_TEMP/dsh-cli" --no-audit --no-fund @deepseek-ai/dsh@0.1.7-rc.2
+      - name: Pack the candidate Bundle
+        run: |
+          mkdir -p "$RUNNER_TEMP/store-package"
+          npm pack --silent --pack-destination "$RUNNER_TEMP/store-package"
+      - name: Install, start, uninstall and roll back disposable Profiles
+        run: |
+          python tests/test_store_disposable_profile.py \
+            --dsh-cli "$RUNNER_TEMP/dsh-cli/node_modules/@deepseek-ai/dsh/lib/bin.js" \
+            --package-dir "$RUNNER_TEMP/store-package" \
+            --report "$RUNNER_TEMP/store-profile.json"
+      - name: Retain sanitized Profile evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-disposable-profile
+          path: ${{ runner.temp }}/store-profile.json
+
   lean-runtime:
     runs-on: ubuntu-latest
     timeout-minutes: 30

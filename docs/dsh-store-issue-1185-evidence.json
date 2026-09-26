@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "checkedAt": "2026-09-26T14:28:49.292699+00:00",
+  "packageSha256": "90bc6de1e6cb0f8872343c2b2c4bf9af3fff3ae76eef0a6029076a9b2cfda67f",
+  "packageBytes": 797894,
+  "node": "v24.17.0",
+  "dsh": "0.1.7-rc.2",
+  "system": "Linux",
+  "profiles": [
+    "headless",
+    "web"
+  ],
+  "operations": {
+    "install": "passed",
+    "start": "passed",
+    "uninstall": "passed",
+    "rollback": "passed"
+  },
+  "webUnauthenticatedHttpStatus": 401,
+  "realProfile": "not-targeted",
+  "modelSkillInvocation": "not-tested"
+}

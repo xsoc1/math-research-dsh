@@ -7,7 +7,7 @@ It adapts the four [math-research parent plugins](https://github.com/xsoc1/rigor
 in one direction, supporting source reading, annotatable tools and research experience,
 session continuity, and Lean verification when useful.
 
-The current version is **2.0.0**, synchronized from published parent main commit
+The current version is **2.0.1**, synchronized from published parent main commit
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) records the complete parent commit and bundled file hashes.
 
@@ -40,9 +40,15 @@ Choose one installation method to avoid registering the same skills twice.
 dsh plugin --profile web add github:xsoc1/math-research-dsh
 ```
 
-`package.json`, `cordis.patch.yml` and `index.mjs` register packaged skill roots
-using DSH's `FileSystemSkillProvider`. Activate a new installation through the
-profile reload procedure for your DSH deployment.
+This command follows the default branch. For a reproducible manual install,
+replace it with `github:xsoc1/math-research-dsh#<full-40-character-commit>`
+after reviewing that commit. DSH STORE also checks a fixed commit.
+
+`package.json`, `cordis.patch.yml` and `index.mjs` register the four packaged
+skills through DSH's injected public `ctx.skills.register` service. Activate a
+new installation through the profile reload procedure for your DSH deployment.
+See the [DSH STORE contract](docs/dsh-store-contract.md) for declared runtime
+versions, permissions, dependencies and failure boundaries.
 
 **Local development and junction installation**:
 
@@ -112,7 +118,7 @@ template's behavior test uses Node.js.
 
 | Scope | Root test files |
 | --- | --- |
-| DSH adaptation and packaging | `test_sync_from_parent.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
+| DSH adaptation and packaging | `test_sync_from_parent.py`, `test_store_disposable_profile.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
 | 2.0 continuity | `test_research_state.py`, `smoke_recovery_status.py` |
 | Literature and observation | `smoke_research_library.py`, `smoke_performance_metrics.py`, `smoke_skill_sources.py` |
 | Blueprint and Git | `smoke_blueprint_gateway.py`, `smoke_sync_remotes.py` |
@@ -121,6 +127,10 @@ template's behavior test uses Node.js.
 | 1.x state and handoff compatibility | `smoke_handoff.py`, `smoke_checkpoint_resume.py`, `smoke_formalization.py`, `smoke_formalization_handoff.py`, `smoke_whiteboard.py` |
 
 Bundled plugin tests:
+
+`test_store_disposable_profile.py` uses a separately installed fixed DSH CLI
+and the current candidate tarball. It checks install, start, uninstall and
+rollback only in a disposable `DSH_HOME`; CI retains a report without Web tokens.
 
 - `skills/manage-math-research-program/scripts/tests/`: `test_research_experience.py`,
   `test_research_library_v2.py`, `test_library_q9_reuse.py`.
