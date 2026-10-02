@@ -6,7 +6,7 @@ It is not a DSH STORE approval or an independent security audit.
 
 ## Package and host
 
-- Package: `math-research-dsh` 2.0.1, one additive Cordis Patch entry
+- Package: `math-research-dsh` 2.0.2, one additive Cordis Patch entry
   (`math-research-dsh`) and four packaged skills.
 - Host integration: `index.mjs` reads the packaged `SKILL.md` files and registers
   them with DSH's injected public `ctx.skills.register` service. It neither
@@ -15,7 +15,9 @@ It is not a DSH STORE approval or an independent security audit.
   requirement; the second excludes Node 24 versions without `import.meta.main`
   needed by the published CLI. This is a declared runtime range, not proof that
   every matching Node release was tested.
-- DSH: `>=0.1.7-rc.2 <0.2.0` is the declared range. Exact release results in
+- DSH: `>=0.1.7-rc.2 <0.2.0 || 0.2.0-rc.1 || 0.2.0-rc.2` is the declared range.
+  The 0.2 prereleases are exact opt-ins; untested later 0.2 releases are not
+  covered. Exact release results in
   `package.json` are the evidence boundary. `unknown` means no disposable
   Profile acceptance has been completed for that release.
 - Supported installation surfaces: DSH Bundle for `web` and `headless` Profiles;
@@ -26,7 +28,9 @@ It is not a DSH STORE approval or an independent security audit.
 
 The Bundle has no npm runtime or optional dependencies and no `preinstall`,
 `install`, `postinstall`, or `prepare` script. It uses DSH's injected `skills`
-service and Node built-ins. The Python helpers inside packaged skills are
+service and Node built-ins. Distribution excludes generated Python bytecode;
+the Profile gate requires all frozen parent resources to remain in the tarball.
+The Python helpers inside packaged skills are
 invoked only when the user or agent selects the corresponding workflow. Those
 helpers require Python 3.10 or newer. Lean/Lake, Git, and optional Python
 packages are needed only for the workflows that call them; they are not
@@ -62,15 +66,28 @@ user's pre-existing credentials according to those tools' own configuration.
 
 ## Disposable Profile acceptance
 
-On Linux with Node.js 24.17.0 and DSH 0.1.7-rc.2, a disposable Profile
-installed the 2.0.1 tarball through the official CLI. Both `headless` and `web`
-Profiles composed the Patch and booted without an inactive-entry warning. The
-`web` Profile listened on `127.0.0.1` and rejected an unauthenticated request
-with HTTP 401. Official CLI removal restored each Profile's composed config;
-a separate reinstall/removal cycle restored the `headless` config, manifest and
-lockfile byte for byte. These checks support the exact `compatible` and four
-`passed` operation records for 0.1.7-rc.2 in `package.json`. The other two
-releases in the observed latest-three window remain `unknown`.
+On Linux with Node.js 24.17.0 and pnpm 11.22.0, the official DSH
+`0.1.7-rc.2`, `0.2.0-rc.1` and `0.2.0-rc.2` CLIs install the 2.0.2 tarball
+in disposable `headless` and `web` Profiles. Each composes exactly one Patch
+entry and boots without an inactive-entry warning. The `web` Profile listens
+on `127.0.0.1` and rejects an unauthenticated request with HTTP 401. Official
+CLI removal restores each composed config; a separate reinstall/removal cycle
+restores the `headless` config, manifest and lockfile byte for byte.
+
+An additional isolated Cordis context uses each installed release's actual
+Skills service and the Profile-installed tarball entry. It registers and loads
+all four exact skill bodies, verifies their resource directories and invocation
+defaults, and disposes the entry without leaving registered skills. Three
+malformed packaged-resource controls must fail import. This is separate from
+inspecting the live Web registry or an authenticated model invocation.
+
+The exact compatible/passed records in `package.json` are bounded by these
+Linux checks. Older untested releases remain `unknown`.
+[Current evidence](dsh-store-issue-1185-20261002.md) records the package hash
+and release matrix; [2.0.1 evidence](dsh-store-issue-1185-evidence.md) remains
+historical. CI pins the three independently tested releases and stores a
+separate sanitized artifact for each. The driver requires an exact
+`--expect-dsh` argument and fails on a CLI-version mismatch.
 
 The user's real DSH Profile, credentials and processes were not changed or
 verified. Skill invocation through an authenticated model session was not

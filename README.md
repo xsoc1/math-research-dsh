@@ -7,7 +7,7 @@
 单向适配为四个可独立使用的 skill, 帮助研究者阅读文献, 积累可批注的工具与经验,
 续接研究任务, 并在需要时使用 Lean 验证.
 
-当前版本为 **2.0.1**, 同步自父仓库已发布 main 提交
+当前版本为 **2.0.2**, 同步自父仓库已发布 main 提交
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) 记录完整父提交和包内文件哈希.
 
@@ -46,6 +46,9 @@ dsh plugin --profile web add github:xsoc1/math-research-dsh
 `ctx.skills.register` 服务注册包内四项技能. 新安装按 DSH 的 profile 重载方式生效.
 Node.js 与 DSH 版本声明以及权限、依赖和失败边界见
 [DSH STORE 契约说明](docs/dsh-store-contract.md).
+官方 DSH `0.1.7-rc.2`, `0.2.0-rc.1`, `0.2.0-rc.2` 的 Linux 一次性
+Profile 验收与商城仍受权限策略阻断的状态见
+[2026-10-02 复核记录](docs/dsh-store-issue-1185-20261002.md).
 
 **本地开发与 junction 安装**:
 
@@ -118,7 +121,8 @@ python scripts/dsh-check-bundle.py
 
 包内插件测试:
 
-`test_store_disposable_profile.py` 使用另行安装的固定 DSH CLI 和当前候选包,
+`test_store_disposable_profile.py` 使用 `--expect-dsh <精确版本>` 显式绑定另行安装的
+官方 DSH CLI 和当前候选包,
 仅在一次性 `DSH_HOME` 中验证安装、启动、卸载与回滚; CI 保存不含 Web 令牌的报告.
 
 - `skills/manage-math-research-program/scripts/tests/`: `test_research_experience.py`,

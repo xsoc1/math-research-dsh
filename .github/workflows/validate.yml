@@ -68,6 +68,10 @@ jobs:
         run: python -m unittest discover -s skills/lean-verify/scripts/tests -p "test_*.py" -v
 
   store-disposable-profile:
+    strategy:
+      fail-fast: false
+      matrix:
+        dsh: [0.1.7-rc.2, 0.2.0-rc.1, 0.2.0-rc.2]
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -83,7 +87,7 @@ jobs:
           npm install --global --no-audit --no-fund pnpm@11.22.0
           pnpm --version
       - name: Install the fixed official DSH CLI in runner temp
-        run: npm install --prefix "$RUNNER_TEMP/dsh-cli" --no-audit --no-fund @deepseek-ai/dsh@0.1.7-rc.2
+        run: npm install --prefix "$RUNNER_TEMP/dsh-cli" --no-audit --no-fund @deepseek-ai/dsh@${{ matrix.dsh }}
       - name: Pack the candidate Bundle
         run: |
           mkdir -p "$RUNNER_TEMP/store-package"
@@ -91,6 +95,7 @@ jobs:
       - name: Install, start, uninstall and roll back disposable Profiles
         run: |
           python tests/test_store_disposable_profile.py \
+            --expect-dsh "${{ matrix.dsh }}" \
             --dsh-cli "$RUNNER_TEMP/dsh-cli/node_modules/@deepseek-ai/dsh/lib/bin.js" \
             --package-dir "$RUNNER_TEMP/store-package" \
             --report "$RUNNER_TEMP/store-profile.json"
@@ -98,7 +103,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: store-disposable-profile
+          name: store-disposable-profile-${{ matrix.dsh }}
           path: ${{ runner.temp }}/store-profile.json
 
   lean-runtime:

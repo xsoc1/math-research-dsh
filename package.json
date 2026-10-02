@@ -1,6 +1,6 @@
 {
   "name": "math-research-dsh",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Long-term mathematics research guidance for DeepSeek Harness: literature and annotatable tools, reusable research experience, session continuity, and optional Lean verification, synced from four parent plugins.",
   "type": "module",
   "main": "./index.mjs",
@@ -13,10 +13,16 @@
     "index.mjs",
     "cordis.patch.yml",
     "skills",
+    "!skills/**/__pycache__/**",
+    "!skills/**/*.pyc",
+    "!skills/**/*.pyo",
     "README_EN.md",
     "docs/dsh-store-contract.md"
   ],
   "license": "MIT",
+  "scripts": {
+    "check": "python scripts/validate_all.py . && python scripts/dsh-check-bundle.py"
+  },
   "engines": {
     "node": "^22.19.0 || >=24.2.0"
   },
@@ -36,15 +42,18 @@
     "lean"
   ],
   "dsh": {
+    "pluginType": "suite",
     "bundle": {
       "patch": "./cordis.patch.yml"
     },
     "compatibility": {
-      "dsh": ">=0.1.7-rc.2 <0.2.0",
+      "dsh": ">=0.1.7-rc.2 <0.2.0 || 0.2.0-rc.1 || 0.2.0-rc.2",
       "dshReleases": {
         "0.1.7-alpha.2": "unknown",
         "0.1.7-rc.1": "unknown",
-        "0.1.7-rc.2": "compatible"
+        "0.1.7-rc.2": "compatible",
+        "0.2.0-rc.1": "compatible",
+        "0.2.0-rc.2": "compatible"
       },
       "dshOperations": {
         "0.1.7-alpha.2": {
@@ -60,6 +69,18 @@
           "rollback": "unknown"
         },
         "0.1.7-rc.2": {
+          "install": "passed",
+          "start": "passed",
+          "uninstall": "passed",
+          "rollback": "passed"
+        },
+        "0.2.0-rc.1": {
+          "install": "passed",
+          "start": "passed",
+          "uninstall": "passed",
+          "rollback": "passed"
+        },
+        "0.2.0-rc.2": {
           "install": "passed",
           "start": "passed",
           "uninstall": "passed",

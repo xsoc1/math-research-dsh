@@ -73,6 +73,29 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
 
 ## 会话记录
 
+- 2026-10-02 用户再次要求进入项目研究并解决 DSH STORE #1185. 先核对 issue,
+  默认分支和两处固定源状态: 2.0.1/888bcc0 已被商城读取, 缺兼容声明的理由已消除,
+  剩余 files/network/commands 是真实能力触发的自动策略. 官方 npm 最新三版已变为
+  0.1.7-rc.2, 0.2.0-rc.1, 0.2.0-rc.2. 旧驱动对新版在测试前直接拒绝, 已实际复现.
+  本轮候选分支 codex/store-1185-current-compatibility, 基线237文件哈希保存在
+  F:/tools/math-research-dsh-issue-1185-20261002/baseline.json. 方法: 不修改父技能或
+  已安装 Profile, 只在临时 DSH_HOME 验证固定官方发布版; 驱动显式绑定版本, 增加
+  真实官方 Skills registry 的正文/生命周期及损坏包负对照, CI 逐版本留证.
+  本条是实施记录, 完整验收和对外发布尚待当前测试结果. 不规避 STORE 能力门禁.
+
+- 2026-10-02 本地验收补记: 三版 official CLI 均完成一次性 headless/web 安装,
+  启动, 卸载和配置恢复, headless manifest/lock 精确回滚; 四技能官方 registry
+  读取及生命周期和每版三项损坏包负对照通过. 最终检查另发现已生成 Python
+  bytecode 被 npm 打包, 候选74缓存另记失败, 显式排除后核对140父资源全保留.
+  干净2.0.2 tarball 为357888字节, SHA256
+  2e99a4e702519bc7f3dae74287e6c34a7886449210c774946ac07274c16c4f59,
+  三版用同一精确包复验通过; 版本不符也实际拒绝. 校验51项, Bundle和原生
+  Windows根36项通过; 首次0.5秒超时测试缺partial记录, 单独及整套复验通过,
+  原测试及阈值不改. 初版包资源检查把相对skills根误认成仓库根, 修正后再测,
+  不将该驱动错误冒称宿主失败. 145项受保护源码和历史证据哈希不变. 用户新增
+  "不要用显式cmd", 后续使用PowerShell/Python/Node, 不显式调用CMD或.cmd.
+  当前仅完成本地门禁, 候选与默认分支CI交付后另记真实结果.
+
 - 完整旧记录: [AGENTS_HISTORY.md](AGENTS_HISTORY.md). 仅在查找历史决策, benchmark 或故障证据时按关键词读取相关段落.
 - 2026-09-05 用户要求: 根据既有 benchmark 优化 Codex 研究插件, 重点完善真实文献读取, agent 可注释工具库与指针表, 以及额度中断续接; 额度恢复后继续实施.
 - 本轮方法: 先做确定性 L0, 使用隔离的真实工具卡和 sequence-26 工件回放; 保留主项目原文件和数学状态. 高成本 solver A/B 留待后续匹配实验.

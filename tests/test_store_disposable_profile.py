@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Exercise one fixed DSH release with a disposable Bundle Profile on Linux.
+"""Exercise an explicitly selected DSH release in disposable Linux Profiles.
 
 The caller supplies an installed official DSH CLI and a locally packed tarball.
 No user Profile, credentials, model call, or public STORE state is touched.
@@ -15,12 +15,24 @@ import re
 import shutil
 import signal
 import subprocess
+import tarfile
 import tempfile
 import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
+
+
+def assert_clean_package(PackagePath: Path) -> None:
+	with tarfile.open(PackagePath, "r:gz") as Archive:
+		Names = Archive.getnames()
+		if(any("__pycache__" in Path(Name).parts or Name.endswith((".pyc", ".pyo")) for Name in Names)):
+			raise RuntimeError("Bundle tarball includes Python bytecode")
+		Lock = json.loads((Path(__file__).resolve().parent.parent / "upstream.lock.json").read_text(encoding="utf-8"))
+		for Relative in Lock["files"]:
+			if("package/skills/" + Relative not in Names):
+				raise RuntimeError(f"Bundle tarball omitted a frozen parent resource: {Relative}")
 
 
 def run_cli(CliPath: Path, DshHome: Path, *Arguments: str) -> str:
@@ -34,7 +46,8 @@ def run_cli(CliPath: Path, DshHome: Path, *Arguments: str) -> str:
 	)
 	if(Result.returncode != 0):
 		raise RuntimeError(f"DSH CLI failed for {Arguments[:3]}: exit {Result.returncode}")
-	if("entry did not activate" in Result.stderr or "failed to import" in Result.stderr):
+	Output = Result.stdout + Result.stderr
+	if("entry did not activate" in Output or "failed to import" in Output):
 		raise RuntimeError(f"DSH Bundle entry did not activate for {Arguments[:3]}")
 	return Result.stdout
 
@@ -103,12 +116,14 @@ def main() -> int:
 	Parser.add_argument("--dsh-cli", type=Path, required=True)
 	Parser.add_argument("--package-dir", type=Path, required=True)
 	Parser.add_argument("--report", type=Path, required=True)
+	Parser.add_argument("--expect-dsh", required=True, help="Exact official DSH release to verify")
 	Arguments = Parser.parse_args()
 	CliPath = Arguments.dsh_cli.resolve(strict=True)
 	Tarballs = list(Arguments.package_dir.resolve(strict=True).glob("math-research-dsh-*.tgz"))
 	if(len(Tarballs) != 1):
 		raise RuntimeError(f"Expected one math-research-dsh tarball, found {len(Tarballs)}")
 	PackagePath = Tarballs[0]
+	assert_clean_package(PackagePath)
 	PackageHash = hashlib.sha256(PackagePath.read_bytes()).hexdigest()
 	if(shutil.which("pnpm") is None):
 		raise RuntimeError("DSH plugin commands require pnpm on PATH")
@@ -117,8 +132,8 @@ def main() -> int:
 		WorkDir = Path(Temporary)
 		DshHome = WorkDir / "dsh-home"
 		DshVersion = run_cli(CliPath, DshHome, "--version").strip()
-		if(DshVersion != "0.1.7-rc.2"):
-			raise RuntimeError(f"This evidence targets DSH 0.1.7-rc.2, got {DshVersion}")
+		if(DshVersion != Arguments.expect_dsh):
+			raise RuntimeError(f"Expected DSH {Arguments.expect_dsh}, got {DshVersion}")
 		Baselines = {
 			"store-headless": dump_config(CliPath, DshHome, "store-headless", "headless"),
 			"store-web": dump_config(CliPath, DshHome, "store-web", "web"),
@@ -127,6 +142,13 @@ def main() -> int:
 			assert_entry(Baselines[Profile], False)
 			run_cli(CliPath, DshHome, "plugin", "--profile", Profile, "add", str(PackagePath))
 			assert_entry(dump_config(CliPath, DshHome, Profile), True)
+		RegistryResult = subprocess.run(
+			["node", str(Path(__file__).with_name("test_store_skill_registry.mjs")),
+				str(CliPath.parents[3]), str(DshHome / "profiles" / "store-headless" / "node_modules" / "math-research-dsh")],
+			capture_output=True, text=True, timeout=20, check=True,
+			env=dict(os.environ, DSH_HOME=str(DshHome)),
+		)
+		RegistryReport = json.loads(RegistryResult.stdout)
 		run_cli(CliPath, DshHome, "--profile", "store-headless", "--help")
 		run_cli(CliPath, DshHome, "--profile", "store-web", "--help")
 		HttpStatus = web_start(CliPath, DshHome, WorkDir)
@@ -158,6 +180,7 @@ def main() -> int:
 		"profiles": ["headless", "web"],
 		"operations": {"install": "passed", "start": "passed", "uninstall": "passed", "rollback": "passed"},
 		"webUnauthenticatedHttpStatus": HttpStatus,
+		"skillRegistry": RegistryReport,
 		"realProfile": "not-targeted",
 		"modelSkillInvocation": "not-tested",
 	}

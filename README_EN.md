@@ -7,7 +7,7 @@ It adapts the four [math-research parent plugins](https://github.com/xsoc1/rigor
 in one direction, supporting source reading, annotatable tools and research experience,
 session continuity, and Lean verification when useful.
 
-The current version is **2.0.1**, synchronized from published parent main commit
+The current version is **2.0.2**, synchronized from published parent main commit
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) records the complete parent commit and bundled file hashes.
 
@@ -49,6 +49,9 @@ skills through DSH's injected public `ctx.skills.register` service. Activate a
 new installation through the profile reload procedure for your DSH deployment.
 See the [DSH STORE contract](docs/dsh-store-contract.md) for declared runtime
 versions, permissions, dependencies and failure boundaries.
+Linux disposable Profile acceptance for official DSH `0.1.7-rc.2`,
+`0.2.0-rc.1` and `0.2.0-rc.2`, together with the remaining STORE permission
+policy block, is recorded in the [2026-10-02 review](docs/dsh-store-issue-1185-20261002.md).
 
 **Local development and junction installation**:
 
@@ -128,7 +131,8 @@ template's behavior test uses Node.js.
 
 Bundled plugin tests:
 
-`test_store_disposable_profile.py` uses a separately installed fixed DSH CLI
+`test_store_disposable_profile.py` explicitly binds a separately installed official
+DSH CLI with `--expect-dsh <exact-release>`
 and the current candidate tarball. It checks install, start, uninstall and
 rollback only in a disposable `DSH_HOME`; CI retains a report without Web tokens.
 

@@ -1,0 +1,169 @@
+{
+  "sourceBaseline": "888bcc0c92b6f85ada337f6a654a716c21a812c4",
+  "matrix": [
+    {
+      "schemaVersion": 1,
+      "status": "passed",
+      "checkedAt": "2026-10-02T11:13:44.613307+08:00",
+      "packageSha256": "2e99a4e702519bc7f3dae74287e6c34a7886449210c774946ac07274c16c4f59",
+      "packageBytes": 357888,
+      "node": "v24.17.0",
+      "dsh": "0.1.7-rc.2",
+      "system": "Linux",
+      "profiles": [
+        "headless",
+        "web"
+      ],
+      "operations": {
+        "install": "passed",
+        "start": "passed",
+        "uninstall": "passed",
+        "rollback": "passed"
+      },
+      "webUnauthenticatedHttpStatus": 401,
+      "skillRegistry": {
+        "status": "passed",
+        "skillNames": [
+          "lean-verify",
+          "manage-math-research-program",
+          "math-research-workflow",
+          "rigorous-open-math-research"
+        ],
+        "loaded": 4,
+        "disposal": "passed",
+        "malformedPackageControls": 3,
+        "scope": "isolated official Cordis Skills registry using the installed tarball entry"
+      },
+      "realProfile": "not-targeted",
+      "modelSkillInvocation": "not-tested"
+    },
+    {
+      "schemaVersion": 1,
+      "status": "passed",
+      "checkedAt": "2026-10-02T11:13:55.809414+08:00",
+      "packageSha256": "2e99a4e702519bc7f3dae74287e6c34a7886449210c774946ac07274c16c4f59",
+      "packageBytes": 357888,
+      "node": "v24.17.0",
+      "dsh": "0.2.0-rc.1",
+      "system": "Linux",
+      "profiles": [
+        "headless",
+        "web"
+      ],
+      "operations": {
+        "install": "passed",
+        "start": "passed",
+        "uninstall": "passed",
+        "rollback": "passed"
+      },
+      "webUnauthenticatedHttpStatus": 401,
+      "skillRegistry": {
+        "status": "passed",
+        "skillNames": [
+          "lean-verify",
+          "manage-math-research-program",
+          "math-research-workflow",
+          "rigorous-open-math-research"
+        ],
+        "loaded": 4,
+        "disposal": "passed",
+        "malformedPackageControls": 3,
+        "scope": "isolated official Cordis Skills registry using the installed tarball entry"
+      },
+      "realProfile": "not-targeted",
+      "modelSkillInvocation": "not-tested"
+    },
+    {
+      "schemaVersion": 1,
+      "status": "passed",
+      "checkedAt": "2026-10-02T11:14:06.545694+08:00",
+      "packageSha256": "2e99a4e702519bc7f3dae74287e6c34a7886449210c774946ac07274c16c4f59",
+      "packageBytes": 357888,
+      "node": "v24.17.0",
+      "dsh": "0.2.0-rc.2",
+      "system": "Linux",
+      "profiles": [
+        "headless",
+        "web"
+      ],
+      "operations": {
+        "install": "passed",
+        "start": "passed",
+        "uninstall": "passed",
+        "rollback": "passed"
+      },
+      "webUnauthenticatedHttpStatus": 401,
+      "skillRegistry": {
+        "status": "passed",
+        "skillNames": [
+          "lean-verify",
+          "manage-math-research-program",
+          "math-research-workflow",
+          "rigorous-open-math-research"
+        ],
+        "loaded": 4,
+        "disposal": "passed",
+        "malformedPackageControls": 3,
+        "scope": "isolated official Cordis Skills registry using the installed tarball entry"
+      },
+      "realProfile": "not-targeted",
+      "modelSkillInvocation": "not-tested"
+    }
+  ],
+  "date": "2026-10-02",
+  "packageSha256": "2e99a4e702519bc7f3dae74287e6c34a7886449210c774946ac07274c16c4f59",
+  "packaging": {
+    "frozenParentResources": 140,
+    "generatedPythonBytecode": 0
+  },
+  "catalogBefore": [
+    {
+      "origin": "https://dsh.store",
+      "version": "2.0.1",
+      "status": "blocked",
+      "id": "math-research-dsh",
+      "commit": "888bcc0c92b6f85ada337f6a654a716c21a812c4",
+      "reason": "Automatic policy blocked installation: runtime source contains the files permission signal; runtime source contains the network permission signal; runtime source contains the commands permission signal"
+    },
+    {
+      "origin": "https://dsh-store.cn",
+      "version": "2.0.1",
+      "status": "blocked",
+      "id": "math-research-dsh",
+      "commit": "888bcc0c92b6f85ada337f6a654a716c21a812c4",
+      "reason": "Automatic policy blocked installation: runtime source contains the files permission signal; runtime source contains the network permission signal; runtime source contains the commands permission signal"
+    }
+  ],
+  "negativeControls": {
+    "cliVersionMismatch": "passed",
+    "malformedPackagedResourcesPerRelease": 3,
+    "pythonBytecodeRejection": "passed"
+  },
+  "storeApproval": "not-granted",
+  "localChecks": {
+    "repository": 51,
+    "bundle": "passed",
+    "nativeWindowsRootTests": {
+      "skips": 0,
+      "failures": 0,
+      "ran": 36
+    },
+    "initialNativeWindowsRun": {
+      "observation": "Expected partial output was absent under a 0.5-second deadline",
+      "finalRootRecheck": "passed",
+      "sourceThresholds": "unchanged",
+      "failedTest": "test_failure_timeout_and_missing_executable",
+      "isolatedRecheck": "passed"
+    }
+  },
+  "modelSkillInvocation": "not-tested",
+  "schemaVersion": 1,
+  "realProfile": "not-targeted",
+  "packageBytes": 357888,
+  "officialReleaseWindow": [
+    "0.1.7-rc.2",
+    "0.2.0-rc.1",
+    "0.2.0-rc.2"
+  ],
+  "version": "2.0.2"
+}
