@@ -7,7 +7,7 @@ It adapts the four [math-research parent plugins](https://github.com/xsoc1/rigor
 in one direction, supporting source reading, annotatable tools and research experience,
 session continuity, and Lean verification when useful.
 
-The current version is **2.0.2**, synchronized from published parent main commit
+The current version is **2.0.3**, synchronized from published parent main commit
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) records the complete parent commit and bundled file hashes.
 
@@ -52,6 +52,9 @@ versions, permissions, dependencies and failure boundaries.
 Linux disposable Profile acceptance for official DSH `0.1.7-rc.2`,
 `0.2.0-rc.1` and `0.2.0-rc.2`, together with the remaining STORE permission
 policy block, is recorded in the [2026-10-02 review](docs/dsh-store-issue-1185-20261002.md).
+Version 2.0.3 enumerates the frozen resources as literal package paths. It keeps
+all research tools while excluding checkout-only development files and generated
+caches. See the [2026-10-04 repair and review request](docs/dsh-store-issue-1185-20261004.md).
 
 **Local development and junction installation**:
 
@@ -121,7 +124,7 @@ template's behavior test uses Node.js.
 
 | Scope | Root test files |
 | --- | --- |
-| DSH adaptation and packaging | `test_sync_from_parent.py`, `test_store_disposable_profile.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
+| DSH adaptation and packaging | `test_sync_from_parent.py`, `test_store_packaging.py`, `test_store_disposable_profile.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
 | 2.0 continuity | `test_research_state.py`, `smoke_recovery_status.py` |
 | Literature and observation | `smoke_research_library.py`, `smoke_performance_metrics.py`, `smoke_skill_sources.py` |
 | Blueprint and Git | `smoke_blueprint_gateway.py`, `smoke_sync_remotes.py` |

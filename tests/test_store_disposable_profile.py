@@ -33,6 +33,14 @@ def assert_clean_package(PackagePath: Path) -> None:
 		for Relative in Lock["files"]:
 			if("package/skills/" + Relative not in Names):
 				raise RuntimeError(f"Bundle tarball omitted a frozen parent resource: {Relative}")
+			Content = Archive.extractfile("package/skills/" + Relative).read().replace(b"\r\n", b"\n")
+			if(hashlib.sha256(Content).hexdigest() != Lock["files"][Relative]):
+				raise RuntimeError(f"Bundle tarball changed a frozen parent resource: {Relative}")
+		Package = json.load(Archive.extractfile("package/package.json"))
+		Expected = {"package/" + Name for Name in Package["files"]}
+		Expected.update({"package/package.json", "package/README.md", "package/LICENSE"})
+		if(set(Names) != Expected or len(Names) != len(Expected)):
+			raise RuntimeError("Bundle tarball differs from its exact distributable file list")
 
 
 def run_cli(CliPath: Path, DshHome: Path, *Arguments: str) -> str:

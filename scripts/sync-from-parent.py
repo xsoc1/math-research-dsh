@@ -643,6 +643,21 @@ def build_lock(skills_root: Path, upstream_commit: str) -> dict:
     return {"upstream_commit": upstream_commit, "files": files}
 
 
+def bundle_files(Lock: dict) -> list[str]:
+	LockedFiles = Lock.get("files")
+	if(not isinstance(LockedFiles, dict) or not LockedFiles):
+		raise ValueError("bundle files require a nonempty frozen resource lock")
+	Files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md"]
+	for Relative in sorted(LockedFiles):
+		if(not isinstance(Relative, str) or not Relative
+			or re.search(r"[\\:!*?\[\]{}()\x00\r\n]", Relative)
+			or any(Part in ("", ".", "..", "__pycache__") for Part in Relative.split("/"))
+			or Relative.endswith((".pyc", ".pyo"))):
+			raise ValueError(f"invalid frozen resource path: {Relative!r}")
+		Files.append("skills/" + Relative)
+	return Files
+
+
 def current_state(skills_root: Path) -> dict:
     state = {}
     for p in sorted(skills_root.rglob("*")):
@@ -668,6 +683,11 @@ def write_snapshot(Upstream: Path, Destination: Path, Commit: str) -> dict:
 	sync_docs(Upstream, Destination)
 	Lock = build_lock(Destination / "skills", Commit)
 	write_norm(Destination / "upstream.lock.json", json.dumps(Lock, indent=2, sort_keys=True) + "\n")
+	PackagePath = Destination / "package.json"
+	if(PackagePath.is_file()):
+		Package = json.loads(read_norm(PackagePath))
+		Package["files"] = bundle_files(Lock)
+		write_norm(PackagePath, json.dumps(Package, ensure_ascii=False, indent=2) + "\n")
 	return Lock
 
 
@@ -731,6 +751,9 @@ def run_check(upstream: Path) -> int:
         return 1
     lock = json.loads(lock_path.read_text(encoding="utf-8"))
     problems = []
+    package = json.loads(read_norm(REPO / "package.json"))
+    if package.get("files") != bundle_files(lock):
+        problems.append("package.json files differ from the exact frozen resource list")
     if lock.get("upstream_commit") != commit:
         problems.append(f"upstream commit moved: {lock.get('upstream_commit')} -> {commit}")
     with tempfile.TemporaryDirectory() as tmp:

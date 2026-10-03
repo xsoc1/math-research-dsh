@@ -72,8 +72,12 @@ def main():
     check(exports.get(".") == "./index.mjs", f"exports['.'] must be ./index.mjs, got {exports.get('.')!r}")
     check(exports.get("./cordis.patch.yml") == "./cordis.patch.yml", "exports['./cordis.patch.yml'] missing")
     files = pkg.get("files", [])
-    for required in ("index.mjs", "cordis.patch.yml", "skills"):
+    for required in ("index.mjs", "cordis.patch.yml"):
         check(required in files, f"files must include {required}")
+    lock = json.loads(read_text(ROOT / "upstream.lock.json"))
+    expected_files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md"]
+    expected_files.extend("skills/" + relative for relative in sorted(lock["files"]))
+    check(files == expected_files, "files must exactly enumerate the frozen resources and Bundle metadata")
 
     patch_path = ROOT / "cordis.patch.yml"
     check(patch_path.is_file(), "missing cordis.patch.yml")

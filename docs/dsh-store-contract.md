@@ -6,7 +6,7 @@ It is not a DSH STORE approval or an independent security audit.
 
 ## Package and host
 
-- Package: `math-research-dsh` 2.0.2, one additive Cordis Patch entry
+- Package: `math-research-dsh` 2.0.3, one additive Cordis Patch entry
   (`math-research-dsh`) and four packaged skills.
 - Host integration: `index.mjs` reads the packaged `SKILL.md` files and registers
   them with DSH's injected public `ctx.skills.register` service. It neither
@@ -15,7 +15,7 @@ It is not a DSH STORE approval or an independent security audit.
   requirement; the second excludes Node 24 versions without `import.meta.main`
   needed by the published CLI. This is a declared runtime range, not proof that
   every matching Node release was tested.
-- DSH: `>=0.1.7-rc.2 <0.2.0 || 0.2.0-rc.1 || 0.2.0-rc.2` is the declared range.
+- DSH: `>=0.1.7-rc.2 <0.2.0 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.1` is the declared range.
   The 0.2 prereleases are exact opt-ins; untested later 0.2 releases are not
   covered. Exact release results in
   `package.json` are the evidence boundary. `unknown` means no disposable
@@ -29,7 +29,12 @@ It is not a DSH STORE approval or an independent security audit.
 The Bundle has no npm runtime or optional dependencies and no `preinstall`,
 `install`, `postinstall`, or `prepare` script. It uses DSH's injected `skills`
 service and Node built-ins. Distribution excludes generated Python bytecode;
-the Profile gate requires all frozen parent resources to remain in the tarball.
+the Profile gate requires all frozen parent resources and their locked hashes
+to remain in the tarball. Version 2.0.3 declares only literal file paths generated
+from `upstream.lock.json`; synchronization and Bundle checks keep that list current.
+This removes ambiguous negative selectors that cause STORE's conservative scanner
+to include checkout-only maintenance code. Executable research helpers remain
+explicitly distributed and visible to source review.
 The Python helpers inside packaged skills are
 invoked only when the user or agent selects the corresponding workflow. Those
 helpers require Python 3.10 or newer. Lean/Lake, Git, and optional Python
@@ -64,7 +69,7 @@ user's pre-existing credentials according to those tools' own configuration.
 - The repository's historical 2.0 tests and Lean evidence belong to the frozen
   parent source and do not establish DSH 0.1.7 runtime compatibility.
 
-## Disposable Profile acceptance
+## Historical disposable Profile acceptance
 
 On Linux with Node.js 24.17.0 and pnpm 11.22.0, the official DSH
 `0.1.7-rc.2`, `0.2.0-rc.1` and `0.2.0-rc.2` CLIs install the 2.0.2 tarball
@@ -83,11 +88,18 @@ inspecting the live Web registry or an authenticated model invocation.
 
 The exact compatible/passed records in `package.json` are bounded by these
 Linux checks. Older untested releases remain `unknown`.
-[Current evidence](dsh-store-issue-1185-20261002.md) records the package hash
+[2.0.2 evidence](dsh-store-issue-1185-20261002.md) records the historical package hash
 and release matrix; [2.0.1 evidence](dsh-store-issue-1185-evidence.md) remains
-historical. CI pins the three independently tested releases and stores a
+historical. The 2.0.2 CI matrix pinned those three releases and retained a
 separate sanitized artifact for each. The driver requires an exact
 `--expect-dsh` argument and fails on a CLI-version mismatch.
+
+For 2.0.3, the release gate checks the same three releases and adds
+`0.2.1-alpha.1`. Each check uses the actual candidate archive, verifies the
+complete distributable member set and all frozen hashes, and repeats installation,
+startup, official Skills registration, uninstall and exact rollback. Results and
+the guarded STORE review request are recorded in
+[the 2026-10-04 repair record](dsh-store-issue-1185-20261004.md).
 
 The user's real DSH Profile, credentials and processes were not changed or
 verified. Skill invocation through an authenticated model session was not

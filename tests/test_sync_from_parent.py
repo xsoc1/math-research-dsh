@@ -158,6 +158,14 @@ class SyncControls(unittest.TestCase):
 		Gateway = subprocess.run([sys.executable, str(Bundle / "runtime/blueprintctl.py")], capture_output=True, text=True)
 		self.assertEqual((Gateway.returncode, Gateway.stdout.strip()), (0, "True"))
 
+	def test_preview_refreshes_packaging_without_changing_checkout(self):
+		Before = tree_hashes(self.Dsh)
+		Lock = self.preview()
+		Package = json.loads((self.Preview / "package.json").read_text())
+		self.assertEqual(Package["files"], SYNC.bundle_files(Lock))
+		self.assertIn("skills/lean-verify/scripts/LeanVerifyProbe.lean.template", Package["files"])
+		self.assertEqual(tree_hashes(self.Dsh), Before)
+
 	def test_rewritten_root_tests_run_and_legacy_selector_is_preserved(self):
 		self.preview()
 		Result = subprocess.run([sys.executable, str(self.Preview / "tests/test_research_state.py")], capture_output=True, text=True)
