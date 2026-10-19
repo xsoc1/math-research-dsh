@@ -1,0 +1,519 @@
+{
+  "schemaVersion": 1,
+  "packageVersion": "2.0.4",
+  "reviewBasis": "https://github.com/AI-Scarlett/DSH-Store/issues/1185#issuecomment-6213277159",
+  "resourceBaselineCommit": "ab5d04d27bb68196e1aa6ff74d787c17248b5935",
+  "reviewScope": "Author explanations and content correspondence for all six distributed Lean/template, checksum, placeholder and Mermaid resources named by the 2026-10-16 STORE reply. No STORE acceptance or independent security verdict is asserted.",
+  "resources": [
+    {
+      "path": "skills/lean-verify/assets/lean-scaffold.template.lean",
+      "purpose": "供新结果或部分结果使用的 Lean 声明骨架, 含来源、状态、开放义务和两个 sorry 占位证明.",
+      "activation": "用户或 agent 选用 scaffold 工作流后手工复制和替换占位符. 分发代码没有直接按此模板名读取它的调用; 技能正文公开 scripts/ 与 assets/ 资源入口.",
+      "execution": "原文件含 <Namespace> 等占位符, 不能直接作为完成的证明. 填写后可由用户的 Lean 环境编译; import Mathlib 会加载选定工程的模块.",
+      "file_access": "模板自身没有文件读写命令; 复制、编辑和编译产生的源码与编译输出由调用方工作流管理.",
+      "external_calls": "模板没有网络或子进程 API. 用户选择的 Lean/Lake 和导入模块属于另行执行的工程代码; 依赖获取由该环境决定.",
+      "failure_boundary": "保留两个 sorry 和未填占位符的明确警示. 本资源不提供已验证结论; 机器检查、陈述比对和独立审查仍需各自完成.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/lean-verify/skills/lean-verify/assets/lean-scaffold.template.lean",
+        "gitBlobSha1": "7cc8cbe40866831f43efacba7aa36c72bf27b682"
+      },
+      "references": [
+        {
+          "path": "skills/lean-verify/SKILL.md",
+          "anchor": "Plugin-level Lean helpers, templates and tests"
+        },
+        {
+          "path": "skills/lean-verify/references/changelog.md",
+          "anchor": "Scaffold mode"
+        }
+      ],
+      "identity": {
+        "bytes": 773,
+        "sha256": "04cce22417b10ea4084ff01ca31de7a5001f06b89f6e03bce210e6a9db45e824",
+        "lfSha256": "04cce22417b10ea4084ff01ca31de7a5001f06b89f6e03bce210e6a9db45e824",
+        "gitBlobSha1": "7cc8cbe40866831f43efacba7aa36c72bf27b682"
+      },
+      "lockKey": "lean-verify/assets/lean-scaffold.template.lean",
+      "lockSha256": "04cce22417b10ea4084ff01ca31de7a5001f06b89f6e03bce210e6a9db45e824"
+    },
+    {
+      "path": "skills/lean-verify/scripts/LeanVerifyProbe.lean.template",
+      "purpose": "Lean 元程序探针: 读取实际声明、完整类型、传递公理、定义依赖、语义依赖和导入模块信息, 可比较预期类型.",
+      "activation": "verify_lean_project.py 的 extract_target 在用户请求目标验证时读取模板, expandtabs(2) 后写为临时 LeanVerifyProbe.lean, 编译后由 InspectRoot.lean 导入并调用 #lean_verify_v2.",
+      "execution": "这是延迟执行的 Lean 元程序, 不是纯说明文档. 它导入 Lean, 遍历所选 Lean Environment 并执行命令 elaborator; 宿主加载四项技能时不编译它.",
+      "file_access": "findOLean 解析已加载模块的 olean 路径; 最后一条命令以 IO.FS.writeFile 写调用方指定的 JSON 输出. 当前 Python caller 将输出设为 WorkDir/declaration.json, 并记录生成源码和编译工件身份.",
+      "external_calls": "模板本身没有网络请求或子进程启动 API. Python caller 启动外部 Lean; 用户工程、Lake 配置、导入模块及预期类型源码是可执行代码, 不由该模板提供沙箱或独立信任保证.",
+      "failure_boundary": "声明缺失、预期声明缺失、类型不匹配或编译失败由命令和验证器处理. lean_evidence.py 重查生成源码等于模板 expandtabs(2), 该对应检查不等于数学语义批准.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/lean-verify/scripts/LeanVerifyProbe.lean.template",
+        "gitBlobSha1": "afac988f9ddced8e096aa4fae725f0dabb9ccae3"
+      },
+      "references": [
+        {
+          "path": "skills/lean-verify/scripts/verify_lean_project.py",
+          "anchor": "def extract_target("
+        },
+        {
+          "path": "skills/lean-verify/scripts/verify_lean_project.py",
+          "anchor": "Output = WorkDir / \"declaration.json\""
+        },
+        {
+          "path": "skills/lean-verify/scripts/lean_evidence.py",
+          "anchor": "probe source does not match verifier"
+        }
+      ],
+      "identity": {
+        "bytes": 8366,
+        "sha256": "4299cc51119b911992511b2ce05e114dfdcbe5d698b4639838585e74c62a7a7f",
+        "lfSha256": "4299cc51119b911992511b2ce05e114dfdcbe5d698b4639838585e74c62a7a7f",
+        "gitBlobSha1": "afac988f9ddced8e096aa4fae725f0dabb9ccae3"
+      },
+      "lockKey": "lean-verify/scripts/LeanVerifyProbe.lean.template",
+      "lockSha256": "4299cc51119b911992511b2ce05e114dfdcbe5d698b4639838585e74c62a7a7f"
+    },
+    {
+      "path": "skills/manage-math-research-program/MANIFEST.sha256",
+      "purpose": "manage bundle 内每个其他普通资源的 SHA-256 清单, 使用 LF 规范化字节. manifestMembers 逐项展开完整映射, 不包含清单自身.",
+      "activation": "同步器 regen_manifest 显式生成; validate_all.py 与资源审查门禁显式读取和比对. Bundle 入口不读取或执行此清单.",
+      "execution": "纯文本数据, 格式为 64 位十六进制摘要、两个空格、./相对路径. 不作为 shell 脚本、命令列表或可执行白名单.",
+      "file_access": "校验程序读取各目标资源并计算摘要; 清单本身不读写文件. 新门禁要求成员完整、无重复、路径留在根内且与 upstream.lock.json 对应.",
+      "external_calls": "摘要核对只用本地文件和 Python 标准库; 无网络、子进程或软件安装.",
+      "failure_boundary": "缺文件、摘要不符、重复成员、成员缺漏或路径逃逸时拒绝. 摘要相符只证明内容对应, 不证明被列源码安全或数学正确.",
+      "provenance": {
+        "kind": "dsh-generated",
+        "generator": "scripts/sync-from-parent.py:regen_manifest",
+        "reason": "在父插件按 DSH 布局映射并适配正文之后生成, 不将该派生清单冒称父仓库的原始文件. 根 upstream.lock.json 另绑定清单自身."
+      },
+      "references": [
+        {
+          "path": "scripts/sync-from-parent.py",
+          "anchor": "def regen_manifest("
+        },
+        {
+          "path": "scripts/validate_all.py",
+          "anchor": "def check_manifest("
+        }
+      ],
+      "identity": {
+        "bytes": 7029,
+        "sha256": "509feb9f289a087c6d9df636fd2b41ab9a97331f9c89a69dd8f40710fff11b9b",
+        "lfSha256": "509feb9f289a087c6d9df636fd2b41ab9a97331f9c89a69dd8f40710fff11b9b",
+        "gitBlobSha1": "4610214dd2c3a625695bf8eda801ff51c0caf96c"
+      },
+      "lockKey": "manage-math-research-program/MANIFEST.sha256",
+      "lockSha256": "509feb9f289a087c6d9df636fd2b41ab9a97331f9c89a69dd8f40710fff11b9b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep",
+      "purpose": "保留 Blueprint seed 的 backups/ 目录. 内容仅一个 LF 字节, 不是备份数据或凭据.",
+      "activation": "init_project.py 显式创建新研究项目时, 由 knowledge_seed.rglob 遍历并 copy2 到选定项目的 knowledge/backups/.gitkeep.",
+      "execution": "无执行内容, 无脚本或导入机制.",
+      "file_access": "初始化器创建目标父目录并复制这个占位文件. 它不自行读取或收集实际备份; 之后的 Blueprint 操作沿原 runtime gateway 另行执行.",
+      "external_calls": "占位内容与该复制操作没有网络或子进程调用.",
+      "failure_boundary": "目标文件系统复制失败按初始化器异常处理. 占位文件存在不证明已有备份或可以还原项目.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep",
+        "gitBlobSha1": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "knowledge_seed.rglob(\"*\")"
+        },
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "shutil.copy2(source, target)"
+        }
+      ],
+      "identity": {
+        "bytes": 1,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "lfSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "gitBlobSha1": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+      },
+      "lockKey": "manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep",
+      "lockSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/dependency_graph.mmd",
+      "purpose": "Blueprint 数学依赖角色的静态 Mermaid 示意图, 含假设、定义、推理、候选、目标与反例之间的七条示意边. 不是 seed blueprint.json 的真实图: 该 JSON 的 nodes/edges 均为空.",
+      "activation": "init_project.py 复制 seed 时复制此文件. 仅用户另行选择支持 Mermaid 的阅读器时渲染; 当前包的 Python PNG renderer 读取 blueprint.json 而非此 mmd.",
+      "execution": "当前内容为 flowchart TD 和带文本标签的边, 没有 init 指令、click 回调、URL 或嵌入脚本. 它不注册 DSH 组件.",
+      "file_access": "初始化时仅复制. 包内 PNG renderer 的 JSON 读取及 PNG 输出由单独命令触发, 不依赖此示意图.",
+      "external_calls": "图内没有外部地址或外部调用. 用户选用的第三方 Mermaid 渲染器有自己的依赖与权限, 不由此文件启动.",
+      "failure_boundary": "图用于解释关系角色; 其内容不更新 canonical, 不证明图中示例声明已接受或已证. renderer 的真实输出应从当前 blueprint.json 生成.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/blueprint-accepted-knowledge/dependency_graph.mmd",
+        "gitBlobSha1": "2bc1803a0b40421a1ce124a0b6df76cc06ca8ed7"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "shutil.copy2(source, target)"
+        },
+        {
+          "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/blueprint.json",
+          "anchor": "\"nodes\": []"
+        },
+        {
+          "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/blueprint.json",
+          "anchor": "\"edges\": []"
+        },
+        {
+          "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/render_dependency_graph.py",
+          "anchor": "image.save(args.output, format=\"PNG\", optimize=True)"
+        }
+      ],
+      "identity": {
+        "bytes": 409,
+        "sha256": "97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5",
+        "lfSha256": "97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5",
+        "gitBlobSha1": "2bc1803a0b40421a1ce124a0b6df76cc06ca8ed7"
+      },
+      "lockKey": "manage-math-research-program/assets/blueprint-accepted-knowledge/dependency_graph.mmd",
+      "lockSha256": "97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
+      "purpose": "保留 Blueprint seed 的 submissions/ 目录. 内容仅一个 LF 字节, 不是已接收提案或批准回执.",
+      "activation": "init_project.py 显式初始化时, copy2 到选定项目的 knowledge/submissions/.gitkeep.",
+      "execution": "无执行内容, 不创建或接受研究提案.",
+      "file_access": "初始化器创建目标父目录并复制占位字节. 实际提交和接收由原 runtime gateway 另行触发, 不由占位文件触发.",
+      "external_calls": "占位内容与该复制操作没有网络或子进程调用.",
+      "failure_boundary": "复制受目标文件系统权限约束. 目录存在不表示任何提案通过审查或 canonical 接收.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
+        "gitBlobSha1": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "knowledge_seed.rglob(\"*\")"
+        },
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "shutil.copy2(source, target)"
+        }
+      ],
+      "identity": {
+        "bytes": 1,
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "lfSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "gitBlobSha1": "8b137891791fe96927ad78e64b0aad7bded08bdc"
+      },
+      "lockKey": "manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
+      "lockSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": "index.mjs",
+      "sha256": "1bda8014414ee2a5e14f421826f3ab3b36ff4b72411a3be9ecc12b46d5adc092"
+    },
+    {
+      "path": "scripts/sync-from-parent.py",
+      "sha256": "4856d604be360d2ccd9701e266ff3b49f543868ac1cb7055fa56f6a63352b57b"
+    },
+    {
+      "path": "scripts/validate_all.py",
+      "sha256": "43e16416a755828089f44c1a8b3ca1b58de96f76f4d13d104f2223a3f814104b"
+    },
+    {
+      "path": "skills/lean-verify/SKILL.md",
+      "sha256": "e1a15eb9ab046dc758469afcfe83b22fa59621155270d5b1b92d247dd8f4286b"
+    },
+    {
+      "path": "skills/lean-verify/references/changelog.md",
+      "sha256": "9a0c3da02a34cecf57080ddc7fc8a6e95e327d304fac6c3e9d289ffce534a74c"
+    },
+    {
+      "path": "skills/lean-verify/scripts/lean_evidence.py",
+      "sha256": "acfc329ae136d491293020dc0b1001f27b2b43200466962c07c83d960e991be1"
+    },
+    {
+      "path": "skills/lean-verify/scripts/verify_lean_project.py",
+      "sha256": "ccbdb79a8264a103006768636a5bb8a501c4bc4420eab0c783f08fbe5212592d"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/blueprint.json",
+      "sha256": "7e847c9d4f537c5147b7ba3c9783c1fe56db211e4eae32c9df74a542c77d543f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/render_dependency_graph.py",
+      "sha256": "9983c914070939addc9debf04126a2f1a673fef156be433afb5207dc77373be9"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/init_project.py",
+      "sha256": "30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0"
+    }
+  ],
+  "upstreamCommit": "72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803",
+  "upstreamLockSha256": "8f1ed8209d33c4b5aede2237a71820bf9a861810ca8b1a2e6ce5a9314b05db70",
+  "manifestMembers": [
+    {
+      "path": "skills/manage-math-research-program/SKILL.md",
+      "sha256": "ac93dd1aaf66e19d2f44fa5f3558a5a02fbba861b4b113166dc19dcb2def75e0"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/.blueprint/config.json",
+      "sha256": "43e2070061e65de94256394adb4614881abeb75f4799fe0f92c23f9e24407163"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/README.md",
+      "sha256": "49a69cfb446e00c37e42c06c5f91534b4c66573b3abf1d499c2a3709be48f49b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/backups/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/blueprint.json",
+      "sha256": "7e847c9d4f537c5147b7ba3c9783c1fe56db211e4eae32c9df74a542c77d543f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/dependency_graph.mmd",
+      "sha256": "97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/evidence_inventory.csv",
+      "sha256": "0422657e3a35ff5a7a2ef761fc6bb6270852d81b9a091027d4ce549fe3d46c51"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/blueprint_common.py",
+      "sha256": "efc24e7b4539d6741e11a013d5cd05b0a78d289e2f60511174b1fa8cb2ad3951"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/blueprint_query.py",
+      "sha256": "ab589285883cda13169acb32dc5ac31cc9669d890240823c5257822bb16b2acc"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/math_blueprint.py",
+      "sha256": "5568c638cd8d39a036efa3f2fbf814a3bc86bf68f64f1d0f08346e46eb3c9701"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/receive_blueprint.py",
+      "sha256": "3793ca7a1d7beeceec11de1d32919430f85e79324e2f46612df0ae15e7b9d15e"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/render_dependency_graph.py",
+      "sha256": "9983c914070939addc9debf04126a2f1a673fef156be433afb5207dc77373be9"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/serve_blueprint_viewer.py",
+      "sha256": "d78b9d40eab044bd31b056aee6fd21b5278c10a27e561380f2c4c7b841a37cd7"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/validate_blueprint.py",
+      "sha256": "609cf17bbc61df20491feadc32b444096f44b7c81e18f4d743752b6d155ca84f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/viewer/README.md",
+      "sha256": "6cd95340c9747bfd7d3dca8c4a4f605ee09483def6d7bc708c9b22aef3034347"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.css",
+      "sha256": "624f39ec99afdfc82310b318efbba2ee202c542f05f19473989bf7688030251b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/viewer/blueprint-viewer.js",
+      "sha256": "b161b01080121752d134615e1019737f8c9869febdb8efcd0164783b41cba053"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/viewer/index.html",
+      "sha256": "12479ab9acb62823c88384be649264786aa76549a949e12514a384982c514784"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/budget-state.template.json",
+      "sha256": "043cd99027fbf71f546ed064ef1aec8f667b26357924f89dd24c1dbee1adac08"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/checkpoint.template.md",
+      "sha256": "061550879a99328810ffe69b09ac220e1750359cb8eee58af27926c17bbf3e5b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/current-state.template.json",
+      "sha256": "f44bae2d84b2b1e4285cc8d52df0a626b73d877c85bfb6ec480acffbea40f52d"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/open-problem-record.template.json",
+      "sha256": "e19927c1197312b5934db790e8fc31692ad0b66016c5afb2485701666c65b48b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/paper-analysis.template.tex",
+      "sha256": "57bffae79c40a071cbfc6f837ac4ae81cc51f3207384d1684e923955d555673f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/paper-record.template.json",
+      "sha256": "332c1abf9be8fbad21fcb15890b2454f48c85792e4cab678fd50a44e4cd153e7"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/project-overview.template.md",
+      "sha256": "c4ab17440117a26115d6fa91b3bbc5effde85651b9ab4695ca2e900236d976e7"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/project.template.json",
+      "sha256": "5803efec74de8c2f974bed2b69dd920790cf2089830db9558f7be2d2bcec439f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/proof-paper.template.tex",
+      "sha256": "3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/proof-submission-audit.template.md",
+      "sha256": "83e5c1163bdc831b127389a952eee5e8abc009b2e867d2add48df74ce8a98e87"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/research-map.template.md",
+      "sha256": "20d94794d2353740d19458ea85383508364b252b5dba15eed29a24a05edc4c3c"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/run-manifest.template.json",
+      "sha256": "d17d8da2c5b06a8ec963bc4a7ee6ab815054a1fff684cdc6770d320bea6b5c20"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/search-log.template.md",
+      "sha256": "3a25a6f23c95823e5e8503f70a31d391ed7277a38b5afaec36cedfa058746b47"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/stage-summary.template.md",
+      "sha256": "c8a0081f72b8b8a5ee9532a649a3a0f789a6d39a2e8c9e583d0b69d8ef729eca"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/task-packet.template.md",
+      "sha256": "b16e7e7ff23ace165de9d2584ee1255616df9bdc7a177575686c3b42189ad63f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/tool-entry.template.md",
+      "sha256": "7303882f8b9aa160c23efd32939fa9661e2127adfe9393412bec3ce96ea3fcca"
+    },
+    {
+      "path": "skills/manage-math-research-program/examples/01-literature-only.md",
+      "sha256": "f18e9c21941d5cdada041ef1dc7acf6e7b82d869ddbf842e465ca7896eedd5ab"
+    },
+    {
+      "path": "skills/manage-math-research-program/examples/02-delegated-open-problem.md",
+      "sha256": "44fa0e7823155c3279ea04712630eee7e4bc4073d6e9e98940b4d00e166dfc7a"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/accepted-knowledge-pipeline.md",
+      "sha256": "aadfa8cef6866a6a2d94e68ad54d72fd9881cbf7d67137f675d41afaa96154a4"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/blueprint-runtime-gateway.md",
+      "sha256": "286784084fb374e219f529e7bb8d0c6ac298ab7d679eeaa972cc9800bb7f1378"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/boundary-checklist.md",
+      "sha256": "54fe75dcfeccc47c2d42716a660f42c5512b9261b9df86de67a69fd5b08ce027"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/changelog.md",
+      "sha256": "4d2a2bf2cb0b97105a968b0ac125fb6af87b748bef71cbb04e99f4b321367169"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/delegation-and-ingestion.md",
+      "sha256": "e677b4bac672f77eb41f885835fa763b3c50308a2f13923e881e76e421872c1e"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/dsh-execution.md",
+      "sha256": "511d92a11587d24f3c69398fb005b807d87f99451a5f8e123c84a868ed0181dc"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/dsh-optional-capabilities.md",
+      "sha256": "0b3f5b9174fb903216c177fc4f853ab02e5bb915ab7d2859613a94ba6fc9270f"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/git-sync.md",
+      "sha256": "6546f9f45d72c72ad61d96284bc1356c457b0490f36281095bad4440c6e72c9c"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/library-runtime.md",
+      "sha256": "1b070b73c0120d311a4efe859437b41da47dc1d41f70ad649a031ea7121b1f0d"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/literature-and-paper-analysis.md",
+      "sha256": "82a7969794f813d20db6ce2e130090916e7ba56cf07e5efe0414c280808ca20d"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/project-repository-spec.md",
+      "sha256": "731e3550341232c0517787b0469f7f9cfc7d611da020840d128166386da28a7f"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/state-checkpoints-and-reports.md",
+      "sha256": "9f61c120ca69f4c30b719bc1be84b2447a46b636e1eec6b2b9fd1535a8d00051"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/tool-library-spec.md",
+      "sha256": "e4a035f57e40083d366dbf9f80bff98076a04aac426f63a7d9c9bf4c3477eb96"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/v2-library-implementation-notes.md",
+      "sha256": "70e16831de32d134e90ca4f74039631b9e10909cac944f733b7cb66de0e1d741"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/v2-library.md",
+      "sha256": "f05eeee583556460ec222a836124d85502d760963206e1345214a5cc7ff39e85"
+    },
+    {
+      "path": "skills/manage-math-research-program/runtime/blueprintctl.py",
+      "sha256": "dc5b680dff646e45504a2f7d2974374ef46bd6e141e9c27e71314a8a8ea79156"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/index_lean_lemmas.py",
+      "sha256": "cb6adad864a8ec0552245b410cc0bdb65cd8e41eeecea0682607b3c999386580"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/init_project.py",
+      "sha256": "30d731525e163ebce39d22885c09238dbd2a33fc1116ece452d06a23b1eb6cc0"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/manage_tool_lifecycle.py",
+      "sha256": "172149cff5a378b3b4c1059a039ba9992a3fd0f1ba08ff8585154464cc2aa2e3"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/research_experience.py",
+      "sha256": "47001d9b809c7892e692a75ea0efb8d4659059106515c9bcdcef1e03410a2764"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/research_library.py",
+      "sha256": "45342a9b6000e68ad5fbd4f1795a06c151769c61053e7e9461b03d3357585a35"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/scaffold_result.py",
+      "sha256": "2593671168e55cdd6de51604d625a11db443ab623640c5de6eb28c7ce2f335b7"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/sync_remotes.py",
+      "sha256": "5857af3dc0863a24be4973a8bf86a649e18c022adbfb0a1e6240336fde786324"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/tests/test_library_q9_reuse.py",
+      "sha256": "5babb0b13d569599f5b0290a382d687b681310b8e22e1edd629b05cbf21e5b69"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/tests/test_research_experience.py",
+      "sha256": "0183a24a916ffd97825f33cb832e2fb6b77fa29c16bb279904845cab2dfd34c4"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/tests/test_research_library_v2.py",
+      "sha256": "c365801e8b2fc300476a3b920cffc2fd32ed6c3a35ce2347f1ca52e109b82edf"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/update_research_map.py",
+      "sha256": "5c53d3acdfc30634507ba214555075a38f96997ff4368954ce1762438191acc4"
+    },
+    {
+      "path": "skills/manage-math-research-program/scripts/validate_project.py",
+      "sha256": "545f0ef4b7bb1a97f0673f0b382a41e4058e5001a547d91861f67163a6ee7940"
+    }
+  ]
+}

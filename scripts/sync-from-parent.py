@@ -647,7 +647,8 @@ def bundle_files(Lock: dict) -> list[str]:
 	LockedFiles = Lock.get("files")
 	if(not isinstance(LockedFiles, dict) or not LockedFiles):
 		raise ValueError("bundle files require a nonempty frozen resource lock")
-	Files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md"]
+	Files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md",
+		"upstream.lock.json", "docs/dsh-store-resource-review.json", "docs/dsh-store-resource-review.md"]
 	for Relative in sorted(LockedFiles):
 		if(not isinstance(Relative, str) or not Relative
 			or re.search(r"[\\:!*?\[\]{}()\x00\r\n]", Relative)

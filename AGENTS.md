@@ -206,3 +206,27 @@ lean-verify) 以 DSH skill 形式发布, 附带脚本/模板/冒烟测试与同�
   内容篡改, 额外文件与重复成员, 新门禁另复查最终包通过. Windows根40项
   通过时尚未新增该归档用例, 不冒称它在那次已执行; 后续CI使用最终驱动.
   原入口, 140技能和父lock及历史报告均不变, 默认分支发布仍待候选CI.
+
+- 2026-10-19 用户给出 #1185 链接并要求"依据回复继续修复". 实读维护方
+  comment-6213277159: 2.0.3/ab5d04d 预检通过, 要求六项 Lean 模板、manifest、
+  两份 Blueprint .gitkeep 和 Mermaid 的逐项作用、完整性及执行/外部调用边界.
+  本轮在干净 ab5d04d 上建 codex/store-1185-resource-review, 原242文件摘要存
+  F:/tools/math-research-dsh-issue-1185-20261019/baseline.json. 逐项读原内容和
+  实际消费者; 五项直接复制资源与锁定父提交的Git blob核对, manifest明确为DSH
+  生成. .gitkeep为一个LF, mmd为示意图而seed graph为空; probe会在用户选择验证后
+  经外部Lean执行并写declaration.json, 原scaffold仍含占位符/sorry.
+  2.0.4新增随包中英文入口、中文逐项说明、JSON身份/全部manifest成员对应和原lock;
+  新门禁检测遗漏/重复、资源或消费者漂移、清单对应及tarball成员内容. 源技能/lock/
+  入口和原报告保持基线字节. 验收只称作者材料对应, 不改写STORE incomplete或
+  授予安全批准. 沿用同issue已授权的候选CI先于main发布; 不重复发送旧issue评论.
+  命令: python scripts/dsh-resource-review.py [--archive <tgz>], 默认只校验;
+  源码语义重读后才用--refresh重绑摘要. 本地与CI/发布实际结果及剩余准入状态统一
+  写外部F:/tools/math-research-dsh-issue-1185-20261019/DELIVERY.json, 不能从此条
+  预先推断通过或发布. 后续编辑相关调用源码必须重新核对此资源说明.
+
+  本地实际结果: 新资源行为6项、原打包4项和同步10项先分别通过, 最终Windows
+  根47项全部通过; 结构51项、Bundle和资源gate通过, JSON展开65项manifest成员.
+  npm归档150项逐字节对应源码, 全140父资源保留. 首次生成元数据时Windows默认
+  写出CRLF, 在结构验收前已改显式LF并重新生成; 不把格式警告记作宿主运行失败.
+  四版一次性Profile和完整发布CI由候选/默认分支真实执行并记录到上述DELIVERY,
+  本地说明门禁不冒称新Profile运行或STORE验收.

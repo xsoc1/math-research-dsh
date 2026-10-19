@@ -25,6 +25,8 @@ jobs:
         run: python scripts/validate_all.py .
       - name: Bundle packaging check
         run: python scripts/dsh-check-bundle.py
+      - name: Author resource inventory correspondence
+        run: python scripts/dsh-resource-review.py
       - name: Smoke tests
         run: |
           for SmokePath in tests/smoke_*.py; do
@@ -52,6 +54,8 @@ jobs:
         run: python tests/test_sync_from_parent.py -v
       - name: Test exact Bundle packaging and unsafe lock paths
         run: python tests/test_store_packaging.py -v
+      - name: Test resource review drift and coverage rejection
+        run: python tests/test_store_resource_review.py -v
       - name: Test durable 2.0 continuity
         run: python tests/test_research_state.py -v
       - name: Test source reading and annotation integrity
@@ -96,6 +100,7 @@ jobs:
           npm pack --silent --pack-destination "$RUNNER_TEMP/store-package"
       - name: Install, start, uninstall and roll back disposable Profiles
         run: |
+          python scripts/dsh-resource-review.py --archive "$RUNNER_TEMP/store-package/"*.tgz
           python tests/test_store_disposable_profile.py \
             --expect-dsh "${{ matrix.dsh }}" \
             --dsh-cli "$RUNNER_TEMP/dsh-cli/node_modules/@deepseek-ai/dsh/lib/bin.js" \

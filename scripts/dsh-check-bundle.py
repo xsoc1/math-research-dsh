@@ -75,7 +75,8 @@ def main():
     for required in ("index.mjs", "cordis.patch.yml"):
         check(required in files, f"files must include {required}")
     lock = json.loads(read_text(ROOT / "upstream.lock.json"))
-    expected_files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md"]
+    expected_files = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md",
+                      "upstream.lock.json", "docs/dsh-store-resource-review.json", "docs/dsh-store-resource-review.md"]
     expected_files.extend("skills/" + relative for relative in sorted(lock["files"]))
     check(files == expected_files, "files must exactly enumerate the frozen resources and Bundle metadata")
 

@@ -1,6 +1,6 @@
 {
   "name": "math-research-dsh",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Long-term mathematics research guidance for DeepSeek Harness: literature and annotatable tools, reusable research experience, session continuity, and optional Lean verification, synced from four parent plugins.",
   "type": "module",
   "main": "./index.mjs",
@@ -14,6 +14,9 @@
     "cordis.patch.yml",
     "README_EN.md",
     "docs/dsh-store-contract.md",
+    "upstream.lock.json",
+    "docs/dsh-store-resource-review.json",
+    "docs/dsh-store-resource-review.md",
     "skills/lean-verify/SKILL.md",
     "skills/lean-verify/assets/lean-audit-report.template.md",
     "skills/lean-verify/assets/lean-obligation.template.md",

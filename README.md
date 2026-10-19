@@ -7,7 +7,7 @@
 单向适配为四个可独立使用的 skill, 帮助研究者阅读文献, 积累可批注的工具与经验,
 续接研究任务, 并在需要时使用 Lean 验证.
 
-当前版本为 **2.0.3**, 同步自父仓库已发布 main 提交
+当前版本为 **2.0.4**, 同步自父仓库已发布 main 提交
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) 记录完整父提交和包内文件哈希.
 
@@ -52,6 +52,9 @@ Profile 验收与商城仍受权限策略阻断的状态见
 2.0.3 使用由父资源 lock 生成的逐文件分发清单, 保留全部研究工具并排除 checkout
 开发文件和生成缓存. 本轮修复和受审上架请求见
 [2026-10-04 修复记录](docs/dsh-store-issue-1185-20261004.md).
+2.0.4 依据维护方的新回复, 随包提供六项非标准扫描资源的
+[逐项用途、完整性和执行边界](docs/dsh-store-resource-review.md),
+以及可校验的 JSON 清单. 审查材料保留原资源和全部研究功能.
 
 **本地开发与 junction 安装**:
 
@@ -91,6 +94,7 @@ python scripts/sync-from-parent.py --upstream <clean-parent-clone> --expect-comm
 python scripts/sync-from-parent.py --upstream <clean-parent-clone> --expect-commit <full-parent-commit> --check
 python scripts/validate_all.py .
 python scripts/dsh-check-bundle.py
+python scripts/dsh-resource-review.py
 ```
 
 工作中的父源码可用 `--preview <new-external-directory>` 在外部目录试算, 正式目录不变.
@@ -114,7 +118,7 @@ python scripts/dsh-check-bundle.py
 
 | 范围 | 根测试文件 |
 | --- | --- |
-| DSH 适配与打包 | `test_sync_from_parent.py`, `test_store_packaging.py`, `test_store_disposable_profile.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
+| DSH 适配与打包 | `test_sync_from_parent.py`, `test_store_packaging.py`, `test_store_resource_review.py`, `test_store_disposable_profile.py`, `smoke_doctor.py`, `smoke_dsh_run.py`, `smoke_context_audit.py`, `smoke_version_bump.py` |
 | 2.0 续接 | `test_research_state.py`, `smoke_recovery_status.py` |
 | 文献与观测 | `smoke_research_library.py`, `smoke_performance_metrics.py`, `smoke_skill_sources.py` |
 | Blueprint 与 Git | `smoke_blueprint_gateway.py`, `smoke_sync_remotes.py` |

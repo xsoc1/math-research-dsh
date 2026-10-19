@@ -23,7 +23,8 @@ class StorePackaging(unittest.TestCase):
 	def test_manifest_uses_exact_locked_resources(self):
 		Package = json.loads((ROOT / "package.json").read_text(encoding="utf-8"))
 		Lock = json.loads((ROOT / "upstream.lock.json").read_text(encoding="utf-8"))
-		Expected = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md"]
+		Expected = ["index.mjs", "cordis.patch.yml", "README_EN.md", "docs/dsh-store-contract.md",
+			"upstream.lock.json", "docs/dsh-store-resource-review.json", "docs/dsh-store-resource-review.md"]
 		Expected.extend("skills/" + Name for Name in sorted(Lock["files"]))
 		self.assertEqual(Package["files"], Expected, "Ambiguous selectors force STORE to scan checkout-only tools and tests")
 		for Name in Package["files"]:
