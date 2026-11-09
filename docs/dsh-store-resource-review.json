@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "packageVersion": "2.0.4",
+  "packageVersion": "2.0.5",
   "reviewBasis": "https://github.com/AI-Scarlett/DSH-Store/issues/1185#issuecomment-6213277159",
   "resourceBaselineCommit": "ab5d04d27bb68196e1aa6ff74d787c17248b5935",
-  "reviewScope": "Author explanations and content correspondence for all six distributed Lean/template, checksum, placeholder and Mermaid resources named by the 2026-10-16 STORE reply. No STORE acceptance or independent security verdict is asserted.",
+  "reviewScope": "Author explanations and content correspondence for the 2026-10-16 reply and the additional CSV and TeX assets found by replaying the current Store scanner. Store scan coverage and admission are separate decisions.",
   "resources": [
     {
       "path": "skills/lean-verify/assets/lean-scaffold.template.lean",
@@ -178,6 +178,42 @@
       "lockSha256": "97b925fa4629a13bc689809dbf75ee8efdd93fb5b80cb539d8fec6a0cadb8ca5"
     },
     {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/evidence_inventory.csv",
+      "purpose": "Blueprint 接收证据索引的 seed. 文件只有 11 列表头, 没有记录或公式.",
+      "activation": "用户显式初始化项目时, init_project.py 将 seed 复制到所选项目的 knowledge/ 下. 其后查询或校验才读取项目中的副本.",
+      "execution": "作为 CSV 数据解析, 不作为脚本或公式求值. 查询以 csv.DictReader 读取内容, 并与固定 Blueprint 图成对读取.",
+      "file_access": "初始化只复制该 seed 到项目. Blueprint 查询和校验读取项目的证据索引; 后续 canonical 写入是独立 receiver 的行为.",
+      "external_calls": "复制与 CSV 解析不调用外部进程或服务, 不按 CSV 内容下载文件.",
+      "failure_boundary": "只有表头时无证据记录. 无法解码或没有表头的索引不作已接受证据; 列名和图/证据对应另由验证器检查.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/blueprint-accepted-knowledge/evidence_inventory.csv",
+        "gitBlobSha1": "3150c98b09313a39f6acd4aead09dca8ec678a43"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "knowledge_seed.rglob(\"*\")"
+        },
+        {
+          "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/blueprint_query.py",
+          "anchor": "def load_inventory_bytes("
+        },
+        {
+          "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/validate_blueprint.py",
+          "anchor": "csv.DictReader(handle)"
+        }
+      ],
+      "identity": {
+        "bytes": 126,
+        "sha256": "0422657e3a35ff5a7a2ef761fc6bb6270852d81b9a091027d4ce549fe3d46c51",
+        "lfSha256": "0422657e3a35ff5a7a2ef761fc6bb6270852d81b9a091027d4ce549fe3d46c51",
+        "gitBlobSha1": "3150c98b09313a39f6acd4aead09dca8ec678a43"
+      },
+      "lockKey": "manage-math-research-program/assets/blueprint-accepted-knowledge/evidence_inventory.csv",
+      "lockSha256": "0422657e3a35ff5a7a2ef761fc6bb6270852d81b9a091027d4ce549fe3d46c51"
+    },
+    {
       "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
       "purpose": "保留 Blueprint seed 的 submissions/ 目录. 内容仅一个 LF 字节, 不是已接收提案或批准回执.",
       "activation": "init_project.py 显式初始化时, copy2 到选定项目的 knowledge/submissions/.gitkeep.",
@@ -208,6 +244,66 @@
       },
       "lockKey": "manage-math-research-program/assets/blueprint-accepted-knowledge/submissions/.gitkeep",
       "lockSha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/paper-analysis.template.tex",
+      "purpose": "逐版本文献分析的 LaTeX 骨架, 组织来源、定理及假设、证明结构、局限和可复用工具. 留有占位内容.",
+      "activation": "文献分析指南要求按需取用; 没有自动复制或编译这一文件的 Bundle 入口. 用户或 agent 完成稿件后可选择编译.",
+      "execution": "原件只有常规 LaTeX 文档、宏、表格及包声明, 无显式 shell escape 或外部文献读取指令. TeX 编译由另选的工具链执行.",
+      "file_access": "模板自身不指定用户文件路径. 编译会读取所选工具链的类、包等资源, 并在项目输出位置生成 PDF 与辅助文件.",
+      "external_calls": "不内置外部命令、下载步骤、服务端点或凭据; 选用的 TeX 环境、包和填充的稿件有各自的行为边界.",
+      "failure_boundary": "未替换的占位符不能当作完成的文献分析. 缺 TeX 类或包只影响显式编译, 不影响 Bundle 加载.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/paper-analysis.template.tex",
+        "gitBlobSha1": "408e1eb41c34f53cc6275cfe8d503dfc3d0dc74d"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/references/literature-and-paper-analysis.md",
+          "anchor": "Use `assets/paper-analysis.template.tex`"
+        }
+      ],
+      "identity": {
+        "bytes": 2993,
+        "sha256": "57bffae79c40a071cbfc6f837ac4ae81cc51f3207384d1684e923955d555673f",
+        "lfSha256": "57bffae79c40a071cbfc6f837ac4ae81cc51f3207384d1684e923955d555673f",
+        "gitBlobSha1": "408e1eb41c34f53cc6275cfe8d503dfc3d0dc74d"
+      },
+      "lockKey": "manage-math-research-program/assets/paper-analysis.template.tex",
+      "lockSha256": "57bffae79c40a071cbfc6f837ac4ae81cc51f3207384d1684e923955d555673f"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/proof-paper.template.tex",
+      "purpose": "Lean 验证后的人类可读证明稿骨架, 包含形式化合同、定理与证明、证据等级及参考文献占位符.",
+      "activation": "显式证明交付工作流中手工选用. 初始化器只生成 papers/ 入口说明, 不自动复制此模板或运行 XeLaTeX.",
+      "execution": "作为 LaTeX 输入选用; 原件没有显式 shell escape、外部文献读取或 BibTeX 调用, thebibliography 和示例链接均在文档中.",
+      "file_access": "编译工具按用户环境读取类和包并写出本地 PDF/辅助文件. 源中的 Lean 路径和审查链接是排版占位符, 不用于加载证明源码.",
+      "external_calls": "文件开头的 XeLaTeX 是用法注释, 不是子进程调用; 示例超链接不在编译时下载文献.",
+      "failure_boundary": "模板中的 lake build: passed 与零 sorry/axiom 是待填写的示例, 不产生或替代 Lean 回执. 缺 TeX 依赖只影响显式编译.",
+      "provenance": {
+        "kind": "parent-copy",
+        "path": "plugins/manage-math-research-program/skills/manage-math-research-program/assets/proof-paper.template.tex",
+        "gitBlobSha1": "ba24d44262401c67440f66a2b2098bad7b175910"
+      },
+      "references": [
+        {
+          "path": "skills/manage-math-research-program/references/changelog.md",
+          "anchor": "assets/proof-paper.template.tex"
+        },
+        {
+          "path": "skills/manage-math-research-program/scripts/init_project.py",
+          "anchor": "workflow 8c:"
+        }
+      ],
+      "identity": {
+        "bytes": 3366,
+        "sha256": "3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d",
+        "lfSha256": "3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d",
+        "gitBlobSha1": "ba24d44262401c67440f66a2b2098bad7b175910"
+      },
+      "lockKey": "manage-math-research-program/assets/proof-paper.template.tex",
+      "lockSha256": "3aa539029d6e696250524e51bc9726ceedd784f074b82b604d28204240d8767d"
     }
   ],
   "sourceBindings": [
@@ -244,8 +340,24 @@
       "sha256": "7e847c9d4f537c5147b7ba3c9783c1fe56db211e4eae32c9df74a542c77d543f"
     },
     {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/blueprint_query.py",
+      "sha256": "ab589285883cda13169acb32dc5ac31cc9669d890240823c5257822bb16b2acc"
+    },
+    {
       "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/render_dependency_graph.py",
       "sha256": "9983c914070939addc9debf04126a2f1a673fef156be433afb5207dc77373be9"
+    },
+    {
+      "path": "skills/manage-math-research-program/assets/blueprint-accepted-knowledge/tools/validate_blueprint.py",
+      "sha256": "609cf17bbc61df20491feadc32b444096f44b7c81e18f4d743752b6d155ca84f"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/changelog.md",
+      "sha256": "4d2a2bf2cb0b97105a968b0ac125fb6af87b748bef71cbb04e99f4b321367169"
+    },
+    {
+      "path": "skills/manage-math-research-program/references/literature-and-paper-analysis.md",
+      "sha256": "82a7969794f813d20db6ce2e130090916e7ba56cf07e5efe0414c280808ca20d"
     },
     {
       "path": "skills/manage-math-research-program/scripts/init_project.py",

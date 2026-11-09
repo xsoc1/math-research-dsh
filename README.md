@@ -7,7 +7,7 @@
 单向适配为四个可独立使用的 skill, 帮助研究者阅读文献, 积累可批注的工具与经验,
 续接研究任务, 并在需要时使用 Lean 验证.
 
-当前版本为 **2.0.4**, 同步自父仓库已发布 main 提交
+当前版本为 **2.0.5**, 同步自父仓库已发布 main 提交
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) 记录完整父提交和包内文件哈希.
 
@@ -52,9 +52,10 @@ Profile 验收与商城仍受权限策略阻断的状态见
 2.0.3 使用由父资源 lock 生成的逐文件分发清单, 保留全部研究工具并排除 checkout
 开发文件和生成缓存. 本轮修复和受审上架请求见
 [2026-10-04 修复记录](docs/dsh-store-issue-1185-20261004.md).
-2.0.4 依据维护方的新回复, 随包提供六项非标准扫描资源的
-[逐项用途、完整性和执行边界](docs/dsh-store-resource-review.md),
-以及可校验的 JSON 清单. 审查材料保留原资源和全部研究功能.
+2.0.5 补齐 DSH STORE #1185 的[逐项审查材料](docs/dsh-store-resource-review.md):
+按商城当前扫描器重放, 将此前摘要未完整显示的 CSV 与两份 TeX 模板纳入 JSON 清单和漂移校验.
+清单覆盖重放发现的八个未扫描文件, 并保留此前已说明的 Mermaid 资源.
+原研究资源和运行能力保持不变; 受审准入由商城复核.
 
 **本地开发与 junction 安装**:
 

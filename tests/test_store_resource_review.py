@@ -38,7 +38,13 @@ class ResourceReview(unittest.TestCase):
 
 	def test_current_inventory_covers_every_requested_resource(self):
 		Result = REVIEW.validate_review(self.Root)
-		self.assertEqual(Result["resources"], 6)
+		self.assertEqual(Result["resources"], 9)
+		Inventory = REVIEW.read_json(self.Root / REVIEW.REVIEW_PATH)
+		Paths = {Item["path"] for Item in Inventory["resources"]}
+		Prefix = "skills/manage-math-research-program/assets/"
+		for Name in ("blueprint-accepted-knowledge/evidence_inventory.csv",
+			"paper-analysis.template.tex", "proof-paper.template.tex"):
+			self.assertIn(Prefix + Name, Paths)
 		self.assertEqual(Result["lockedResources"], 140)
 		self.assertGreater(Result["manifestMembers"], 0)
 
@@ -77,14 +83,16 @@ class ResourceReview(unittest.TestCase):
 				REVIEW.safe_file(self.Root, Name)
 
 	def test_new_matching_resource_requires_a_review_record(self):
-		Lock = REVIEW.read_json(self.Root / "upstream.lock.json")
-		Lock["files"]["lean-verify/assets/new.lean"] = "a" * 64
-		(self.Root / "upstream.lock.json").write_text(json.dumps(Lock), encoding="utf-8")
+		OriginalLock = REVIEW.read_json(self.Root / "upstream.lock.json")
 		Inventory = REVIEW.read_json(self.Root / REVIEW.REVIEW_PATH)
-		Inventory["upstreamLockSha256"] = REVIEW.file_identity(self.Root, "upstream.lock.json")["sha256"]
-		self.write_inventory(Inventory)
-		with self.assertRaisesRegex(ValueError, "coverage mismatch"):
-			REVIEW.validate_review(self.Root)
+		for Suffix in (".lean", ".csv", ".tex"):
+			with self.subTest(suffix=Suffix):
+				Lock = {**OriginalLock, "files": {**OriginalLock["files"], f"lean-verify/assets/new{Suffix}": "a" * 64}}
+				(self.Root / "upstream.lock.json").write_text(json.dumps(Lock), encoding="utf-8")
+				Inventory["upstreamLockSha256"] = REVIEW.file_identity(self.Root, "upstream.lock.json")["sha256"]
+				self.write_inventory(Inventory)
+				with self.assertRaisesRegex(ValueError, "coverage mismatch"):
+					REVIEW.validate_review(self.Root)
 
 	def test_archive_cannot_substitute_a_reviewed_resource(self):
 		Package = REVIEW.read_json(self.Root / "package.json")

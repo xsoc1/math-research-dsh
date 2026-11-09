@@ -61,7 +61,7 @@ def file_identity(Root: Path, Relative: str) -> dict:
 
 def review_paths(Lock: dict) -> list[str]:
 	return sorted("skills/" + Name for Name in Lock["files"]
-		if Name.endswith((".lean", ".template", ".sha256", ".gitkeep", ".mmd", ".mermaid")))
+		if Name.endswith((".lean", ".template", ".sha256", ".gitkeep", ".mmd", ".mermaid", ".csv", ".tex")))
 
 
 def manifest_members(Root: Path, Lock: dict) -> list[dict]:

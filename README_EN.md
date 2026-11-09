@@ -7,7 +7,7 @@ It adapts the four [math-research parent plugins](https://github.com/xsoc1/rigor
 in one direction, supporting source reading, annotatable tools and research experience,
 session continuity, and Lean verification when useful.
 
-The current version is **2.0.4**, synchronized from published parent main commit
+The current version is **2.0.5**, synchronized from published parent main commit
 [`72a1cc17`](https://github.com/xsoc1/rigorous-open-math-research/commit/72a1cc17ce98f3d3fd3b001d7b25d442ba2d3803).
 [upstream.lock.json](upstream.lock.json) records the complete parent commit and bundled file hashes.
 
@@ -55,10 +55,12 @@ policy block, is recorded in the [2026-10-02 review](docs/dsh-store-issue-1185-2
 Version 2.0.3 enumerates the frozen resources as literal package paths. It keeps
 all research tools while excluding checkout-only development files and generated
 caches. See the [2026-10-04 repair and review request](docs/dsh-store-issue-1185-20261004.md).
-Version 2.0.4 responds to the maintainer's follow-up with a packaged
-[per-resource purpose, integrity and execution-boundary review](docs/dsh-store-resource-review.md)
-and a verifiable JSON inventory for all six nonstandard scan resources.
-The original resources and research functionality remain available.
+Version 2.0.5 completes the [per-resource review for DSH STORE #1185](docs/dsh-store-resource-review.md).
+A replay against the current Store scanner found a CSV and two TeX templates
+that the status summary did not fully expose. The checked JSON inventory now
+covers all eight unscanned files and retains the previously documented Mermaid
+diagram. The research resources and runtime capabilities are unchanged;
+guarded admission remains a Store decision.
 
 **Local development and junction installation**:
 

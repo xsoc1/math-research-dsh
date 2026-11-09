@@ -1,6 +1,6 @@
 {
   "name": "math-research-dsh",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "Long-term mathematics research guidance for DeepSeek Harness: literature and annotatable tools, reusable research experience, session continuity, and optional Lean verification, synced from four parent plugins.",
   "type": "module",
   "main": "./index.mjs",

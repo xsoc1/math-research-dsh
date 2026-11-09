@@ -6,7 +6,7 @@ It is not a DSH STORE approval or an independent security audit.
 
 ## Package and host
 
-- Package: `math-research-dsh` 2.0.4, one additive Cordis Patch entry
+- Package: `math-research-dsh` 2.0.5, one additive Cordis Patch entry
   (`math-research-dsh`) and four packaged skills.
 - Host integration: `index.mjs` reads the packaged `SKILL.md` files and registers
   them with DSH's injected public `ctx.skills.register` service. It neither
@@ -27,12 +27,12 @@ It is not a DSH STORE approval or an independent security audit.
 ## Dependencies and permissions
 
 The [resource review](dsh-store-resource-review.md) and its
-[JSON inventory](dsh-store-resource-review.json) address the maintainer's
-2026-10-16 request for all six Lean/template, checksum, Blueprint placeholder
-and Mermaid resources. The packaged root resource lock, raw and LF hashes,
-parent Git blobs, complete manage manifest mapping, and consumer source hashes
-make their content correspondence inspectable. This author inventory does not
-change STORE's own coverage or review verdict.
+[JSON inventory](dsh-store-resource-review.json) cover the six resources from
+the 2026-10-16 reply and the CSV and two TeX templates found in a replay of the
+current scanner. The root resource lock, file hashes, parent Git blobs, complete
+manage manifest mapping and consumer source hashes make the correspondence
+inspectable. The current Store gate still requires complete scan coverage before
+a capability review can grant guarded admission.
 
 The Bundle has no npm runtime or optional dependencies and no `preinstall`,
 `install`, `postinstall`, or `prepare` script. It uses DSH's injected `skills`
